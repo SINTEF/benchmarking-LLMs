@@ -1,0 +1,23 @@
+{
+  "name": "cp",
+  "description": "Companies test split with Wikidata ground truth.",
+  "source_table": "data/Company/companies_test.csv",
+  "source_gt": "data/Company/el_companies_gt_wikidata.csv",
+  "table_path": "data/cp/table.csv",
+  "gt_path": "data/cp/gt.csv",
+  "mention_columns": ["company"],
+  "target_kg": "wikidata",
+  "seed": 13,
+  "table_columns": [
+    "company",
+    "Founded Year",
+    "Website",
+    "X (Twitter)",
+    "Employees",
+    "Coordinates",
+    "Founded By",
+    "Industry",
+    "Country",
+    "Headquarters"
+  ]
+}

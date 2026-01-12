@@ -1,0 +1,1001 @@
+key,row,col,mention,target_kg,gt_id
+0-0,0,0,WeoGeo,wikidata,Q7983092
+1-0,1,0,Indiana Public Retirement System,wikidata,Q16847362
+2-0,2,0,Cury Construtora,wikidata,Q30932549
+3-0,3,0,Madlyn Cazalis,wikidata,Q28404980
+4-0,4,0,The Bryan Times,wikidata,Q7720445
+5-0,5,0,West Cornwall Pasty Company,wikidata,Q7774268
+6-0,6,0,Stark,wikidata,Q18689180
+7-0,7,0,Real Estate Funding Solutions,wikidata,Q119426019
+8-0,8,0,Intellinet,wikidata,Q6044180
+9-0,9,0,Litres,wikidata,Q4263534
+10-0,10,0,Alector (United States),wikidata,Q61934361
+11-0,11,0,GMHBA Limited,wikidata,Q5513765
+12-0,12,0,Garuda Maintenance Facility Aero Asia,wikidata,Q96100264
+13-0,13,0,Dunea,wikidata,Q2623164
+14-0,14,0,MOJ,wikidata,Q11764997
+15-0,15,0,W&Wsens Inc.,wikidata,Q106473904
+16-0,16,0,BioMarin (United Kingdom),wikidata,Q30268784
+17-0,17,0,Rigoni di Asiago,wikidata,Q3935761
+18-0,18,0,Cold Rock Ice Creamery,wikidata,Q2982390
+19-0,19,0,ThinkTank Learning,wikidata,Q16956374
+20-0,20,0,Vamoose Bus,wikidata,Q7912931
+21-0,21,0,Inamorata,wikidata,Q48965929
+22-0,22,0,Shizugin TM Securities,wikidata,Q11663674
+23-0,23,0,Shun Tak Holdings,wikidata,Q4049426
+24-0,24,0,Verizon Networkfleet,wikidata,Q18636334
+25-0,25,0,Coporación Aceros Arequipa,wikidata,Q5788880
+26-0,26,0,Siteimprove,wikidata,Q28127172
+27-0,27,0,TechSolve (United States),wikidata,Q43895614
+28-0,28,0,Mascan,wikidata,Q118592121
+29-0,29,0,NetCam Systems,wikidata,Q11325426
+30-0,30,0,Rupert and Buckley,wikidata,Q17020209
+31-0,31,0,Norfolk and Suffolk NHS Foundation Trust,wikidata,Q17016587
+32-0,32,0,Salumi,wikidata,Q7406293
+33-0,33,0,Maine Maritime Academy,wikidata,Q5978689
+34-0,34,0,Sogesca,wikidata,Q30291766
+35-0,35,0,White Citadel,wikidata,Q122790477
+36-0,36,0,Watauga Democrat,wikidata,Q7973029
+37-0,37,0,Crust,wikidata,Q100792715
+38-0,38,0,FiberSensing (Portugal),wikidata,Q30295168
+39-0,39,0,Kvadrat,wikidata,Q6449572
+40-0,40,0,Friesland Foods,wikidata,Q1332311
+41-0,41,0,Wallington County Grammar School,wikidata,Q7963111
+42-0,42,0,American Institute of Physics,wikidata,Q465230
+43-0,43,0,JBG Smith,wikidata,Q17109683
+44-0,44,0,Triangle Studios,wikidata,Q2106613
+45-0,45,0,Digital Media Academy,wikidata,Q5275917
+46-0,46,0,Barry's Tea,wikidata,Q4863942
+47-0,47,0,Designit (Norway),wikidata,Q30299698
+48-0,48,0,ToyChamp,wikidata,Q64797057
+49-0,49,0,Zen Bio,wikidata,Q28600096
+50-0,50,0,Oregon-Canadian Forest Products,wikidata,Q17183967
+51-0,51,0,Antonelle,wikidata,Q105082567
+52-0,52,0,Three UK,wikidata,Q19840922
+53-0,53,0,Zweckverband Abfallwirtschaft Region Trier,wikidata,Q82980882
+54-0,54,0,Hokuetsu Bank,wikidata,Q11404111
+55-0,55,0,Mercy Health,wikidata,Q5053169
+56-0,56,0,Monteco (Canada),wikidata,Q30282838
+57-0,57,0,Discovery Semiconductors (United States),wikidata,Q30297878
+58-0,58,0,VR Bank Bad Orb-Gelnhausen,wikidata,Q30300069
+59-0,59,0,The Daily Gazette,wikidata,Q7728652
+60-0,60,0,Boss Fight Books,wikidata,Q17152213
+61-0,61,0,DFCU Financial,wikidata,Q5204901
+62-0,62,0,i-drive,wikidata,Q5967730
+63-0,63,0,University of Lahore,wikidata,Q3694742
+64-0,64,0,Auto Research Center,wikidata,Q25245504
+65-0,65,0,Covisint,wikidata,Q5179371
+66-0,66,0,Media Expert,wikidata,Q11776794
+67-0,67,0,Holochip (United States),wikidata,Q30298012
+68-0,68,0,Rollits LLP,wikidata,Q7361278
+69-0,69,0,Holt Renfrew,wikidata,Q3139527
+70-0,70,0,Gotham Greens,wikidata,Q96418491
+71-0,71,0,La Rose Noire,wikidata,Q6464979
+72-0,72,0,Tosei,wikidata,Q11322360
+73-0,73,0,Lionical,wikidata,Q108538391
+74-0,74,0,The Irish Times,wikidata,Q1134208
+75-0,75,0,The Daily Star,wikidata,Q494370
+76-0,76,0,Oliver Bonas,wikidata,Q65045195
+77-0,77,0,An-Najah National University,wikidata,Q2096138
+78-0,78,0,Yoolink,wikidata,Q3572554
+79-0,79,0,Seagram Company Ltd.,wikidata,Q1969696
+80-0,80,0,Pluto Press,wikidata,Q17017872
+81-0,81,0,Open Book Publishers,wikidata,Q7095964
+82-0,82,0,Moustache Bikes,wikidata,Q28494144
+83-0,83,0,The Pictet Group,wikidata,Q691481
+84-0,84,0,Proximion (Sweden),wikidata,Q30295799
+85-0,85,0,Beirut Arab University,wikidata,Q2778441
+86-0,86,0,Boulder Brands,wikidata,Q16947700
+87-0,87,0,The Daily Advocate,wikidata,Q7728616
+88-0,88,0,Riverside Abstract,wikidata,Q58287375
+89-0,89,0,Hazama Ando Corporation,wikidata,Q4410214
+90-0,90,0,Levi Strauss & Co.,wikidata,Q127962
+91-0,91,0,Berkshire Bank,wikidata,Q48976878
+92-0,92,0,TAISEI U-LEC corporation,wikidata,Q28688164
+93-0,93,0,Illuminate Labs,wikidata,Q4816447
+94-0,94,0,Sparkasse Bensheim,wikidata,Q2307319
+95-0,95,0,Sonic Automotive,wikidata,Q7561788
+96-0,96,0,Kanmonkai,wikidata,Q11656478
+97-0,97,0,AlloCiné,wikidata,Q31165
+98-0,98,0,John B. Stetson Company,wikidata,Q6220134
+99-0,99,0,"Hellmuth, Obata and Kassabaum",wikidata,Q1602991
+100-0,100,0,Electronic Privacy Information Center,wikidata,Q4383251
+101-0,101,0,BlaBlaCar,wikidata,Q2905238
+102-0,102,0,Sri Venkateswara College of Engineering,wikidata,Q7586320
+103-0,103,0,Foreign Language Teaching and Research Press,wikidata,Q10932395
+104-0,104,0,Centriair (Sweden),wikidata,Q30295872
+105-0,105,0,Traxxas,wikidata,Q2050571
+106-0,106,0,Futuro Forestal S.A.,wikidata,Q15839811
+107-0,107,0,Newfoundland Power Inc.,wikidata,Q7017845
+108-0,108,0,Berge Bulk,wikidata,Q98636449
+109-0,109,0,Brooklyn Navy Yard,wikidata,Q524435
+110-0,110,0,University of Houston C.T. Bauer College of Business,wikidata,Q4873456
+111-0,111,0,China Hi-Tech Group Corporation,wikidata,Q10873767
+112-0,112,0,BioPhorum (United Kingdom),wikidata,Q106412016
+113-0,113,0,Avalanche Studios Group,wikidata,Q2661245
+114-0,114,0,Jingle Punks Music,wikidata,Q6202374
+115-0,115,0,Rogers Stirk Harbour + Partners,wikidata,Q6000974
+116-0,116,0,Adams State University,wikidata,Q351971
+117-0,117,0,Electromagnetic Geoservices,wikidata,Q1325994
+118-0,118,0,Biolink Group (Norway),wikidata,Q30299612
+119-0,119,0,Frogwares,wikidata,Q2541023
+120-0,120,0,Japan Automatic Development,wikidata,Q11508948
+121-0,121,0,Integrated Prescription Management (IPM),wikidata,Q98097554
+122-0,122,0,Doris Engineering,wikidata,Q30255592
+123-0,123,0,Breevast,wikidata,Q1909886
+124-0,124,0,Ernst Klett Verlag,wikidata,Q1358989
+125-0,125,0,Yospace,wikidata,Q8056353
+126-0,126,0,Nutreco,wikidata,Q36878028
+127-0,127,0,Kureha,wikidata,Q11299598
+128-0,128,0,Resolution Limited,wikidata,Q3427739
+129-0,129,0,Detec (Norway),wikidata,Q30260831
+130-0,130,0,Vittoria Coffee,wikidata,Q7937293
+131-0,131,0,Dar Es Salaam Investment Bank,wikidata,Q5221891
+132-0,132,0,CSS Insurance,wikidata,Q1024436
+133-0,133,0,Knjižara vulkan,wikidata,Q114735398
+134-0,134,0,Brainlab,wikidata,Q897437
+135-0,135,0,St. Martin's Press,wikidata,Q3445044
+136-0,136,0,YouControl,wikidata,Q26000941
+137-0,137,0,DesignArc,wikidata,Q11317067
+138-0,138,0,Potton & Burton,wikidata,Q18349164
+139-0,139,0,Boyer Brothers,wikidata,Q4952444
+140-0,140,0,Nohmi Bosai,wikidata,Q11612064
+141-0,141,0,Mingoville,wikidata,Q6864793
+142-0,142,0,Echo Digital Audio,wikidata,Q5332695
+143-0,143,0,West Cork Distillers,wikidata,Q50084936
+144-0,144,0,Maruni Wood Industry,wikidata,Q11341406
+145-0,145,0,Covenant Aviation Security,wikidata,Q5178972
+146-0,146,0,Speake-Marin,wikidata,Q16950856
+147-0,147,0,YU Televentures,wikidata,Q19899300
+148-0,148,0,Sistrix,wikidata,Q97199261
+149-0,149,0,Doxa (Sweden),wikidata,Q104480357
+150-0,150,0,Times Herald,wikidata,Q56236919
+151-0,151,0,CenterEdge Software,wikidata,Q5059253
+152-0,152,0,Kumamoto Toshi Bus,wikidata,Q11568610
+153-0,153,0,Norbord,wikidata,Q7050428
+154-0,154,0,Kinnate Biopharma Inc.,wikidata,Q120908465
+155-0,155,0,Psychology Software Tools (United States),wikidata,Q30284358
+156-0,156,0,Uklon,wikidata,Q23662786
+157-0,157,0,GSD&M,wikidata,Q5514544
+158-0,158,0,ROSA Linux,wikidata,Q4048537
+159-0,159,0,Starman,wikidata,Q3736719
+160-0,160,0,Armor Games,wikidata,Q688839
+161-0,161,0,T-Online,wikidata,Q590940
+162-0,162,0,Tiroler Tageszeitung,wikidata,Q2436295
+163-0,163,0,Eurofins Biolab,wikidata,Q106841258
+164-0,164,0,Ralph and Russo,wikidata,Q7288307
+165-0,165,0,Engineers India Limited,wikidata,Q5377917
+166-0,166,0,Sukhoi,wikidata,Q193007
+167-0,167,0,Mantex (Sweden),wikidata,Q30267326
+168-0,168,0,Boston Properties,wikidata,Q4844439
+169-0,169,0,Benevity,wikidata,Q92498647
+170-0,170,0,36Kr,wikidata,Q10846071
+171-0,171,0,Severstal,wikidata,Q638448
+172-0,172,0,Sutton Grammar School,wikidata,Q7650263
+173-0,173,0,Baker Hughes (United Kingdom),wikidata,Q30343883
+174-0,174,0,Metallurgical Corporation of China Limited,wikidata,Q20051726
+175-0,175,0,RedSeven Entertainment,wikidata,Q92739725
+176-0,176,0,Kaltenbach-Gruppe (Maschinenbau),wikidata,Q1722640
+177-0,177,0,Tethys Research (United States),wikidata,Q43895867
+178-0,178,0,Vidal,wikidata,Q114915046
+179-0,179,0,Berliner Volksbank,wikidata,Q821855
+180-0,180,0,JumpSport,wikidata,Q17107629
+181-0,181,0,Expert Analytics,wikidata,Q111487135
+182-0,182,0,Proletarsky Plant,wikidata,Q4380517
+183-0,183,0,Rectrix Aviation,wikidata,Q30595476
+184-0,184,0,Brussels Airlines,wikidata,Q153571
+185-0,185,0,Umoe Mandal,wikidata,Q1516279
+186-0,186,0,BitBay,wikidata,Q104786134
+187-0,187,0,GMO Aozora Net Bank,wikidata,Q11256806
+188-0,188,0,Hovis,wikidata,Q5917245
+189-0,189,0,Logos Film,wikidata,Q16261421
+190-0,190,0,Speakeasy,wikidata,Q7574227
+191-0,191,0,Greystar Real Estate Partners,wikidata,Q60749135
+192-0,192,0,Metalmark Capital,wikidata,Q6822931
+193-0,193,0,Nissan Motor India Private Limited,wikidata,Q7041008
+194-0,194,0,EVault,wikidata,Q5324629
+195-0,195,0,Veriff,wikidata,Q65256461
+196-0,196,0,cVidya,wikidata,Q5014812
+197-0,197,0,Ubitricity,wikidata,Q113699692
+198-0,198,0,Unsplash,wikidata,Q28233552
+199-0,199,0,Abt Electronics,wikidata,Q4669994
+200-0,200,0,Oberweis Dairy,wikidata,Q7074835
+201-0,201,0,Hawthorne,wikidata,Q5685549
+202-0,202,0,CISOfy,wikidata,Q52008171
+203-0,203,0,Imedex (United States),wikidata,Q30264073
+204-0,204,0,Ankerbrot,wikidata,Q557116
+205-0,205,0,Allsecures,wikidata,Q20312297
+206-0,206,0,Timberline Lodge,wikidata,Q1574090
+207-0,207,0,Eagle Rock Entertainment,wikidata,Q1813833
+208-0,208,0,Caloi,wikidata,Q5023148
+209-0,209,0,Times24,wikidata,Q115263626
+210-0,210,0,Stanley Black & Decker,wikidata,Q706094
+211-0,211,0,Omek Interactive,wikidata,Q17069172
+212-0,212,0,Arnold Ventures,wikidata,Q108956360
+213-0,213,0,Isabellenhütte Heusler,wikidata,Q1673657
+214-0,214,0,"Bmax, Inc.",wikidata,Q38824962
+215-0,215,0,Karlsberg,wikidata,Q520174
+216-0,216,0,HotGen,wikidata,Q5909605
+217-0,217,0,Dark Reading,wikidata,Q68931675
+218-0,218,0,Novil Corporation,wikidata,Q11325828
+219-0,219,0,ON24,wikidata,Q17072593
+220-0,220,0,SVB Financial Group,wikidata,Q111839764
+221-0,221,0,PJICO,wikidata,Q7119462
+222-0,222,0,Capitol Broadcasting Company,wikidata,Q5035843
+223-0,223,0,Innosight,wikidata,Q13362928
+224-0,224,0,Bisleri,wikidata,Q3635447
+225-0,225,0,Snappy Gifts,wikidata,Q64987516
+226-0,226,0,West Japan Engineering Consultants,wikidata,Q11628378
+227-0,227,0,Aucfan,wikidata,Q17221565
+228-0,228,0,Global Embedded Technologies (United States),wikidata,Q30297973
+229-0,229,0,Wayland News,wikidata,Q55667433
+230-0,230,0,Genzyme,wikidata,Q1502740
+231-0,231,0,Freire Shipyard,wikidata,Q16569543
+232-0,232,0,Entangly (Sweden),wikidata,Q104480297
+233-0,233,0,HeiTech Services (United States),wikidata,Q30297209
+234-0,234,0,ConjuChem,wikidata,Q5161136
+235-0,235,0,appfleet,wikidata,Q104761818
+236-0,236,0,Herschel Supply Co.,wikidata,Q23672312
+237-0,237,0,Disneyland,wikidata,Q181185
+238-0,238,0,Odyssey Airlines,wikidata,Q14628872
+239-0,239,0,HNA Infrastructure Investment Group,wikidata,Q29641450
+240-0,240,0,Sparkasse Lüdenscheid,wikidata,Q2307543
+241-0,241,0,SomaGenics (United States),wikidata,Q30253478
+242-0,242,0,QPS (Netherlands),wikidata,Q30295974
+243-0,243,0,Oakwood,wikidata,Q7074282
+244-0,244,0,Bath Ales,wikidata,Q4868885
+245-0,245,0,GenoSafe,wikidata,Q30254718
+246-0,246,0,"San Miguel Food and Beverage, Inc.",wikidata,Q18636682
+247-0,247,0,BAIC Motor,wikidata,Q33111848
+248-0,248,0,Grandi Stazioni,wikidata,Q908916
+249-0,249,0,EM News Distribution,wikidata,Q5323654
+250-0,250,0,Huawei,wikidata,Q160120
+251-0,251,0,Childtime Learning Centers,wikidata,Q64877793
+252-0,252,0,MAHLE Filter Systems (Canada),wikidata,Q30295296
+253-0,253,0,Lavazza Coffee (UK) Ltd.,wikidata,Q50843317
+254-0,254,0,Claremont Eagle Times,wikidata,Q55668063
+255-0,255,0,National Herald,wikidata,Q12436127
+256-0,256,0,Arrow Energy,wikidata,Q9630766
+257-0,257,0,Cubist Pharmaceuticals,wikidata,Q5192265
+258-0,258,0,Sanzaru Games,wikidata,Q1707830
+259-0,259,0,Community Impact Newspaper,wikidata,Q5154797
+260-0,260,0,OmniVision Technologies,wikidata,Q17084327
+261-0,261,0,The Brattle Group,wikidata,Q7719871
+262-0,262,0,Nippon Shinyaku,wikidata,Q11508222
+263-0,263,0,Brloh,wikidata,Q12763551
+264-0,264,0,Mrs.Sporty,wikidata,Q100718953
+265-0,265,0,Haas School of Business,wikidata,Q3125258
+266-0,266,0,"Ceva, Inc.",wikidata,Q3648676
+267-0,267,0,Koninklijke Peijnenburg,wikidata,Q2169294
+268-0,268,0,Union Sozialer Einrichtungen,wikidata,Q1507735
+269-0,269,0,Cascade Microtech,wikidata,Q5048150
+270-0,270,0,Jack Wolfskin,wikidata,Q536133
+271-0,271,0,USM Holdings,wikidata,Q47468563
+272-0,272,0,My Family Care,wikidata,Q6945368
+273-0,273,0,The Delfield Company,wikidata,Q7729650
+274-0,274,0,Project Honey Pot,wikidata,Q7249143
+275-0,275,0,Esam,wikidata,Q61060051
+276-0,276,0,Avery Biomedical Devices,wikidata,Q19872881
+277-0,277,0,Screen Australia,wikidata,Q1445805
+278-0,278,0,A3 Electric Mobility,wikidata,Q95469234
+279-0,279,0,Amber Books,wikidata,Q15054678
+280-0,280,0,Kelvion Holding,wikidata,Q25894686
+281-0,281,0,Interdisciplinary Center for Neural Computation,wikidata,Q6046099
+282-0,282,0,Control Systems Research (United States),wikidata,Q30297230
+283-0,283,0,Fonix,wikidata,Q29025204
+284-0,284,0,Nordmedia,wikidata,Q1727797
+285-0,285,0,Hypetex (United Kingdom),wikidata,Q56584925
+286-0,286,0,Cismet,wikidata,Q30295087
+287-0,287,0,Radianse (United States),wikidata,Q64142428
+288-0,288,0,Kreisel Electric,wikidata,Q28310101
+289-0,289,0,Rite Lite Ltd.,wikidata,Q107119757
+290-0,290,0,Rogue Amoeba,wikidata,Q7359508
+291-0,291,0,Internet Archive,wikidata,Q461
+292-0,292,0,Askari Bank,wikidata,Q4807137
+293-0,293,0,Leaders,wikidata,Q111522674
+294-0,294,0,Acome,wikidata,Q2823384
+295-0,295,0,Better Place,wikidata,Q832434
+296-0,296,0,Airport Railroad Corporation,wikidata,Q4675224
+297-0,297,0,Inocycle Technology Group,wikidata,Q96472550
+298-0,298,0,O Globo,wikidata,Q970729
+299-0,299,0,QuesTek (United States),wikidata,Q30297157
+300-0,300,0,ValueAct Capital,wikidata,Q22032185
+301-0,301,0,Shell Deutschland Oil,wikidata,Q42294704
+302-0,302,0,Resol Holdings,wikidata,Q11348062
+303-0,303,0,Paris 12 University,wikidata,Q980688
+304-0,304,0,FunPlus,wikidata,Q25796063
+305-0,305,0,Besix,wikidata,Q2749540
+306-0,306,0,FXCollaborative,wikidata,Q28873473
+307-0,307,0,Channellock,wikidata,Q5072522
+308-0,308,0,ExpoTV,wikidata,Q5421463
+309-0,309,0,CertainTeed,wikidata,Q5065039
+310-0,310,0,Diadexus (United States),wikidata,Q30292484
+311-0,311,0,Aircraft End-of-Life Solutions,wikidata,Q4698504
+312-0,312,0,Safeway Stores,wikidata,Q7398687
+313-0,313,0,STC Biologics (United States),wikidata,Q64142708
+314-0,314,0,Makro,wikidata,Q704606
+315-0,315,0,Gateway Center for Israel,wikidata,Q111083499
+316-0,316,0,"ZheJiang AoKang Shoes Co., Ltd.",wikidata,Q10942605
+317-0,317,0,Oni Press,wikidata,Q1425420
+318-0,318,0,Ovidius University,wikidata,Q3551473
+319-0,319,0,Kyoritsu Air Tech,wikidata,Q11407255
+320-0,320,0,Denpa Shinbunsha,wikidata,Q11660510
+321-0,321,0,Scott Laboratories (United States),wikidata,Q106411801
+322-0,322,0,PCBWay,wikidata,Q124808280
+323-0,323,0,Randstad Singapore,wikidata,Q113867319
+324-0,324,0,QV Investors,wikidata,Q112713117
+325-0,325,0,Precision System Science,wikidata,Q11335829
+326-0,326,0,International Labmate Ltd,wikidata,Q23777904
+327-0,327,0,Dire Wolf Digital,wikidata,Q31626043
+328-0,328,0,Knorr,wikidata,Q313882
+329-0,329,0,From The Bench Digital Entertainment,wikidata,Q5505524
+330-0,330,0,Chatr,wikidata,Q5087766
+331-0,331,0,Nihon Parkerizing,wikidata,Q11506781
+332-0,332,0,L’Carriera,wikidata,Q95921298
+333-0,333,0,Sunstar (Switzerland),wikidata,Q33121293
+334-0,334,0,LOT Polish Airlines,wikidata,Q204268
+335-0,335,0,Native Grill & Wings,wikidata,Q69599983
+336-0,336,0,Indium corporation,wikidata,Q16986090
+337-0,337,0,Instacart,wikidata,Q22909236
+338-0,338,0,Psychiatric Solutions,wikidata,Q7256229
+339-0,339,0,Doncaster and Bassetlaw Teaching Hospitals NHS Foundation Trust,wikidata,Q16988941
+340-0,340,0,DMarket,wikidata,Q42290487
+341-0,341,0,University of Wales,wikidata,Q1072029
+342-0,342,0,Next Big Sound,wikidata,Q16957678
+343-0,343,0,Python Package Index,wikidata,Q2984686
+344-0,344,0,Dream it. Code it. Win it.,wikidata,Q17514743
+345-0,345,0,ZMP INC.,wikidata,Q582579
+346-0,346,0,Everfuel,wikidata,Q114905024
+347-0,347,0,Adelard,wikidata,Q30284453
+348-0,348,0,B. Braun Medical (Netherlands),wikidata,Q50037807
+349-0,349,0,Maxwell Technologies,wikidata,Q3302853
+350-0,350,0,Rhizome,wikidata,Q7320757
+351-0,351,0,Cannonball Musical Instruments,wikidata,Q5032827
+352-0,352,0,WebSideStory,wikidata,Q17089551
+353-0,353,0,Transport International Holdings,wikidata,Q7834879
+354-0,354,0,Sendio,wikidata,Q7450238
+355-0,355,0,Quite Interesting Limited,wikidata,Q7272650
+356-0,356,0,Leadway,wikidata,Q28404620
+357-0,357,0,"Mendel Biotechnology, Inc.",wikidata,Q6816564
+358-0,358,0,Alabama Power,wikidata,Q4705296
+359-0,359,0,Verkehrs- und Betriebsgesellschaft Gera,wikidata,Q1449258
+360-0,360,0,OFS,wikidata,Q28453565
+361-0,361,0,EY Technologies (United States),wikidata,Q30260886
+362-0,362,0,Abel & Imray,wikidata,Q4666528
+363-0,363,0,Terminal X,wikidata,Q115310947
+364-0,364,0,University of Canterbury,wikidata,Q432475
+365-0,365,0,Alok Industries,wikidata,Q4734296
+366-0,366,0,Zola,wikidata,Q59788069
+367-0,367,0,FEI (Norway),wikidata,Q30299854
+368-0,368,0,Mitsumoto Coffee,wikidata,Q11355725
+369-0,369,0,SiteGround,wikidata,Q17081038
+370-0,370,0,Kari,wikidata,Q47155680
+371-0,371,0,Advantage Risk Management,wikidata,Q11284065
+372-0,372,0,National Technological University,wikidata,Q3232206
+373-0,373,0,Westfal-Larsen,wikidata,Q7988604
+374-0,374,0,Ritlabs,wikidata,Q4047858
+375-0,375,0,E!,wikidata,Q830215
+376-0,376,0,Piaggio,wikidata,Q841263
+377-0,377,0,Islamic Azad University of Shiraz,wikidata,Q6082336
+378-0,378,0,Swire Resources,wikidata,Q97940613
+379-0,379,0,Island Air,wikidata,Q2601293
+380-0,380,0,Viking Line,wikidata,Q1544900
+381-0,381,0,Bombay Dyeing,wikidata,Q4940554
+382-0,382,0,AlterG,wikidata,Q17182538
+383-0,383,0,Onoda Chemical Industry,wikidata,Q11464184
+384-0,384,0,College of West Anglia,wikidata,Q5146873
+385-0,385,0,Daitobo,wikidata,Q11436163
+386-0,386,0,CAO Group (United States),wikidata,Q104480113
+387-0,387,0,Vichem Chemie (Hungary),wikidata,Q30285590
+388-0,388,0,Sands Anderson,wikidata,Q7416889
+389-0,389,0,Rolls-Royce Power Systems,wikidata,Q833456
+390-0,390,0,Gallup & Robinson,wikidata,Q5519231
+391-0,391,0,Hitachi Power Solutions,wikidata,Q11510006
+392-0,392,0,Diagonal View,wikidata,Q5270359
+393-0,393,0,Eveve,wikidata,Q18160110
+394-0,394,0,Ansarada,wikidata,Q4770523
+395-0,395,0,Guerbet,wikidata,Q906156
+396-0,396,0,Vision iO (Norway),wikidata,Q30260206
+397-0,397,0,Haaretz,wikidata,Q216393
+398-0,398,0,Oberbank,wikidata,Q2009139
+399-0,399,0,BBC Worldwide,wikidata,Q2071905
+400-0,400,0,Randstad N.V.,wikidata,Q267840
+401-0,401,0,Swoop Aero,wikidata,Q60028255
+402-0,402,0,Canon Norge,wikidata,Q23042629
+403-0,403,0,Incitec Pivot,wikidata,Q1660969
+404-0,404,0,The London Gazette,wikidata,Q1137581
+405-0,405,0,Pure Indian Foods,wikidata,Q21178625
+406-0,406,0,IGA,wikidata,Q3146662
+407-0,407,0,Auvesta,wikidata,Q47034731
+408-0,408,0,Landka,wikidata,Q80116485
+409-0,409,0,Matthews International,wikidata,Q110220617
+410-0,410,0,RWE Generation NL,wikidata,Q113465605
+411-0,411,0,The Mont Hotel,wikidata,Q86996394
+412-0,412,0,Cailabs,wikidata,Q97069302
+413-0,413,0,Alvéole (France),wikidata,Q107519948
+414-0,414,0,Crain Communications,wikidata,Q1138758
+415-0,415,0,NanoRepro,wikidata,Q104710336
+416-0,416,0,Itad (United Kingdom),wikidata,Q30271750
+417-0,417,0,Bayerische Regiobahn,wikidata,Q812270
+418-0,418,0,Alog Datacenters,wikidata,Q9607578
+419-0,419,0,Ergo Hestia,wikidata,Q9254522
+420-0,420,0,Tatra,wikidata,Q45464
+421-0,421,0,LiveStreamers Inc.,wikidata,Q113620561
+422-0,422,0,Banco Itaú,wikidata,Q13582383
+423-0,423,0,Parmiter's School,wikidata,Q7139213
+424-0,424,0,DLA Piper,wikidata,Q1154482
+425-0,425,0,Ocean County Library,wikidata,Q7075971
+426-0,426,0,Kenwood Corporation,wikidata,Q17180
+427-0,427,0,Milk & More,wikidata,Q94500140
+428-0,428,0,Ohtori,wikidata,Q11293349
+429-0,429,0,Wallace Roberts & Todd,wikidata,Q7962884
+430-0,430,0,Isocel telecom,wikidata,Q109314728
+431-0,431,0,Pibank,wikidata,Q86108619
+432-0,432,0,Bubblefly,wikidata,Q106882649
+433-0,433,0,Ancar Ivanhoe,wikidata,Q9613378
+434-0,434,0,Kingston Hospital NHS Foundation Trust,wikidata,Q6413546
+435-0,435,0,Sato Holdings,wikidata,Q11304901
+436-0,436,0,Zodiac Nautic,wikidata,Q48755053
+437-0,437,0,Egenera,wikidata,Q5347754
+438-0,438,0,Shriram City Union Finance,wikidata,Q17074288
+439-0,439,0,Pelotonia,wikidata,Q7161713
+440-0,440,0,Binggrae,wikidata,Q12599539
+441-0,441,0,Troy Cablevision,wikidata,Q7846784
+442-0,442,0,"CTT Correios de Portugal, S.A.",wikidata,Q1024518
+443-0,443,0,Schroff GmbH,wikidata,Q1414523
+444-0,444,0,MobileDay,wikidata,Q17069540
+445-0,445,0,"Light Field Lab, Inc.",wikidata,Q108873130
+446-0,446,0,Layne Christensen Company,wikidata,Q17039402
+447-0,447,0,Scan,wikidata,Q17108166
+448-0,448,0,Hygloss Products Inc.,wikidata,Q73148568
+449-0,449,0,Rea Magnet Wire,wikidata,Q7300144
+450-0,450,0,Syntronic (Sweden),wikidata,Q30295925
+451-0,451,0,Energy Micro,wikidata,Q5376951
+452-0,452,0,Hüni + Co,wikidata,Q1652386
+453-0,453,0,University of Guadalajara,wikidata,Q164028
+454-0,454,0,21 Cineplex,wikidata,Q4630986
+455-0,455,0,Dallah Al-Baraka,wikidata,Q1157969
+456-0,456,0,Encirc,wikidata,Q56584779
+457-0,457,0,Lystek,wikidata,Q19903428
+458-0,458,0,Bodum,wikidata,Q890042
+459-0,459,0,Wesco Financial,wikidata,Q7983794
+460-0,460,0,Fratelli Guzzini,wikidata,Q21208871
+461-0,461,0,Ansys (Germany),wikidata,Q77077683
+462-0,462,0,Toko-Ai,wikidata,Q115191972
+463-0,463,0,ClearSign Combustion,wikidata,Q19866632
+464-0,464,0,ChristianCinema.com,wikidata,Q5109242
+465-0,465,0,Ceradyne,wikidata,Q5063604
+466-0,466,0,Stanford Graduate School of Business,wikidata,Q1413558
+467-0,467,0,Ubisoft Blue Byte,wikidata,Q695299
+468-0,468,0,University of Connecticut School of Law,wikidata,Q7895301
+469-0,469,0,The Hermiston Herald,wikidata,Q7739463
+470-0,470,0,Equinix,wikidata,Q851641
+471-0,471,0,KHD Humboldt Wedag,wikidata,Q17112014
+472-0,472,0,AdventHealth,wikidata,Q3509447
+473-0,473,0,Dan BaDarom,wikidata,Q23958636
+474-0,474,0,Fisher Flying Products,wikidata,Q5454796
+475-0,475,0,AJP Motos,wikidata,Q664089
+476-0,476,0,Warner Leisure Hotels,wikidata,Q7969732
+477-0,477,0,Solxyz,wikidata,Q11315406
+478-0,478,0,ClearBank,wikidata,Q28854725
+479-0,479,0,Cosmo Tech,wikidata,Q82727963
+480-0,480,0,Grupo Vidanta,wikidata,Q5612263
+481-0,481,0,United States Telecom Association,wikidata,Q7892238
+482-0,482,0,Hangar One Vodka,wikidata,Q5647909
+483-0,483,0,Masterbulk,wikidata,Q6785346
+484-0,484,0,"China Television Media, Ltd",wikidata,Q10876660
+485-0,485,0,RPA,wikidata,Q7277443
+486-0,486,0,BossAlien,wikidata,Q17003652
+487-0,487,0,CS Soft,wikidata,Q36878442
+488-0,488,0,Aica Kogyo,wikidata,Q11282086
+489-0,489,0,Equipmake (United Kingdom),wikidata,Q56584764
+490-0,490,0,Southend University Hospital NHS Foundation Trust,wikidata,Q7569543
+491-0,491,0,Sinmat (United States),wikidata,Q30283629
+492-0,492,0,Moniker Guitars,wikidata,Q17081753
+493-0,493,0,Miami University,wikidata,Q590643
+494-0,494,0,Arrinera,wikidata,Q4795993
+495-0,495,0,Audi BKK,wikidata,Q758755
+496-0,496,0,Gabal Verlag,wikidata,Q1487943
+497-0,497,0,Lasertryk,wikidata,Q16324037
+498-0,498,0,Die Glocke,wikidata,Q1213073
+499-0,499,0,Avantor (Poland),wikidata,Q59535640
+500-0,500,0,Virbac,wikidata,Q3560575
+501-0,501,0,United Bulgarian Bank,wikidata,Q7887555
+502-0,502,0,POM Wonderful,wikidata,Q7119991
+503-0,503,0,Dodge City Community College,wikidata,Q5287843
+504-0,504,0,Stadtwerke Coesfeld,wikidata,Q2328451
+505-0,505,0,Visionular,wikidata,Q114478892
+506-0,506,0,Telmore,wikidata,Q3517417
+507-0,507,0,Betta Living,wikidata,Q19654720
+508-0,508,0,Max Biopharma (United States),wikidata,Q64142020
+509-0,509,0,Coastal Point,wikidata,Q56236426
+510-0,510,0,Egosoft,wikidata,Q870894
+511-0,511,0,Somfy,wikidata,Q2299746
+512-0,512,0,Providus Bank Limited,wikidata,Q60751889
+513-0,513,0,Royal Caribbean Group,wikidata,Q427881
+514-0,514,0,Melbourne University Publishing,wikidata,Q6811908
+515-0,515,0,Volvo Buses,wikidata,Q2373435
+516-0,516,0,Concur Technologies,wikidata,Q5159089
+517-0,517,0,Ameyo,wikidata,Q50553633
+518-0,518,0,Rapyd,wikidata,Q107061427
+519-0,519,0,BIOVIA,wikidata,Q4672315
+520-0,520,0,Fox Mobile Entertainment,wikidata,Q5476817
+521-0,521,0,Midwest College of Oriental Medicine,wikidata,Q6843354
+522-0,522,0,Little Worlds Studio,wikidata,Q3256734
+523-0,523,0,Louisiana Tech University,wikidata,Q1872239
+524-0,524,0,Katara Hospitality,wikidata,Q19961640
+525-0,525,0,Marcellus Media Ventures Inc.,wikidata,Q87489614
+526-0,526,0,Oil and Natural Gas Corporation,wikidata,Q1430541
+527-0,527,0,Interbank Burundi,wikidata,Q6045522
+528-0,528,0,Vela Solaris AG,wikidata,Q108267921
+529-0,529,0,SICPA,wikidata,Q3483058
+530-0,530,0,Made For Retail (United States),wikidata,Q104480372
+531-0,531,0,Lawrence University,wikidata,Q1809286
+532-0,532,0,Ethel Austin,wikidata,Q5403068
+533-0,533,0,Coal Energy S.A.,wikidata,Q12062816
+534-0,534,0,Daily News,wikidata,Q3012106
+535-0,535,0,Ability Pharmaceuticals,wikidata,Q30268731
+536-0,536,0,Hawkins Cookers Limited,wikidata,Q5685126
+537-0,537,0,The Durst Organization,wikidata,Q5316774
+538-0,538,0,Amazon Prime Video,wikidata,Q4740856
+539-0,539,0,Gakken Plus,wikidata,Q11448836
+540-0,540,0,Schwebel's Bakery,wikidata,Q7433216
+541-0,541,0,EZchip Semiconductor,wikidata,Q5324767
+542-0,542,0,KSDK,wikidata,Q6337579
+543-0,543,0,Networked Insights,wikidata,Q17083046
+544-0,544,0,Italia Pellets,wikidata,Q108538381
+545-0,545,0,JA Ochi-Imabari,wikidata,Q11636539
+546-0,546,0,CorMatrix (United States),wikidata,Q104480189
+547-0,547,0,CITIC Financial AMC,wikidata,Q21584822
+548-0,548,0,Fuso Corporation,wikidata,Q11497294
+549-0,549,0,Cox & Company (United States),wikidata,Q64141443
+550-0,550,0,Arunai Engineering College,wikidata,Q4802201
+551-0,551,0,iMakr,wikidata,Q20026894
+552-0,552,0,GAS Y ELECTRICIDAD GENERACION,wikidata,Q113464336
+553-0,553,0,Redback Networks,wikidata,Q498804
+554-0,554,0,Koch Disruptive Technologies,wikidata,Q50169113
+555-0,555,0,PGi,wikidata,Q1576191
+556-0,556,0,Mendocino Farms,wikidata,Q110671982
+557-0,557,0,Lotte,wikidata,Q482841
+558-0,558,0,B. Braun,wikidata,Q644835
+559-0,559,0,Bahamasair,wikidata,Q800208
+560-0,560,0,Alza.cz,wikidata,Q10786832
+561-0,561,0,City-Link Express,wikidata,Q21157001
+562-0,562,0,Laserfiche,wikidata,Q6493121
+563-0,563,0,Kenya Pipeline Company,wikidata,Q6392680
+564-0,564,0,Oschadbank,wikidata,Q4340839
+565-0,565,0,Teichert,wikidata,Q7694953
+566-0,566,0,Hamdard University,wikidata,Q5644389
+567-0,567,0,Monolith Productions,wikidata,Q907357
+568-0,568,0,Codenomicon,wikidata,Q5140157
+569-0,569,0,Lemon Sky Studios,wikidata,Q99304171
+570-0,570,0,Prajasakti,wikidata,Q6389421
+571-0,571,0,ProKyma Technologies (United Kingdom),wikidata,Q30265500
+572-0,572,0,Aptima (United States),wikidata,Q30297719
+573-0,573,0,Kalido,wikidata,Q16995570
+574-0,574,0,Stelic Institute,wikidata,Q30274244
+575-0,575,0,Helion Energy,wikidata,Q18125525
+576-0,576,0,Ratsit,wikidata,Q10649892
+577-0,577,0,GeoSpectrum Technologies (Canada),wikidata,Q30256998
+578-0,578,0,Genelec,wikidata,Q3088115
+579-0,579,0,Technical University of Košice,wikidata,Q1719038
+580-0,580,0,Mitteldeutsche Zeitung,wikidata,Q1940107
+581-0,581,0,Z-Terra (United States),wikidata,Q64143036
+582-0,582,0,"Clinical Tools, Inc.",wikidata,Q30253448
+583-0,583,0,Quincy College,wikidata,Q7272130
+584-0,584,0,Rita's Italian Ice,wikidata,Q7336456
+585-0,585,0,Ball Beverage Packaging Europe,wikidata,Q570861
+586-0,586,0,"I・K Co., Ltd.",wikidata,Q11282107
+587-0,587,0,Firmengruppe APPL,wikidata,Q1419117
+588-0,588,0,Distribucións Arnoia,wikidata,Q12387127
+589-0,589,0,American Meteorological Society,wikidata,Q465726
+590-0,590,0,Virginia Wesleyan University,wikidata,Q7934661
+591-0,591,0,Verlag Moderne Industrie,wikidata,Q15852681
+592-0,592,0,Port of Subs,wikidata,Q7231273
+593-0,593,0,Eskom,wikidata,Q1367885
+594-0,594,0,Louisville Eccentric Observer,wikidata,Q6689473
+595-0,595,0,Viridor,wikidata,Q7934812
+596-0,596,0,Airports Corporation of Vietnam,wikidata,Q4698984
+597-0,597,0,drugstore.com,wikidata,Q5308965
+598-0,598,0,Grazer Wechselseitige Versicherung,wikidata,Q877006
+599-0,599,0,iCracked,wikidata,Q18153318
+600-0,600,0,ET Solar,wikidata,Q1960330
+601-0,601,0,Hardy Brothers,wikidata,Q16841180
+602-0,602,0,Meta Publishing,wikidata,Q100158597
+603-0,603,0,Stadtwerke Würzburg AG,wikidata,Q113464958
+604-0,604,0,Management and Training Corporation,wikidata,Q17015228
+605-0,605,0,Whitewater Brewery,wikidata,Q7996326
+606-0,606,0,Central Bank of Brazil,wikidata,Q806186
+607-0,607,0,Oxsensis,wikidata,Q16962354
+608-0,608,0,Georgetown Cupcake,wikidata,Q5546987
+609-0,609,0,Blueberry Hill,wikidata,Q4930227
+610-0,610,0,Pop-Up Magazine,wikidata,Q24913856
+611-0,611,0,TrialSite News,wikidata,Q107860609
+612-0,612,0,Science Systems and Applications (United States),wikidata,Q30286233
+613-0,613,0,Lids,wikidata,Q19841609
+614-0,614,0,dope.security,wikidata,Q114445333
+615-0,615,0,T-Mobile Austria,wikidata,Q1666806
+616-0,616,0,Industrial Securities,wikidata,Q10894036
+617-0,617,0,Featherlite Trailers,wikidata,Q5439625
+618-0,618,0,MSD Japan,wikidata,Q30266965
+619-0,619,0,Beer Nuts,wikidata,Q4879955
+620-0,620,0,Arimino,wikidata,Q17192058
+621-0,621,0,Worldcolor,wikidata,Q8036693
+622-0,622,0,Groupe Artémis,wikidata,Q2866000
+623-0,623,0,Guangzhou Shipyard International,wikidata,Q5613742
+624-0,624,0,Dr Fox Pharmacy,wikidata,Q18352548
+625-0,625,0,OP Financial Group,wikidata,Q4045597
+626-0,626,0,Rock Ventures,wikidata,Q20895336
+627-0,627,0,Book of the Month Club,wikidata,Q4943125
+628-0,628,0,"Hongzhiwei Technology (Shanghai) Co., Ltd.",wikidata,Q54834033
+629-0,629,0,Technorati,wikidata,Q389701
+630-0,630,0,Pfisterer Group,wikidata,Q28195931
+631-0,631,0,BioOne,wikidata,Q4914640
+632-0,632,0,Mixbook,wikidata,Q27150146
+633-0,633,0,Chu Kong Shipping,wikidata,Q15956690
+634-0,634,0,Mobimeo,wikidata,Q100272478
+635-0,635,0,Ceres Imaging (United States),wikidata,Q41568384
+636-0,636,0,Scrap Entertainment,wikidata,Q16140475
+637-0,637,0,Computomics,wikidata,Q24897711
+638-0,638,0,Hollywood Records,wikidata,Q387539
+639-0,639,0,The Men Who Wear Many Hats,wikidata,Q25401249
+640-0,640,0,Big Blue Bubble,wikidata,Q4905144
+641-0,641,0,Pertamina,wikidata,Q1641044
+642-0,642,0,Bowie State University,wikidata,Q895439
+643-0,643,0,CLEARink Displays,wikidata,Q54912931
+644-0,644,0,Artificial Insemination Center of Quebec,wikidata,Q18655821
+645-0,645,0,Ekster®,wikidata,Q121358765
+646-0,646,0,JHS Pedals,wikidata,Q28231542
+647-0,647,0,SCM Group,wikidata,Q30285214
+648-0,648,0,New Bank of Santa Fe,wikidata,Q6046871
+649-0,649,0,Kwantum,wikidata,Q2262591
+650-0,650,0,BBPOS (China),wikidata,Q50040495
+651-0,651,0,Bulgari S.p.A.,wikidata,Q752515
+652-0,652,0,Charleston School of Law,wikidata,Q5084173
+653-0,653,0,Bunnings Group,wikidata,Q4997829
+654-0,654,0,KLJY,wikidata,Q6332760
+655-0,655,0,Knoema,wikidata,Q6422953
+656-0,656,0,Industria Aeronautică Română,wikidata,Q292773
+657-0,657,0,ASST Grande Ospedale Metropolitano Niguarda,wikidata,Q96755311
+658-0,658,0,University of New Mexico School of Medicine,wikidata,Q7895918
+659-0,659,0,Goody Music Records,wikidata,Q5583743
+660-0,660,0,Hongmian Zhihui,wikidata,Q11149232
+661-0,661,0,Esri,wikidata,Q1045778
+662-0,662,0,National Indian Education Association,wikidata,Q6973500
+663-0,663,0,Ganske Publishing Group,wikidata,Q1493634
+664-0,664,0,Jomboy Media,wikidata,Q113997907
+665-0,665,0,PICO Technologies (United States),wikidata,Q64142410
+666-0,666,0,InterMedia Partners,wikidata,Q6044948
+667-0,667,0,André,wikidata,Q2847114
+668-0,668,0,Vestjysk Bank,wikidata,Q12340822
+669-0,669,0,Talari Networks,wikidata,Q17089394
+670-0,670,0,CHEP,wikidata,Q1023616
+671-0,671,0,Aeris Energy,wikidata,Q101553909
+672-0,672,0,Blitz,wikidata,Q4926946
+673-0,673,0,Alliance Protein Laboratories (United States),wikidata,Q30265827
+674-0,674,0,Alu Group,wikidata,Q30267227
+675-0,675,0,Výzkumný Ústav Železniční,wikidata,Q28970225
+676-0,676,0,Datacard Group,wikidata,Q5227425
+677-0,677,0,3ème Oeil Productions,wikidata,Q2816650
+678-0,678,0,Daily Hampshire Gazette,wikidata,Q5209263
+679-0,679,0,Ivanti,wikidata,Q4042416
+680-0,680,0,HighQ,wikidata,Q17055173
+681-0,681,0,Zero-G Ltd,wikidata,Q8069433
+682-0,682,0,The Messenger,wikidata,Q118536194
+683-0,683,0,Seoyon E-Hwa (South Korea),wikidata,Q30266807
+684-0,684,0,Partners in School Innovation,wikidata,Q7140748
+685-0,685,0,Wonderful Italy,wikidata,Q60676134
+686-0,686,0,Viewster,wikidata,Q183552
+687-0,687,0,Doğuş Media Group,wikidata,Q6084280
+688-0,688,0,Bank Rakyat Indonesia Agroniaga,wikidata,Q96099937
+689-0,689,0,BonneGueule,wikidata,Q22248146
+690-0,690,0,American Radio Relay League,wikidata,Q466576
+691-0,691,0,Revive & Restore,wikidata,Q107723068
+692-0,692,0,Groupe Royal Air Maroc,wikidata,Q3117542
+693-0,693,0,TrustCo Bank,wikidata,Q7848087
+694-0,694,0,LSG Sky Chefs,wikidata,Q648408
+695-0,695,0,BlueStacks,wikidata,Q4928776
+696-0,696,0,BioVidria (United States),wikidata,Q30255014
+697-0,697,0,Vital Energy,wikidata,Q16981100
+698-0,698,0,Seco/Warwick,wikidata,Q30261097
+699-0,699,0,Bower,wikidata,Q16845346
+700-0,700,0,Tacoma Public Utilities,wikidata,Q7674010
+701-0,701,0,Emerce,wikidata,Q2356033
+702-0,702,0,Kentucky Educational Television,wikidata,Q6392245
+703-0,703,0,Limbo,wikidata,Q6549030
+704-0,704,0,Cuero Record,wikidata,Q55671124
+705-0,705,0,Catabasis Pharmaceuticals,wikidata,Q17143508
+706-0,706,0,Metropolitan Models,wikidata,Q3307473
+707-0,707,0,Trapp Family Lodge,wikidata,Q7835597
+708-0,708,0,Computacenter,wikidata,Q211237
+709-0,709,0,"Teng Yue Partners, L.P.",wikidata,Q107676569
+710-0,710,0,Citinite,wikidata,Q5122508
+711-0,711,0,IVAR (Czechia),wikidata,Q41567140
+712-0,712,0,International Chemical Investors Group,wikidata,Q25917848
+713-0,713,0,News America Marketing,wikidata,Q17083636
+714-0,714,0,Banque du Liban,wikidata,Q1776564
+715-0,715,0,CTB/McGraw-Hill,wikidata,Q5014530
+716-0,716,0,Nextgen Networks,wikidata,Q7021241
+717-0,717,0,Companhia Energética de Minas Gerais,wikidata,Q1121202
+718-0,718,0,Attock Petroleum,wikidata,Q4818581
+719-0,719,0,Country Development Bank Ltd.,wikidata,Q19671097
+720-0,720,0,"NSS Hindu College, Changanassery",wikidata,Q16135793
+721-0,721,0,Yelp Reservations,wikidata,Q7441963
+722-0,722,0,Trams in A Coruña,wikidata,Q8348735
+723-0,723,0,Kuker-Ranken,wikidata,Q109796172
+724-0,724,0,Peugeot,wikidata,Q6742
+725-0,725,0,Thomas Cook (India) Limited,wikidata,Q23010921
+726-0,726,0,KNS,wikidata,Q124394992
+727-0,727,0,Tata Hispano,wikidata,Q2628495
+728-0,728,0,PreTalen (United States),wikidata,Q30298434
+729-0,729,0,Moberly Monitor-Index,wikidata,Q6886677
+730-0,730,0,Co-operators,wikidata,Q3520320
+731-0,731,0,Chance Rides,wikidata,Q17083307
+732-0,732,0,Carraro,wikidata,Q3660702
+733-0,733,0,The Examiner,wikidata,Q7732736
+734-0,734,0,Yushiro Chemical Industry,wikidata,Q17225773
+735-0,735,0,Zoup!,wikidata,Q108606713
+736-0,736,0,SpotHero,wikidata,Q19881868
+737-0,737,0,The Bridge,wikidata,Q17085430
+738-0,738,0,Anderson Herald Bulletin,wikidata,Q55666672
+739-0,739,0,Playlyfe,wikidata,Q21015951
+740-0,740,0,Pentagon Federal Credit Union,wikidata,Q3374885
+741-0,741,0,Gencia (United States),wikidata,Q30263117
+742-0,742,0,TradeMe,wikidata,Q7831908
+743-0,743,0,Waters (United Kingdom),wikidata,Q29113573
+744-0,744,0,DocBox (United States),wikidata,Q77082619
+745-0,745,0,Batavus,wikidata,Q3501397
+746-0,746,0,Columbia Insurance Group,wikidata,Q5149737
+747-0,747,0,KDVR,wikidata,Q6328158
+748-0,748,0,Concentrix,wikidata,Q19647854
+749-0,749,0,PPG Paints,wikidata,Q83891559
+750-0,750,0,Broadband 4 Rural North,wikidata,Q16847052
+751-0,751,0,Simbex (United States),wikidata,Q30283682
+752-0,752,0,Tonkotsu,wikidata,Q109859392
+753-0,753,0,Singapore Institute of Management,wikidata,Q7523020
+754-0,754,0,VisLab,wikidata,Q7935324
+755-0,755,0,Modell's,wikidata,Q3317844
+756-0,756,0,University of Jyväskylä,wikidata,Q578326
+757-0,757,0,Kheiron Medical Technologies (United Kingdom),wikidata,Q59536844
+758-0,758,0,Dagrofa,wikidata,Q12307035
+759-0,759,0,Davka Corporation,wikidata,Q5242057
+760-0,760,0,A&R Cambridge Ltd,wikidata,Q4646786
+761-0,761,0,Broughton Foods Company,wikidata,Q4975822
+762-0,762,0,GCM Resources,wikidata,Q5513002
+763-0,763,0,University of Sydney,wikidata,Q487556
+764-0,764,0,Sigma,wikidata,Q15847554
+765-0,765,0,N3TWORK,wikidata,Q107611582
+766-0,766,0,Eco Inhibitors (Norway),wikidata,Q30299734
+767-0,767,0,Co-wheels,wikidata,Q104145154
+768-0,768,0,General Dynamics Electric Boat,wikidata,Q1325893
+769-0,769,0,Republic-Times,wikidata,Q55666644
+770-0,770,0,COOK Trading,wikidata,Q5013417
+771-0,771,0,we.R.play,wikidata,Q52200626
+772-0,772,0,Neosentec,wikidata,Q63396471
+773-0,773,0,Amifa,wikidata,Q17177213
+774-0,774,0,Shanghai Tang,wikidata,Q7488518
+775-0,775,0,Ministry of Works,wikidata,Q4294543
+776-0,776,0,Domicil Real Estate AG,wikidata,Q105071622
+777-0,777,0,"Nasdaq, Inc.",wikidata,Q1472929
+778-0,778,0,Hologic,wikidata,Q5884072
+779-0,779,0,Kalmar Industries,wikidata,Q88188253
+780-0,780,0,Kodkod,wikidata,Q112655116
+781-0,781,0,Norse Projects,wikidata,Q24944799
+782-0,782,0,The US Inquirer,wikidata,Q111782049
+783-0,783,0,Rottendorf Pharma,wikidata,Q2169014
+784-0,784,0,ObeTherapy Biotechnology (France),wikidata,Q30262379
+785-0,785,0,End,wikidata,Q5375804
+786-0,786,0,Allgäuer Überlandwerk,wikidata,Q994822
+787-0,787,0,American Home Assurance,wikidata,Q11285066
+788-0,788,0,Aldi Nord,wikidata,Q41171373
+789-0,789,0,Takebishi Corporation,wikidata,Q11270951
+790-0,790,0,Iwjw,wikidata,Q97486387
+791-0,791,0,Naviance,wikidata,Q17082741
+792-0,792,0,NanoScale Corporation,wikidata,Q6963967
+793-0,793,0,Universidade Estadual do Paraná,wikidata,Q7894367
+794-0,794,0,Snowdon (United States),wikidata,Q30260702
+795-0,795,0,Metropolis International,wikidata,Q6824933
+796-0,796,0,1Spatial,wikidata,Q30298141
+797-0,797,0,Federal Aviation Administration,wikidata,Q335357
+798-0,798,0,Universidade Potiguar,wikidata,Q10387860
+799-0,799,0,Rave Mobile Safety,wikidata,Q7296352
+800-0,800,0,Fibertel telefónica telecom,wikidata,Q5446396
+801-0,801,0,LI-COR Biosciences,wikidata,Q6458581
+802-0,802,0,Genasys,wikidata,Q6459789
+803-0,803,0,Cascade Drives (Sweden),wikidata,Q61932126
+804-0,804,0,Uría Menéndez,wikidata,Q82963291
+805-0,805,0,Scansource,wikidata,Q22121871
+806-0,806,0,X-FAB,wikidata,Q690374
+807-0,807,0,Tokio Marine & Nichido Risk Consulting,wikidata,Q11524978
+808-0,808,0,Saint Anselm College,wikidata,Q3463654
+809-0,809,0,Jollyes,wikidata,Q45844955
+810-0,810,0,PSI CRO (United Kingdom),wikidata,Q50038915
+811-0,811,0,Satellite Information Services,wikidata,Q7426044
+812-0,812,0,at+m marketing,wikidata,Q83988050
+813-0,813,0,Strekin (Switzerland),wikidata,Q30269350
+814-0,814,0,Ohana Biosciences (United States),wikidata,Q108737120
+815-0,815,0,Maschio Gaspardo,wikidata,Q12735124
+816-0,816,0,Merced County Times,wikidata,Q16969440
+817-0,817,0,Autonomix Medical (United States),wikidata,Q104480005
+818-0,818,0,Seihyo,wikidata,Q11314145
+819-0,819,0,G2V Optics,wikidata,Q111455667
+820-0,820,0,VillaSport,wikidata,Q107655692
+821-0,821,0,Ajo Copper News,wikidata,Q4699925
+822-0,822,0,Banca Pueyo,wikidata,Q29895390
+823-0,823,0,Andritz (United Kingdom),wikidata,Q59536000
+824-0,824,0,Earwolf,wikidata,Q5327352
+825-0,825,0,Zimmerman Associates (United States),wikidata,Q30298756
+826-0,826,0,Exhilway private capital market,wikidata,Q5420242
+827-0,827,0,Sparkasse Essen,wikidata,Q2307400
+828-0,828,0,ComparaSemplice.it,wikidata,Q121539507
+829-0,829,0,Scinex Corporation,wikidata,Q11304127
+830-0,830,0,EBAWE,wikidata,Q1273888
+831-0,831,0,Vision Values Holdings Limited,wikidata,Q7012564
+832-0,832,0,GAIL,wikidata,Q2512333
+833-0,833,0,Accea,wikidata,Q90043156
+834-0,834,0,Duality Games,wikidata,Q113672892
+835-0,835,0,Capital & Regional,wikidata,Q5035433
+836-0,836,0,Jean Coutu Group,wikidata,Q3117457
+837-0,837,0,Newlight Technologies,wikidata,Q22078222
+838-0,838,0,dormakaba Holding AG,wikidata,Q690011
+839-0,839,0,Ada Health,wikidata,Q60775452
+840-0,840,0,OTP Travel,wikidata,Q101418692
+841-0,841,0,Bunge Limited,wikidata,Q1009458
+842-0,842,0,Attributor,wikidata,Q4818728
+843-0,843,0,Van Hattum en Blankevoort,wikidata,Q2066443
+844-0,844,0,Invesco,wikidata,Q522617
+845-0,845,0,gamerDNA,wikidata,Q5520050
+846-0,846,0,Eurogentec,wikidata,Q3060626
+847-0,847,0,Solaronix (Switzerland),wikidata,Q30285477
+848-0,848,0,CMC Limited,wikidata,Q5012868
+849-0,849,0,Keolis Bordeaux,wikidata,Q16039741
+850-0,850,0,Joseph Joseph,wikidata,Q18208357
+851-0,851,0,Gulf Cryo,wikidata,Q17060292
+852-0,852,0,RTX,wikidata,Q89368734
+853-0,853,0,Amedis,wikidata,Q460691
+854-0,854,0,Minerals Technologies Inc.,wikidata,Q76486914
+855-0,855,0,Defector Media,wikidata,Q97959695
+856-0,856,0,Katayama Rivet & Screw,wikidata,Q11569646
+857-0,857,0,happyeasygo,wikidata,Q112120489
+858-0,858,0,Alternative Technology Association,wikidata,Q108756508
+859-0,859,0,GE Zenon,wikidata,Q30253586
+860-0,860,0,1-800-GOT-JUNK?,wikidata,Q4545754
+861-0,861,0,VIVAQUA,wikidata,Q3561439
+862-0,862,0,Pico Far East Holdings Limited,wikidata,Q7215569
+863-0,863,0,Generali Tranquilidade,wikidata,Q7833457
+864-0,864,0,Hervana (Israel),wikidata,Q30271727
+865-0,865,0,DuArt Film and Video,wikidata,Q5309973
+866-0,866,0,StataCorp,wikidata,Q4050068
+867-0,867,0,The TMI Group of Companies,wikidata,Q7767850
+868-0,868,0,Oakpont,wikidata,Q58898260
+869-0,869,0,Administración Nacional de Usinas y Transmisiones Eléctricas,wikidata,Q1665583
+870-0,870,0,"Encore, Inc.",wikidata,Q5375522
+871-0,871,0,Fanucci Editore,wikidata,Q3739444
+872-0,872,0,The People's Insurance Company (Group) of China Limited,wikidata,Q1807264
+873-0,873,0,Reederei Nord,wikidata,Q2136514
+874-0,874,0,Bartlett Tree Experts,wikidata,Q121598942
+875-0,875,0,Whisper Systems,wikidata,Q7993932
+876-0,876,0,Webull,wikidata,Q104902623
+877-0,877,0,University of Petroșani,wikidata,Q23023833
+878-0,878,0,Persystent Software,wikidata,Q7170783
+879-0,879,0,Stavro Vind,wikidata,Q113465926
+880-0,880,0,Karus Therapeutics (United Kingdom),wikidata,Q59535686
+881-0,881,0,De norske Bokklubbene AS,wikidata,Q12714143
+882-0,882,0,Blue Prism,wikidata,Q30324186
+883-0,883,0,Universidad Nueva Esparta,wikidata,Q7894301
+884-0,884,0,Aridhia (United Kingdom),wikidata,Q56583760
+885-0,885,0,Esker SA,wikidata,Q1659325
+886-0,886,0,Nanocomp Technologies (United States),wikidata,Q30265663
+887-0,887,0,Joseph-Beth Booksellers,wikidata,Q6280591
+888-0,888,0,Brain Traffic,wikidata,Q47499704
+889-0,889,0,Grupo ACIR,wikidata,Q5886021
+890-0,890,0,"Advertising Nagata Co., Ltd.",wikidata,Q105199985
+891-0,891,0,Scienta Omicron,wikidata,Q2023367
+892-0,892,0,Bepress,wikidata,Q4892016
+893-0,893,0,Lytro,wikidata,Q2984629
+894-0,894,0,National Radio Astronomy Observatory,wikidata,Q1967618
+895-0,895,0,Creavo (United Kingdom),wikidata,Q59536365
+896-0,896,0,Franka Emika GmbH,wikidata,Q108294031
+897-0,897,0,CYGNET,wikidata,Q108212568
+898-0,898,0,Green Cargo,wikidata,Q1028092
+899-0,899,0,The Stranger,wikidata,Q3522886
+900-0,900,0,LifeIMAGE,wikidata,Q17082136
+901-0,901,0,Pet Supplies Plus,wikidata,Q7171563
+902-0,902,0,Japan Securities Depository Center,wikidata,Q11631272
+903-0,903,0,Stark Future,wikidata,Q111739831
+904-0,904,0,Octopus Investments,wikidata,Q86685332
+905-0,905,0,Genuine Parts Company,wikidata,Q5533818
+906-0,906,0,Dynamic Systems Integration (United States),wikidata,Q64141524
+907-0,907,0,Venator Solutions (United States),wikidata,Q64143002
+908-0,908,0,Streamline Numerics (United States),wikidata,Q30298569
+909-0,909,0,Heesen Yachts,wikidata,Q2490441
+910-0,910,0,Plantex (Slovakia),wikidata,Q77083684
+911-0,911,0,PGE Dom Maklerski,wikidata,Q113466258
+912-0,912,0,Laugh Out Loud Productions,wikidata,Q104625374
+913-0,913,0,Troc.com,wikidata,Q3539800
+914-0,914,0,Level-5,wikidata,Q674686
+915-0,915,0,Wajijiwa Entertainment,wikidata,Q85877652
+916-0,916,0,La Michoacana Meat Market,wikidata,Q6463872
+917-0,917,0,Game Insight,wikidata,Q5519857
+918-0,918,0,Shambhala Publications,wikidata,Q7487457
+919-0,919,0,Inepar,wikidata,Q10291841
+920-0,920,0,Swiftcover,wikidata,Q7656101
+921-0,921,0,General Engineering and Research (United States),wikidata,Q30267546
+922-0,922,0,Redfin,wikidata,Q7305846
+923-0,923,0,easyJet,wikidata,Q191551
+924-0,924,0,Oramed Pharmaceuticals,wikidata,Q28760388
+925-0,925,0,Clementoni,wikidata,Q3680488
+926-0,926,0,Rebellion Defense,wikidata,Q116918025
+927-0,927,0,Milwaukee Electric Tool Corporation,wikidata,Q6861736
+928-0,928,0,Drouot,wikidata,Q3040048
+929-0,929,0,Iberia,wikidata,Q187972
+930-0,930,0,Universitas Islam Sultan Agung,wikidata,Q12523351
+931-0,931,0,Masergy Communications,wikidata,Q39049120
+932-0,932,0,Daily Local News,wikidata,Q5209292
+933-0,933,0,GigaGen (United States),wikidata,Q30282519
+934-0,934,0,Great Big Story,wikidata,Q53817372
+935-0,935,0,Macy's,wikidata,Q629269
+936-0,936,0,Legacy Productions,wikidata,Q108301033
+937-0,937,0,New School,wikidata,Q599316
+938-0,938,0,Metro Technology Center,wikidata,Q6824729
+939-0,939,0,Revere Capital Advisors,wikidata,Q19604526
+940-0,940,0,Aizu Bus,wikidata,Q11381220
+941-0,941,0,Los Altos Town Crier,wikidata,Q55665581
+942-0,942,0,Akamai Technologies,wikidata,Q415598
+943-0,943,0,Preseria (Norway),wikidata,Q30259849
+944-0,944,0,Accelerate Diagnostics,wikidata,Q91490380
+945-0,945,0,Luxel (United States),wikidata,Q30298207
+946-0,946,0,Stellar Group,wikidata,Q7607185
+947-0,947,0,Bede Gaming,wikidata,Q19654714
+948-0,948,0,Sportradar US,wikidata,Q19868046
+949-0,949,0,Maruhan,wikidata,Q1905948
+950-0,950,0,"Chief Investigator, Transport Safety",wikidata,Q5096759
+951-0,951,0,Flexflight,wikidata,Q18450483
+952-0,952,0,Arlington Asset Investment,wikidata,Q4792281
+953-0,953,0,JSC Kuznetsov,wikidata,Q3787525
+954-0,954,0,Platební instituce Roger,wikidata,Q67815094
+955-0,955,0,Mey,wikidata,Q1926291
+956-0,956,0,Annual Reviews,wikidata,Q567368
+957-0,957,0,Zynx Health,wikidata,Q8075939
+958-0,958,0,WEL Networks,wikidata,Q7948949
+959-0,959,0,Broetje-Automation GmbH,wikidata,Q63862123
+960-0,960,0,Chofu Seisakusho,wikidata,Q11652976
+961-0,961,0,Kakuhiro Corporation,wikidata,Q11630748
+962-0,962,0,ParkingEye,wikidata,Q104672136
+963-0,963,0,Steam,wikidata,Q337535
+964-0,964,0,Xishanju Games,wikidata,Q17066954
+965-0,965,0,"University of Wales, Newport",wikidata,Q935290
+966-0,966,0,Beat Communication,wikidata,Q11331144
+967-0,967,0,Cadbury,wikidata,Q6677525
+968-0,968,0,Variety,wikidata,Q471728
+969-0,969,0,The Advocate,wikidata,Q7712721
+970-0,970,0,BTG Pactual,wikidata,Q2877503
+971-0,971,0,Youth Against Rape,wikidata,Q102105581
+972-0,972,0,Marble Arms,wikidata,Q6755157
+973-0,973,0,Universidade Federal de São Paulo,wikidata,Q4384447
+974-0,974,0,MBF Bioscience,wikidata,Q6714719
+975-0,975,0,Seifert Logistics Group,wikidata,Q42916741
+976-0,976,0,Cape Fear Community College,wikidata,Q5034785
+977-0,977,0,FNC Inc.,wikidata,Q5426771
+978-0,978,0,Worcestershire Acute Hospitals NHS Trust,wikidata,Q17040140
+979-0,979,0,Emergent BioSolutions,wikidata,Q5370757
+980-0,980,0,Saudi Arabian Amiantit Co.,wikidata,Q12218646
+981-0,981,0,TVBS Media Inc.,wikidata,Q707252
+982-0,982,0,Docsity,wikidata,Q17009390
+983-0,983,0,Kölle Zoo,wikidata,Q76606192
+984-0,984,0,Plazm,wikidata,Q7203728
+985-0,985,0,ReplayTV,wikidata,Q7314030
+986-0,986,0,St. Ambrose University,wikidata,Q1669453
+987-0,987,0,TIAS.com,wikidata,Q7670348
+988-0,988,0,Foundry Networks,wikidata,Q498410
+989-0,989,0,Molly Fantasy,wikidata,Q92437201
+990-0,990,0,Alfabet,wikidata,Q4721851
+991-0,991,0,Paribus,wikidata,Q28130206
+992-0,992,0,SS&C Technologies,wikidata,Q7392916
+993-0,993,0,Indian Institute of Management Kozhikode,wikidata,Q6020637
+994-0,994,0,Rutter's,wikidata,Q7383544
+995-0,995,0,Hobby Lobby,wikidata,Q5874938
+996-0,996,0,Kindred Healthcare,wikidata,Q921363
+997-0,997,0,Federal Reserve Bank of Minneapolis,wikidata,Q2503528
+998-0,998,0,Sipa Press,wikidata,Q144105
+999-0,999,0,QuickChek,wikidata,Q7271689

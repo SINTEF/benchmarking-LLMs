@@ -1,0 +1,16 @@
+{
+  "name": "cp_crunchbase",
+  "description": "Companies test split with Wikidata ground truth.",
+  "source_table": "data/Company/companies_test.csv",
+  "source_gt": "data/Company/el_companies_gt_crunchbase.csv",
+  "table_path": "data/cp/table.csv",
+  "gt_path": "data/cp/gt_crunchbase.csv",
+  "mention_columns": [
+    "company"
+  ],
+  "target_kg": "crunchbase",
+  "seed": 13,
+  "table_rows": 1000,
+  "gt_rows": 1000,
+  "built_at": "2026-01-12T10:14:44Z"
+}

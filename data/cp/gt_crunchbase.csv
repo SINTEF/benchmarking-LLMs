@@ -1,0 +1,1001 @@
+key,row,col,mention,target_kg,gt_id
+0-0,0,0,WeoGeo,crunchbase,weogeo
+1-0,1,0,Indiana Public Retirement System,crunchbase,indiana-public-retirement-system
+2-0,2,0,Cury Construtora,crunchbase,cury-construtora-e-incorporadora
+3-0,3,0,Madlyn Cazalis,crunchbase,madlyn-cazalis
+4-0,4,0,The Bryan Times,crunchbase,the-bryan-publishing-company
+5-0,5,0,West Cornwall Pasty Company,crunchbase,west-cornwall-pasty-co-ltd
+6-0,6,0,Stark,crunchbase,stark-finland
+7-0,7,0,Real Estate Funding Solutions,crunchbase,real-estate-funding-solutions
+8-0,8,0,Intellinet,crunchbase,intellinet
+9-0,9,0,Litres,crunchbase,litres
+10-0,10,0,Alector (United States),crunchbase,alector
+11-0,11,0,GMHBA Limited,crunchbase,gmhba
+12-0,12,0,Garuda Maintenance Facility Aero Asia,crunchbase,gmf-aeroasia
+13-0,13,0,Dunea,crunchbase,dunea
+14-0,14,0,MOJ,crunchbase,moj-sa
+15-0,15,0,W&Wsens Inc.,crunchbase,w-w-sens
+16-0,16,0,BioMarin (United Kingdom),crunchbase,biomarin-pharmaceutical
+17-0,17,0,Rigoni di Asiago,crunchbase,rigoni-di-asiago
+18-0,18,0,Cold Rock Ice Creamery,crunchbase,cold-rock-ice-creamery
+19-0,19,0,ThinkTank Learning,crunchbase,thinktank-learning
+20-0,20,0,Vamoose Bus,crunchbase,vamoose
+21-0,21,0,Inamorata,crunchbase,inamorata-woman
+22-0,22,0,Shizugin TM Securities,crunchbase,shizugin-tm-securities
+23-0,23,0,Shun Tak Holdings,crunchbase,shun-tak-holdings
+24-0,24,0,Verizon Networkfleet,crunchbase,networkfleet-2
+25-0,25,0,Coporación Aceros Arequipa,crunchbase,corporación-aceros-arequipa
+26-0,26,0,Siteimprove,crunchbase,siteimprove
+27-0,27,0,TechSolve (United States),crunchbase,techsolve-inc
+28-0,28,0,Mascan,crunchbase,mascan
+29-0,29,0,NetCam Systems,crunchbase,netcam-systems-corporation
+30-0,30,0,Rupert and Buckley,crunchbase,rupert-and-buckley
+31-0,31,0,Norfolk and Suffolk NHS Foundation Trust,crunchbase,norfolk-and-suffolk-nhs-foundation-trust
+32-0,32,0,Salumi,crunchbase,salumi-artisan-cured-meats
+33-0,33,0,Maine Maritime Academy,crunchbase,maine-maritime-academy-2
+34-0,34,0,Sogesca,crunchbase,sogesca
+35-0,35,0,White Citadel,crunchbase,white-citadel
+36-0,36,0,Watauga Democrat,crunchbase,watauga-democrat
+37-0,37,0,Crust,crunchbase,crust-pizza
+38-0,38,0,FiberSensing (Portugal),crunchbase,fibersensing
+39-0,39,0,Kvadrat,crunchbase,kvadrat
+40-0,40,0,Friesland Foods,crunchbase,friesland-foods
+41-0,41,0,Wallington County Grammar School,crunchbase,wallington-county-grammar-school
+42-0,42,0,American Institute of Physics,crunchbase,american-institute-of-physics
+43-0,43,0,JBG Smith,crunchbase,the-jbg-companies
+44-0,44,0,Triangle Studios,crunchbase,triangle-studios
+45-0,45,0,Digital Media Academy,crunchbase,digital-media-academy
+46-0,46,0,Barry's Tea,crunchbase,tea-holdings
+47-0,47,0,Designit (Norway),crunchbase,designit
+48-0,48,0,ToyChamp,crunchbase,toychamp
+49-0,49,0,Zen Bio,crunchbase,zenbio
+50-0,50,0,Oregon-Canadian Forest Products,crunchbase,oregon-canadian-forest-products
+51-0,51,0,Antonelle,crunchbase,antonelle
+52-0,52,0,Three UK,crunchbase,three
+53-0,53,0,Zweckverband Abfallwirtschaft Region Trier,crunchbase,waste-management-region-trier-art
+54-0,54,0,Hokuetsu Bank,crunchbase,hokuetsu-bank
+55-0,55,0,Mercy Health,crunchbase,mercy-health
+56-0,56,0,Monteco (Canada),crunchbase,monteco
+57-0,57,0,Discovery Semiconductors (United States),crunchbase,discovery-semiconductors
+58-0,58,0,VR Bank Bad Orb-Gelnhausen,crunchbase,vr-bank
+59-0,59,0,The Daily Gazette,crunchbase,the-daily-gazette
+60-0,60,0,Boss Fight Books,crunchbase,boss-fight-books
+61-0,61,0,DFCU Financial,crunchbase,dfcu-financial
+62-0,62,0,i-drive,crunchbase,i-drive
+63-0,63,0,University of Lahore,crunchbase,university-of-lahore
+64-0,64,0,Auto Research Center,crunchbase,auto-research-center
+65-0,65,0,Covisint,crunchbase,covisint
+66-0,66,0,Media Expert,crunchbase,media-expert-377d
+67-0,67,0,Holochip (United States),crunchbase,holochip
+68-0,68,0,Rollits LLP,crunchbase,rollits
+69-0,69,0,Holt Renfrew,crunchbase,holt-renfrew
+70-0,70,0,Gotham Greens,crunchbase,gotham-greens
+71-0,71,0,La Rose Noire,crunchbase,la-rose-noire
+72-0,72,0,Tosei,crunchbase,tosei
+73-0,73,0,Lionical,crunchbase,lionical
+74-0,74,0,The Irish Times,crunchbase,the-irish-times
+75-0,75,0,The Daily Star,crunchbase,the-daily-star
+76-0,76,0,Oliver Bonas,crunchbase,oliver-bonas
+77-0,77,0,An-Najah National University,crunchbase,an-najah-national-university
+78-0,78,0,Yoolink,crunchbase,yoolink
+79-0,79,0,Seagram Company Ltd.,crunchbase,seagram-company-ltd
+80-0,80,0,Pluto Press,crunchbase,pluto-press
+81-0,81,0,Open Book Publishers,crunchbase,open-book-publishers
+82-0,82,0,Moustache Bikes,crunchbase,moustache-bikes
+83-0,83,0,The Pictet Group,crunchbase,pictet-private-equity-investors-s-a
+84-0,84,0,Proximion (Sweden),crunchbase,proximion-fiber-optics
+85-0,85,0,Beirut Arab University,crunchbase,beirut-arab-university
+86-0,86,0,Boulder Brands,crunchbase,boulder-brands
+87-0,87,0,The Daily Advocate,crunchbase,daily-advocate-early-bird-news
+88-0,88,0,Riverside Abstract,crunchbase,riverside-abstract-llc
+89-0,89,0,Hazama Ando Corporation,crunchbase,hazama-ando
+90-0,90,0,Levi Strauss & Co.,crunchbase,levi-strauss-co
+91-0,91,0,Berkshire Bank,crunchbase,berkshire-bank
+92-0,92,0,TAISEI U-LEC corporation,crunchbase,taisei-u-lec
+93-0,93,0,Illuminate Labs,crunchbase,illuminate-labs
+94-0,94,0,Sparkasse Bensheim,crunchbase,sparkasse-bensheim
+95-0,95,0,Sonic Automotive,crunchbase,sonic-automotive
+96-0,96,0,Kanmonkai,crunchbase,kanmonkai
+97-0,97,0,AlloCiné,crunchbase,allocin
+98-0,98,0,John B. Stetson Company,crunchbase,stetson
+99-0,99,0,"Hellmuth, Obata and Kassabaum",crunchbase,hok
+100-0,100,0,Electronic Privacy Information Center,crunchbase,electronic-privacy-information-center
+101-0,101,0,BlaBlaCar,crunchbase,blablacar
+102-0,102,0,Sri Venkateswara College of Engineering,crunchbase,sri-venkateswara-college-of-engineering
+103-0,103,0,Foreign Language Teaching and Research Press,crunchbase,foreign-language-teaching-and-research-press
+104-0,104,0,Centriair (Sweden),crunchbase,centriair
+105-0,105,0,Traxxas,crunchbase,traxxas
+106-0,106,0,Futuro Forestal S.A.,crunchbase,futuro-forestal
+107-0,107,0,Newfoundland Power Inc.,crunchbase,newfoundland-power
+108-0,108,0,Berge Bulk,crunchbase,berge-bulk
+109-0,109,0,Brooklyn Navy Yard,crunchbase,the-brooklyn-navy-yard
+110-0,110,0,University of Houston C.T. Bauer College of Business,crunchbase,bauer-college-of-business
+111-0,111,0,China Hi-Tech Group Corporation,crunchbase,china-hi-tech-group
+112-0,112,0,BioPhorum (United Kingdom),crunchbase,biophorum
+113-0,113,0,Avalanche Studios Group,crunchbase,avalanche-studios
+114-0,114,0,Jingle Punks Music,crunchbase,jingle-punks-music
+115-0,115,0,Rogers Stirk Harbour + Partners,crunchbase,rogers-stirk-harbour-partners
+116-0,116,0,Adams State University,crunchbase,adams-state-college
+117-0,117,0,Electromagnetic Geoservices,crunchbase,electromagnetic-geoservices-asa
+118-0,118,0,Biolink Group (Norway),crunchbase,biolink-group
+119-0,119,0,Frogwares,crunchbase,frogwares
+120-0,120,0,Japan Automatic Development,crunchbase,japan-automatic-development
+121-0,121,0,Integrated Prescription Management (IPM),crunchbase,integrated-prescription-management
+122-0,122,0,Doris Engineering,crunchbase,doris-engineering
+123-0,123,0,Breevast,crunchbase,breevast
+124-0,124,0,Ernst Klett Verlag,crunchbase,ernst-klett-verlag
+125-0,125,0,Yospace,crunchbase,yospace-technologies
+126-0,126,0,Nutreco,crunchbase,nutreco
+127-0,127,0,Kureha,crunchbase,kureha-corporation
+128-0,128,0,Resolution Limited,crunchbase,friends-life
+129-0,129,0,Detec (Norway),crunchbase,detec-as
+130-0,130,0,Vittoria Coffee,crunchbase,vittoria-coffee
+131-0,131,0,Dar Es Salaam Investment Bank,crunchbase,dar-essalam-investment-bank
+132-0,132,0,CSS Insurance,crunchbase,css-0055
+133-0,133,0,Knjižara vulkan,crunchbase,knjižare-vulkan
+134-0,134,0,Brainlab,crunchbase,brainlab
+135-0,135,0,St. Martin's Press,crunchbase,st-martin-s-press
+136-0,136,0,YouControl,crunchbase,u-control
+137-0,137,0,DesignArc,crunchbase,designarc
+138-0,138,0,Potton & Burton,crunchbase,potton-burton
+139-0,139,0,Boyer Brothers,crunchbase,boyer-candy
+140-0,140,0,Nohmi Bosai,crunchbase,nohmi-bosai
+141-0,141,0,Mingoville,crunchbase,savivo
+142-0,142,0,Echo Digital Audio,crunchbase,echo-8c57
+143-0,143,0,West Cork Distillers,crunchbase,west-cork-distillers
+144-0,144,0,Maruni Wood Industry,crunchbase,maruni
+145-0,145,0,Covenant Aviation Security,crunchbase,covenant-aviation-security
+146-0,146,0,Speake-Marin,crunchbase,speake-marin
+147-0,147,0,YU Televentures,crunchbase,yu
+148-0,148,0,Sistrix,crunchbase,sistrix-gmbh
+149-0,149,0,Doxa (Sweden),crunchbase,doxa-ab
+150-0,150,0,Times Herald,crunchbase,the-times-herald
+151-0,151,0,CenterEdge Software,crunchbase,centeredge-advantage
+152-0,152,0,Kumamoto Toshi Bus,crunchbase,kumamoto-toshi-bus
+153-0,153,0,Norbord,crunchbase,norbord-industries
+154-0,154,0,Kinnate Biopharma Inc.,crunchbase,kinnate-biopharma
+155-0,155,0,Psychology Software Tools (United States),crunchbase,psychology-software-tools
+156-0,156,0,Uklon,crunchbase,uklon
+157-0,157,0,GSD&M,crunchbase,gsd-m
+158-0,158,0,ROSA Linux,crunchbase,llc-ntc-it-rosa
+159-0,159,0,Starman,crunchbase,starman
+160-0,160,0,Armor Games,crunchbase,armorgames
+161-0,161,0,T-Online,crunchbase,t-online
+162-0,162,0,Tiroler Tageszeitung,crunchbase,tiroler-tageszeitung
+163-0,163,0,Eurofins Biolab,crunchbase,eurofins
+164-0,164,0,Ralph and Russo,crunchbase,ralph-and-russo
+165-0,165,0,Engineers India Limited,crunchbase,engineers-india
+166-0,166,0,Sukhoi,crunchbase,sukhoi
+167-0,167,0,Mantex (Sweden),crunchbase,mantex
+168-0,168,0,Boston Properties,crunchbase,boston-properties
+169-0,169,0,Benevity,crunchbase,benevity
+170-0,170,0,36Kr,crunchbase,36kr
+171-0,171,0,Severstal,crunchbase,severstal-ventures
+172-0,172,0,Sutton Grammar School,crunchbase,sutton-grammar-school-for-boys
+173-0,173,0,Baker Hughes (United Kingdom),crunchbase,baker-hughes
+174-0,174,0,Metallurgical Corporation of China Limited,crunchbase,metallurgical-corporation-of-china
+175-0,175,0,RedSeven Entertainment,crunchbase,redseven-entertainment
+176-0,176,0,Kaltenbach-Gruppe (Maschinenbau),crunchbase,kaltenbach-gmbh-co-kg
+177-0,177,0,Tethys Research (United States),crunchbase,tethys-research
+178-0,178,0,Vidal,crunchbase,kuups-design-international
+179-0,179,0,Berliner Volksbank,crunchbase,berliner-volksbank
+180-0,180,0,JumpSport,crunchbase,jumpsport
+181-0,181,0,Expert Analytics,crunchbase,expert-analytics
+182-0,182,0,Proletarsky Plant,crunchbase,proletarsky-zavod-pjsc
+183-0,183,0,Rectrix Aviation,crunchbase,rectrix-aviation
+184-0,184,0,Brussels Airlines,crunchbase,brussels-airlines
+185-0,185,0,Umoe Mandal,crunchbase,umoe-mandal
+186-0,186,0,BitBay,crunchbase,bitbay
+187-0,187,0,GMO Aozora Net Bank,crunchbase,gmo-aozora-net-bank
+188-0,188,0,Hovis,crunchbase,hovis-ltd
+189-0,189,0,Logos Film,crunchbase,logos-film
+190-0,190,0,Speakeasy,crunchbase,speakeasy
+191-0,191,0,Greystar Real Estate Partners,crunchbase,greystar
+192-0,192,0,Metalmark Capital,crunchbase,metalmark-capital
+193-0,193,0,Nissan Motor India Private Limited,crunchbase,nissan-digital-india-llp
+194-0,194,0,EVault,crunchbase,evault
+195-0,195,0,Veriff,crunchbase,veriff
+196-0,196,0,cVidya,crunchbase,cvidya
+197-0,197,0,Ubitricity,crunchbase,ubitricity
+198-0,198,0,Unsplash,crunchbase,unsplash
+199-0,199,0,Abt Electronics,crunchbase,abt-electronics
+200-0,200,0,Oberweis Dairy,crunchbase,oberweis-dairy
+201-0,201,0,Hawthorne,crunchbase,hawthorne
+202-0,202,0,CISOfy,crunchbase,cisofy
+203-0,203,0,Imedex (United States),crunchbase,imedex
+204-0,204,0,Ankerbrot,crunchbase,anchor-a627
+205-0,205,0,Allsecures,crunchbase,axa
+206-0,206,0,Timberline Lodge,crunchbase,timberline-lodge-ski-resort
+207-0,207,0,Eagle Rock Entertainment,crunchbase,eagle-rock-entertainment
+208-0,208,0,Caloi,crunchbase,caloi
+209-0,209,0,Times24,crunchbase,times-24
+210-0,210,0,Stanley Black & Decker,crunchbase,stanley-black-decker
+211-0,211,0,Omek Interactive,crunchbase,omek-interactive
+212-0,212,0,Arnold Ventures,crunchbase,arnold-ventures
+213-0,213,0,Isabellenhütte Heusler,crunchbase,isabellenhütte-heusler
+214-0,214,0,"Bmax, Inc.",crunchbase,bmax
+215-0,215,0,Karlsberg,crunchbase,karlsberg-brewery
+216-0,216,0,HotGen,crunchbase,hotgen
+217-0,217,0,Dark Reading,crunchbase,dark-reading
+218-0,218,0,Novil Corporation,crunchbase,novil-holdings
+219-0,219,0,ON24,crunchbase,on24
+220-0,220,0,SVB Financial Group,crunchbase,svb-financial-group
+221-0,221,0,PJICO,crunchbase,petrolimex-insurance-corporation
+222-0,222,0,Capitol Broadcasting Company,crunchbase,capitol-broadcasting-company
+223-0,223,0,Innosight,crunchbase,innosight
+224-0,224,0,Bisleri,crunchbase,bisleri
+225-0,225,0,Snappy Gifts,crunchbase,snappy-app
+226-0,226,0,West Japan Engineering Consultants,crunchbase,west-japan-engineering-consultants
+227-0,227,0,Aucfan,crunchbase,aucfan
+228-0,228,0,Global Embedded Technologies (United States),crunchbase,global-et
+229-0,229,0,Wayland News,crunchbase,mlive-com
+230-0,230,0,Genzyme,crunchbase,genzyme
+231-0,231,0,Freire Shipyard,crunchbase,freire-shipyard
+232-0,232,0,Entangly (Sweden),crunchbase,entangly-ab
+233-0,233,0,HeiTech Services (United States),crunchbase,heitech-services-inc
+234-0,234,0,ConjuChem,crunchbase,conjuchem-biotechnologies
+235-0,235,0,appfleet,crunchbase,appfleet
+236-0,236,0,Herschel Supply Co.,crunchbase,herschel-supply
+237-0,237,0,Disneyland,crunchbase,disneyland-resort
+238-0,238,0,Odyssey Airlines,crunchbase,odyssey-airlines
+239-0,239,0,HNA Infrastructure Investment Group,crunchbase,hna-infrastructure
+240-0,240,0,Sparkasse Lüdenscheid,crunchbase,sparkasse-lüdenscheid
+241-0,241,0,SomaGenics (United States),crunchbase,somagenics
+242-0,242,0,QPS (Netherlands),crunchbase,qps-holdings
+243-0,243,0,Oakwood,crunchbase,oakwood-2
+244-0,244,0,Bath Ales,crunchbase,bath-ales
+245-0,245,0,GenoSafe,crunchbase,genosafe
+246-0,246,0,"San Miguel Food and Beverage, Inc.",crunchbase,san-miguel-food-and-beverage
+247-0,247,0,BAIC Motor,crunchbase,baic-motor
+248-0,248,0,Grandi Stazioni,crunchbase,grandi-stazioni-s-p-a-2
+249-0,249,0,EM News Distribution,crunchbase,em-news-distribution
+250-0,250,0,Huawei,crunchbase,huawei
+251-0,251,0,Childtime Learning Centers,crunchbase,childtime
+252-0,252,0,MAHLE Filter Systems (Canada),crunchbase,mahle-industries
+253-0,253,0,Lavazza Coffee (UK) Ltd.,crunchbase,lavazza-coffee-uk-ltd
+254-0,254,0,Claremont Eagle Times,crunchbase,eagle-times
+255-0,255,0,National Herald,crunchbase,national-herald
+256-0,256,0,Arrow Energy,crunchbase,arrow-energy
+257-0,257,0,Cubist Pharmaceuticals,crunchbase,cubist-pharmaceuticals
+258-0,258,0,Sanzaru Games,crunchbase,sanzaru-games
+259-0,259,0,Community Impact Newspaper,crunchbase,community-impact-newspaper
+260-0,260,0,OmniVision Technologies,crunchbase,omnivision-technologies
+261-0,261,0,The Brattle Group,crunchbase,the-brattle-group
+262-0,262,0,Nippon Shinyaku,crunchbase,nippon-shinyaku
+263-0,263,0,Brloh,crunchbase,brloh
+264-0,264,0,Mrs.Sporty,crunchbase,mrs-sporty-gmbh
+265-0,265,0,Haas School of Business,crunchbase,uc-berkeley-haas-business-school
+266-0,266,0,"Ceva, Inc.",crunchbase,ceva
+267-0,267,0,Koninklijke Peijnenburg,crunchbase,koninklijke-peijnenburg
+268-0,268,0,Union Sozialer Einrichtungen,crunchbase,use-union-social-institutions-non-profit
+269-0,269,0,Cascade Microtech,crunchbase,cascade-microtech
+270-0,270,0,Jack Wolfskin,crunchbase,jack-wolfskin
+271-0,271,0,USM Holdings,crunchbase,usm-holdings
+272-0,272,0,My Family Care,crunchbase,my-family-care
+273-0,273,0,The Delfield Company,crunchbase,delfield
+274-0,274,0,Project Honey Pot,crunchbase,project-honey-pot
+275-0,275,0,Esam,crunchbase,esam
+276-0,276,0,Avery Biomedical Devices,crunchbase,avery-is-a
+277-0,277,0,Screen Australia,crunchbase,screen-australia
+278-0,278,0,A3 Electric Mobility,crunchbase,a3-electric-mobility
+279-0,279,0,Amber Books,crunchbase,amber-books-2f89
+280-0,280,0,Kelvion Holding,crunchbase,kelvion
+281-0,281,0,Interdisciplinary Center for Neural Computation,crunchbase,hebrew-university-of-jerusalem
+282-0,282,0,Control Systems Research (United States),crunchbase,control-systems-research-inc-upset-triangle
+283-0,283,0,Fonix,crunchbase,fonix
+284-0,284,0,Nordmedia,crunchbase,nordmedia
+285-0,285,0,Hypetex (United Kingdom),crunchbase,hypetex
+286-0,286,0,Cismet,crunchbase,cismet
+287-0,287,0,Radianse (United States),crunchbase,radianse
+288-0,288,0,Kreisel Electric,crunchbase,kreisel-electric
+289-0,289,0,Rite Lite Ltd.,crunchbase,rite-lite
+290-0,290,0,Rogue Amoeba,crunchbase,rogue-amoeba-software
+291-0,291,0,Internet Archive,crunchbase,internet-archive
+292-0,292,0,Askari Bank,crunchbase,askari-bank
+293-0,293,0,Leaders,crunchbase,leaders-ltd
+294-0,294,0,Acome,crunchbase,acome
+295-0,295,0,Better Place,crunchbase,better-place
+296-0,296,0,Airport Railroad Corporation,crunchbase,arex-343d
+297-0,297,0,Inocycle Technology Group,crunchbase,inocycle-technology-group
+298-0,298,0,O Globo,crunchbase,o-globo
+299-0,299,0,QuesTek (United States),crunchbase,questek-innovations
+300-0,300,0,ValueAct Capital,crunchbase,valueact-capital
+301-0,301,0,Shell Deutschland Oil,crunchbase,shell-global-solutions-deutschland-gmbh
+302-0,302,0,Resol Holdings,crunchbase,resol-holdings
+303-0,303,0,Paris 12 University,crunchbase,paris-12-val-de-marne-university
+304-0,304,0,FunPlus,crunchbase,funplus-game
+305-0,305,0,Besix,crunchbase,besix-group
+306-0,306,0,FXCollaborative,crunchbase,fxcollaborative
+307-0,307,0,Channellock,crunchbase,channellock-inc
+308-0,308,0,ExpoTV,crunchbase,expotv
+309-0,309,0,CertainTeed,crunchbase,certainteed-corporation
+310-0,310,0,Diadexus (United States),crunchbase,diadexus
+311-0,311,0,Aircraft End-of-Life Solutions,crunchbase,aels
+312-0,312,0,Safeway Stores,crunchbase,safeway-stores
+313-0,313,0,STC Biologics (United States),crunchbase,stc-biologics
+314-0,314,0,Makro,crunchbase,metro-group
+315-0,315,0,Gateway Center for Israel,crunchbase,gateway-center-for-israel
+316-0,316,0,"ZheJiang AoKang Shoes Co., Ltd.",crunchbase,aokang
+317-0,317,0,Oni Press,crunchbase,oni-press
+318-0,318,0,Ovidius University,crunchbase,ovidius-university-constanta
+319-0,319,0,Kyoritsu Air Tech,crunchbase,kyoritsu-air-tech
+320-0,320,0,Denpa Shinbunsha,crunchbase,dempa-net
+321-0,321,0,Scott Laboratories (United States),crunchbase,scott-laboratories
+322-0,322,0,PCBWay,crunchbase,pcbway
+323-0,323,0,Randstad Singapore,crunchbase,randstad-singapore
+324-0,324,0,QV Investors,crunchbase,qv-investors
+325-0,325,0,Precision System Science,crunchbase,precision-system-science
+326-0,326,0,International Labmate Ltd,crunchbase,international-labmate
+327-0,327,0,Dire Wolf Digital,crunchbase,dire-wolf-digital
+328-0,328,0,Knorr,crunchbase,knorr
+329-0,329,0,From The Bench Digital Entertainment,crunchbase,from-the-bench
+330-0,330,0,Chatr,crunchbase,chatrhub
+331-0,331,0,Nihon Parkerizing,crunchbase,nihon-parkerizing
+332-0,332,0,L’Carriera,crunchbase,lcarriera
+333-0,333,0,Sunstar (Switzerland),crunchbase,sunstar-455b
+334-0,334,0,LOT Polish Airlines,crunchbase,lot-polish-airlines
+335-0,335,0,Native Grill & Wings,crunchbase,native-grill-wings-franchising
+336-0,336,0,Indium corporation,crunchbase,indium-corporation
+337-0,337,0,Instacart,crunchbase,instacart
+338-0,338,0,Psychiatric Solutions,crunchbase,psychiatric-solutions
+339-0,339,0,Doncaster and Bassetlaw Teaching Hospitals NHS Foundation Trust,crunchbase,doncaster-and-bassetlaw-teaching-hospitals-nhs-foundation-trust
+340-0,340,0,DMarket,crunchbase,dmarket
+341-0,341,0,University of Wales,crunchbase,university-of-wales
+342-0,342,0,Next Big Sound,crunchbase,next-big-sound
+343-0,343,0,Python Package Index,crunchbase,pypi
+344-0,344,0,Dream it. Code it. Win it.,crunchbase,dream-it-code-it-win-it
+345-0,345,0,ZMP INC.,crunchbase,zmp
+346-0,346,0,Everfuel,crunchbase,everfuel
+347-0,347,0,Adelard,crunchbase,adelard
+348-0,348,0,B. Braun Medical (Netherlands),crunchbase,b-braun-accelerator-collaboration-program-2020
+349-0,349,0,Maxwell Technologies,crunchbase,maxwell-technologies
+350-0,350,0,Rhizome,crunchbase,rhizome-2
+351-0,351,0,Cannonball Musical Instruments,crunchbase,cannonball-cb55
+352-0,352,0,WebSideStory,crunchbase,websidestory
+353-0,353,0,Transport International Holdings,crunchbase,transport-international-holdings
+354-0,354,0,Sendio,crunchbase,sendio
+355-0,355,0,Quite Interesting Limited,crunchbase,quite-interesting-limited
+356-0,356,0,Leadway,crunchbase,leadway-assurance
+357-0,357,0,"Mendel Biotechnology, Inc.",crunchbase,mendel-biotechnology
+358-0,358,0,Alabama Power,crunchbase,alabama-power-company
+359-0,359,0,Verkehrs- und Betriebsgesellschaft Gera,crunchbase,gvb-9458
+360-0,360,0,OFS,crunchbase,ofs-fitel
+361-0,361,0,EY Technologies (United States),crunchbase,ey-technologies
+362-0,362,0,Abel & Imray,crunchbase,abel-imray
+363-0,363,0,Terminal X,crunchbase,terminal-x
+364-0,364,0,University of Canterbury,crunchbase,university-of-canterbury
+365-0,365,0,Alok Industries,crunchbase,alok-industries
+366-0,366,0,Zola,crunchbase,zola
+367-0,367,0,FEI (Norway),crunchbase,fei-company
+368-0,368,0,Mitsumoto Coffee,crunchbase,mitsumoto-coffee
+369-0,369,0,SiteGround,crunchbase,siteground
+370-0,370,0,Kari,crunchbase,kari-4a49
+371-0,371,0,Advantage Risk Management,crunchbase,advantage-risk-management
+372-0,372,0,National Technological University,crunchbase,national-technological-university
+373-0,373,0,Westfal-Larsen,crunchbase,westfal-larsen-co
+374-0,374,0,Ritlabs,crunchbase,ritlabs
+375-0,375,0,E!,crunchbase,e-entertainment
+376-0,376,0,Piaggio,crunchbase,piaggio-group
+377-0,377,0,Islamic Azad University of Shiraz,crunchbase,islamic-azad-university-of-shiraz
+378-0,378,0,Swire Resources,crunchbase,swire-resources
+379-0,379,0,Island Air,crunchbase,island-air
+380-0,380,0,Viking Line,crunchbase,viking-line
+381-0,381,0,Bombay Dyeing,crunchbase,bombay-dyeing
+382-0,382,0,AlterG,crunchbase,alterg
+383-0,383,0,Onoda Chemical Industry,crunchbase,onoda-chemical-industry
+384-0,384,0,College of West Anglia,crunchbase,college-of-west-anglia
+385-0,385,0,Daitobo,crunchbase,daitobo
+386-0,386,0,CAO Group (United States),crunchbase,cao-group-inc
+387-0,387,0,Vichem Chemie (Hungary),crunchbase,vichem-chemie-research-ltd
+388-0,388,0,Sands Anderson,crunchbase,sands-anderson-pc
+389-0,389,0,Rolls-Royce Power Systems,crunchbase,rolls-royce-power-venture-ltd
+390-0,390,0,Gallup & Robinson,crunchbase,the-g-r-cooperative
+391-0,391,0,Hitachi Power Solutions,crunchbase,hitachi-power
+392-0,392,0,Diagonal View,crunchbase,diagonal-view
+393-0,393,0,Eveve,crunchbase,eveve
+394-0,394,0,Ansarada,crunchbase,ansarada
+395-0,395,0,Guerbet,crunchbase,guerbet
+396-0,396,0,Vision iO (Norway),crunchbase,vision-io
+397-0,397,0,Haaretz,crunchbase,haaretz
+398-0,398,0,Oberbank,crunchbase,oberbank-ag
+399-0,399,0,BBC Worldwide,crunchbase,bbc-worldwide
+400-0,400,0,Randstad N.V.,crunchbase,randstad
+401-0,401,0,Swoop Aero,crunchbase,swoop-aero
+402-0,402,0,Canon Norge,crunchbase,canon-2141
+403-0,403,0,Incitec Pivot,crunchbase,incitec-pivot
+404-0,404,0,The London Gazette,crunchbase,the-gazette-d99f
+405-0,405,0,Pure Indian Foods,crunchbase,pure-indian-foods
+406-0,406,0,IGA,crunchbase,iga-corporate
+407-0,407,0,Auvesta,crunchbase,auvesta-e4a8
+408-0,408,0,Landka,crunchbase,landka
+409-0,409,0,Matthews International,crunchbase,matthews-international-corporation
+410-0,410,0,RWE Generation NL,crunchbase,rwe-0385
+411-0,411,0,The Mont Hotel,crunchbase,the-mont-hotel
+412-0,412,0,Cailabs,crunchbase,cailabs
+413-0,413,0,Alvéole (France),crunchbase,alvéole
+414-0,414,0,Crain Communications,crunchbase,crain-communications
+415-0,415,0,NanoRepro,crunchbase,nanorepro
+416-0,416,0,Itad (United Kingdom),crunchbase,itad-limited
+417-0,417,0,Bayerische Regiobahn,crunchbase,bayerische-regiobahn
+418-0,418,0,Alog Datacenters,crunchbase,alog-data-centers-do-brasil
+419-0,419,0,Ergo Hestia,crunchbase,ergo-hestia
+420-0,420,0,Tatra,crunchbase,tatra
+421-0,421,0,LiveStreamers Inc.,crunchbase,liver
+422-0,422,0,Banco Itaú,crunchbase,banco-itau-2
+423-0,423,0,Parmiter's School,crunchbase,parmiters-school
+424-0,424,0,DLA Piper,crunchbase,dla-piper
+425-0,425,0,Ocean County Library,crunchbase,ocean-county-library
+426-0,426,0,Kenwood Corporation,crunchbase,jvckenwood
+427-0,427,0,Milk & More,crunchbase,milk-more
+428-0,428,0,Ohtori,crunchbase,ohtori
+429-0,429,0,Wallace Roberts & Todd,crunchbase,wrt-llc
+430-0,430,0,Isocel telecom,crunchbase,isocel-telecom
+431-0,431,0,Pibank,crunchbase,pibank
+432-0,432,0,Bubblefly,crunchbase,bubblefly
+433-0,433,0,Ancar Ivanhoe,crunchbase,ancar-ivanhoe
+434-0,434,0,Kingston Hospital NHS Foundation Trust,crunchbase,kingston-hospital-nhs-foundation-trust
+435-0,435,0,Sato Holdings,crunchbase,sato
+436-0,436,0,Zodiac Nautic,crunchbase,zodiac-nautic
+437-0,437,0,Egenera,crunchbase,egenera-inc
+438-0,438,0,Shriram City Union Finance,crunchbase,shriram-city-union-finance
+439-0,439,0,Pelotonia,crunchbase,pelotonia
+440-0,440,0,Binggrae,crunchbase,binggrae
+441-0,441,0,Troy Cablevision,crunchbase,troy-cablevision-inc
+442-0,442,0,"CTT Correios de Portugal, S.A.",crunchbase,ctt
+443-0,443,0,Schroff GmbH,crunchbase,nvent-schroff
+444-0,444,0,MobileDay,crunchbase,mobileday
+445-0,445,0,"Light Field Lab, Inc.",crunchbase,light-field-lab-inc
+446-0,446,0,Layne Christensen Company,crunchbase,layne-christensen
+447-0,447,0,Scan,crunchbase,scan
+448-0,448,0,Hygloss Products Inc.,crunchbase,hygloss-products
+449-0,449,0,Rea Magnet Wire,crunchbase,rea-magnet-wire
+450-0,450,0,Syntronic (Sweden),crunchbase,syntronic-research-and-development-ab
+451-0,451,0,Energy Micro,crunchbase,energy-micro
+452-0,452,0,Hüni + Co,crunchbase,funnel-4e27
+453-0,453,0,University of Guadalajara,crunchbase,university-of-guadalajara
+454-0,454,0,21 Cineplex,crunchbase,cinema-xxi
+455-0,455,0,Dallah Al-Baraka,crunchbase,dallah-albaraka-holding
+456-0,456,0,Encirc,crunchbase,encirc
+457-0,457,0,Lystek,crunchbase,lystek
+458-0,458,0,Bodum,crunchbase,bodum
+459-0,459,0,Wesco Financial,crunchbase,wesco-financial-corporation
+460-0,460,0,Fratelli Guzzini,crunchbase,fratelli-guzzini
+461-0,461,0,Ansys (Germany),crunchbase,ansys
+462-0,462,0,Toko-Ai,crunchbase,toko-ai
+463-0,463,0,ClearSign Combustion,crunchbase,clearsign-combustion
+464-0,464,0,ChristianCinema.com,crunchbase,christian-cinema
+465-0,465,0,Ceradyne,crunchbase,ceradyne
+466-0,466,0,Stanford Graduate School of Business,crunchbase,stanford-graduate-school-of-business
+467-0,467,0,Ubisoft Blue Byte,crunchbase,ubisoft-blue-byte
+468-0,468,0,University of Connecticut School of Law,crunchbase,university-of-connecticut-school-of-law
+469-0,469,0,The Hermiston Herald,crunchbase,hermiston-herald
+470-0,470,0,Equinix,crunchbase,equinix
+471-0,471,0,KHD Humboldt Wedag,crunchbase,khd-humboldt-wedag
+472-0,472,0,AdventHealth,crunchbase,adventhealth
+473-0,473,0,Dan BaDarom,crunchbase,dan-badarom
+474-0,474,0,Fisher Flying Products,crunchbase,fisher-flying-products
+475-0,475,0,AJP Motos,crunchbase,ajp-motos
+476-0,476,0,Warner Leisure Hotels,crunchbase,bourne-holidays
+477-0,477,0,Solxyz,crunchbase,solxyz
+478-0,478,0,ClearBank,crunchbase,clearbank
+479-0,479,0,Cosmo Tech,crunchbase,cosmo-company
+480-0,480,0,Grupo Vidanta,crunchbase,grupo-vidanta
+481-0,481,0,United States Telecom Association,crunchbase,ustelecom
+482-0,482,0,Hangar One Vodka,crunchbase,hangar-one
+483-0,483,0,Masterbulk,crunchbase,masterbulk
+484-0,484,0,"China Television Media, Ltd",crunchbase,china-television-media
+485-0,485,0,RPA,crunchbase,rpa
+486-0,486,0,BossAlien,crunchbase,boss-alien
+487-0,487,0,CS Soft,crunchbase,cs-soft-a-s
+488-0,488,0,Aica Kogyo,crunchbase,aica-kogyo
+489-0,489,0,Equipmake (United Kingdom),crunchbase,equipmake
+490-0,490,0,Southend University Hospital NHS Foundation Trust,crunchbase,southend-university-hospital-nhs-foundation-trust
+491-0,491,0,Sinmat (United States),crunchbase,sinmat
+492-0,492,0,Moniker Guitars,crunchbase,moniker-guitars
+493-0,493,0,Miami University,crunchbase,miami-university
+494-0,494,0,Arrinera,crunchbase,arrinera
+495-0,495,0,Audi BKK,crunchbase,audi-bkk
+496-0,496,0,Gabal Verlag,crunchbase,gabal-verlag
+497-0,497,0,Lasertryk,crunchbase,lasertryk
+498-0,498,0,Die Glocke,crunchbase,die-glocke
+499-0,499,0,Avantor (Poland),crunchbase,avantor-performance-materials
+500-0,500,0,Virbac,crunchbase,virbac
+501-0,501,0,United Bulgarian Bank,crunchbase,united-bulgarian-bank
+502-0,502,0,POM Wonderful,crunchbase,pom-wonderful
+503-0,503,0,Dodge City Community College,crunchbase,dodge-city-community-college
+504-0,504,0,Stadtwerke Coesfeld,crunchbase,stadtwerke-coesfeld
+505-0,505,0,Visionular,crunchbase,visionular
+506-0,506,0,Telmore,crunchbase,telmore
+507-0,507,0,Betta Living,crunchbase,betta-living
+508-0,508,0,Max Biopharma (United States),crunchbase,max-biopharma
+509-0,509,0,Coastal Point,crunchbase,coastal-point
+510-0,510,0,Egosoft,crunchbase,egosoft
+511-0,511,0,Somfy,crunchbase,somfy
+512-0,512,0,Providus Bank Limited,crunchbase,providusbank
+513-0,513,0,Royal Caribbean Group,crunchbase,royal-caribbean-group
+514-0,514,0,Melbourne University Publishing,crunchbase,mup
+515-0,515,0,Volvo Buses,crunchbase,volvo-bus-corporation
+516-0,516,0,Concur Technologies,crunchbase,concur-japan
+517-0,517,0,Ameyo,crunchbase,ameyo
+518-0,518,0,Rapyd,crunchbase,rapyd
+519-0,519,0,BIOVIA,crunchbase,accelrys
+520-0,520,0,Fox Mobile Entertainment,crunchbase,freenet-digital
+521-0,521,0,Midwest College of Oriental Medicine,crunchbase,midwest-college-of-oriental-medicine-chicago
+522-0,522,0,Little Worlds Studio,crunchbase,little-worlds-studio
+523-0,523,0,Louisiana Tech University,crunchbase,louisiana-tech-university
+524-0,524,0,Katara Hospitality,crunchbase,katara-hospitality
+525-0,525,0,Marcellus Media Ventures Inc.,crunchbase,marcellus-media-ventures
+526-0,526,0,Oil and Natural Gas Corporation,crunchbase,ongc
+527-0,527,0,Interbank Burundi,crunchbase,interbank-burundi
+528-0,528,0,Vela Solaris AG,crunchbase,vela-solaris
+529-0,529,0,SICPA,crunchbase,sicpa
+530-0,530,0,Made For Retail (United States),crunchbase,made-for-retail
+531-0,531,0,Lawrence University,crunchbase,lawrence-university
+532-0,532,0,Ethel Austin,crunchbase,ethel-austin
+533-0,533,0,Coal Energy S.A.,crunchbase,coal-energy
+534-0,534,0,Daily News,crunchbase,dailynews
+535-0,535,0,Ability Pharmaceuticals,crunchbase,ability-pharmaceuticals
+536-0,536,0,Hawkins Cookers Limited,crunchbase,hawkins-cookers
+537-0,537,0,The Durst Organization,crunchbase,thedurstorganization
+538-0,538,0,Amazon Prime Video,crunchbase,amazonprime
+539-0,539,0,Gakken Plus,crunchbase,gakken-plus
+540-0,540,0,Schwebel's Bakery,crunchbase,schwebel-baking-company
+541-0,541,0,EZchip Semiconductor,crunchbase,ezchip
+542-0,542,0,KSDK,crunchbase,ksdk
+543-0,543,0,Networked Insights,crunchbase,networked-insights
+544-0,544,0,Italia Pellets,crunchbase,italia-pellets
+545-0,545,0,JA Ochi-Imabari,crunchbase,ja-ochiimabari
+546-0,546,0,CorMatrix (United States),crunchbase,cormatrix
+547-0,547,0,CITIC Financial AMC,crunchbase,china-huarong
+548-0,548,0,Fuso Corporation,crunchbase,fuso
+549-0,549,0,Cox & Company (United States),crunchbase,cox-company
+550-0,550,0,Arunai Engineering College,crunchbase,arunai-university
+551-0,551,0,iMakr,crunchbase,imakr
+552-0,552,0,GAS Y ELECTRICIDAD GENERACION,crunchbase,endesa
+553-0,553,0,Redback Networks,crunchbase,redback-networks
+554-0,554,0,Koch Disruptive Technologies,crunchbase,koch-disruptive-technologies
+555-0,555,0,PGi,crunchbase,pgi
+556-0,556,0,Mendocino Farms,crunchbase,mendocino-farms
+557-0,557,0,Lotte,crunchbase,lotte
+558-0,558,0,B. Braun,crunchbase,b-braun-accelerator-collaboration-program-2020
+559-0,559,0,Bahamasair,crunchbase,bahamasair
+560-0,560,0,Alza.cz,crunchbase,publero
+561-0,561,0,City-Link Express,crunchbase,city-link-express
+562-0,562,0,Laserfiche,crunchbase,laserfiche
+563-0,563,0,Kenya Pipeline Company,crunchbase,kenya-pipeline-company
+564-0,564,0,Oschadbank,crunchbase,oschadbank
+565-0,565,0,Teichert,crunchbase,teichert
+566-0,566,0,Hamdard University,crunchbase,hamdard-university
+567-0,567,0,Monolith Productions,crunchbase,monolith-productions
+568-0,568,0,Codenomicon,crunchbase,codenomicon-ltd
+569-0,569,0,Lemon Sky Studios,crunchbase,lemon-sky-studios
+570-0,570,0,Prajasakti,crunchbase,prajasakti
+571-0,571,0,ProKyma Technologies (United Kingdom),crunchbase,prokyma
+572-0,572,0,Aptima (United States),crunchbase,aptima-inc
+573-0,573,0,Kalido,crunchbase,kalido
+574-0,574,0,Stelic Institute,crunchbase,stelic-institute-co
+575-0,575,0,Helion Energy,crunchbase,helion-energy
+576-0,576,0,Ratsit,crunchbase,ratsit-ab
+577-0,577,0,GeoSpectrum Technologies (Canada),crunchbase,geospectrum-technologies
+578-0,578,0,Genelec,crunchbase,genelec
+579-0,579,0,Technical University of Košice,crunchbase,technical-university-of-ko-ice
+580-0,580,0,Mitteldeutsche Zeitung,crunchbase,mz-7287
+581-0,581,0,Z-Terra (United States),crunchbase,z-terra
+582-0,582,0,"Clinical Tools, Inc.",crunchbase,clinical-tools
+583-0,583,0,Quincy College,crunchbase,quincy-college
+584-0,584,0,Rita's Italian Ice,crunchbase,rita-s-italian-ice
+585-0,585,0,Ball Beverage Packaging Europe,crunchbase,ball
+586-0,586,0,"I・K Co., Ltd.",crunchbase,ik
+587-0,587,0,Firmengruppe APPL,crunchbase,firmengruppe-appl
+588-0,588,0,Distribucións Arnoia,crunchbase,arnoia-distribución-de-libros
+589-0,589,0,American Meteorological Society,crunchbase,american-meteorological-society
+590-0,590,0,Virginia Wesleyan University,crunchbase,virginia-wesleyan-college
+591-0,591,0,Verlag Moderne Industrie,crunchbase,verlag-moderne-industrie-gmbh
+592-0,592,0,Port of Subs,crunchbase,port-of-subs
+593-0,593,0,Eskom,crunchbase,eskom
+594-0,594,0,Louisville Eccentric Observer,crunchbase,leo-weekly
+595-0,595,0,Viridor,crunchbase,skipaway-holdings-limited
+596-0,596,0,Airports Corporation of Vietnam,crunchbase,airports-corporation-of-vietnam
+597-0,597,0,drugstore.com,crunchbase,drugstore-com
+598-0,598,0,Grazer Wechselseitige Versicherung,crunchbase,grawe
+599-0,599,0,iCracked,crunchbase,icracked
+600-0,600,0,ET Solar,crunchbase,et-solar-group
+601-0,601,0,Hardy Brothers,crunchbase,hardy-brothers
+602-0,602,0,Meta Publishing,crunchbase,meta-publishing
+603-0,603,0,Stadtwerke Würzburg AG,crunchbase,wvv
+604-0,604,0,Management and Training Corporation,crunchbase,management-training-corporation
+605-0,605,0,Whitewater Brewery,crunchbase,whitewater-brewery
+606-0,606,0,Central Bank of Brazil,crunchbase,banco-central-do-brasil
+607-0,607,0,Oxsensis,crunchbase,oxsensis
+608-0,608,0,Georgetown Cupcake,crunchbase,georgetown-cupcake
+609-0,609,0,Blueberry Hill,crunchbase,blueberry-hill
+610-0,610,0,Pop-Up Magazine,crunchbase,pop-up-magazine
+611-0,611,0,TrialSite News,crunchbase,trialsite-news
+612-0,612,0,Science Systems and Applications (United States),crunchbase,science-systems-and-applications
+613-0,613,0,Lids,crunchbase,lids
+614-0,614,0,dope.security,crunchbase,dope-security
+615-0,615,0,T-Mobile Austria,crunchbase,magenta-telekom
+616-0,616,0,Industrial Securities,crunchbase,industrial-securities
+617-0,617,0,Featherlite Trailers,crunchbase,featherlite-inc
+618-0,618,0,MSD Japan,crunchbase,banyu-pharmaceutical
+619-0,619,0,Beer Nuts,crunchbase,beer-nuts
+620-0,620,0,Arimino,crunchbase,arimino
+621-0,621,0,Worldcolor,crunchbase,quebecor-world-inc
+622-0,622,0,Groupe Artémis,crunchbase,groupe-artémis
+623-0,623,0,Guangzhou Shipyard International,crunchbase,comec
+624-0,624,0,Dr Fox Pharmacy,crunchbase,dr-fox
+625-0,625,0,OP Financial Group,crunchbase,op-financial-group
+626-0,626,0,Rock Ventures,crunchbase,rock-ventures
+627-0,627,0,Book of the Month Club,crunchbase,book-of-the-month
+628-0,628,0,"Hongzhiwei Technology (Shanghai) Co., Ltd.",crunchbase,hongzhiwei-technology
+629-0,629,0,Technorati,crunchbase,technorati
+630-0,630,0,Pfisterer Group,crunchbase,pfisterer-holding
+631-0,631,0,BioOne,crunchbase,bioone
+632-0,632,0,Mixbook,crunchbase,mixbook
+633-0,633,0,Chu Kong Shipping,crunchbase,chu-kong-shipping-enterprises-group
+634-0,634,0,Mobimeo,crunchbase,mobimeo
+635-0,635,0,Ceres Imaging (United States),crunchbase,ceres-imaging
+636-0,636,0,Scrap Entertainment,crunchbase,scrap-japan
+637-0,637,0,Computomics,crunchbase,computomics-gmbh
+638-0,638,0,Hollywood Records,crunchbase,hollywood-records
+639-0,639,0,The Men Who Wear Many Hats,crunchbase,the-men-who-wear-many-hats
+640-0,640,0,Big Blue Bubble,crunchbase,big-blue-bubble
+641-0,641,0,Pertamina,crunchbase,pt-pertamina-persero
+642-0,642,0,Bowie State University,crunchbase,bowie-state-university
+643-0,643,0,CLEARink Displays,crunchbase,clearink-displays
+644-0,644,0,Artificial Insemination Center of Quebec,crunchbase,ciaq
+645-0,645,0,Ekster®,crunchbase,Ekster
+646-0,646,0,JHS Pedals,crunchbase,jhs-pedals
+647-0,647,0,SCM Group,crunchbase,scm-group
+648-0,648,0,New Bank of Santa Fe,crunchbase,banco-santa-fe
+649-0,649,0,Kwantum,crunchbase,kwantum
+650-0,650,0,BBPOS (China),crunchbase,bbpos
+651-0,651,0,Bulgari S.p.A.,crunchbase,bulgari-spa
+652-0,652,0,Charleston School of Law,crunchbase,charleston-school-of-law
+653-0,653,0,Bunnings Group,crunchbase,bunnings-93ca
+654-0,654,0,KLJY,crunchbase,joy-fm
+655-0,655,0,Knoema,crunchbase,knoema
+656-0,656,0,Industria Aeronautică Română,crunchbase,iar
+657-0,657,0,ASST Grande Ospedale Metropolitano Niguarda,crunchbase,ospedale-niguarda
+658-0,658,0,University of New Mexico School of Medicine,crunchbase,university-of-new-mexico-school-of-medicine
+659-0,659,0,Goody Music Records,crunchbase,goody-music
+660-0,660,0,Hongmian Zhihui,crunchbase,lonkey
+661-0,661,0,Esri,crunchbase,esri
+662-0,662,0,National Indian Education Association,crunchbase,national-indian-education-association
+663-0,663,0,Ganske Publishing Group,crunchbase,ganske-verlagsgruppe
+664-0,664,0,Jomboy Media,crunchbase,jomboy-media
+665-0,665,0,PICO Technologies (United States),crunchbase,pico-energy
+666-0,666,0,InterMedia Partners,crunchbase,intermedia-partners
+667-0,667,0,André,crunchbase,andre
+668-0,668,0,Vestjysk Bank,crunchbase,vestjysk-bank
+669-0,669,0,Talari Networks,crunchbase,talari-networks
+670-0,670,0,CHEP,crunchbase,bxb-digital
+671-0,671,0,Aeris Energy,crunchbase,aeris-energy
+672-0,672,0,Blitz,crunchbase,blitz-2
+673-0,673,0,Alliance Protein Laboratories (United States),crunchbase,alliance-protein-laboratories
+674-0,674,0,Alu Group,crunchbase,alugroup
+675-0,675,0,Výzkumný Ústav Železniční,crunchbase,vyzkumny-ustav-zeleznicni
+676-0,676,0,Datacard Group,crunchbase,datacard-group
+677-0,677,0,3ème Oeil Productions,crunchbase,troisiemeoeil
+678-0,678,0,Daily Hampshire Gazette,crunchbase,daily-hampshire-gazette
+679-0,679,0,Ivanti,crunchbase,ivanti
+680-0,680,0,HighQ,crunchbase,highq
+681-0,681,0,Zero-G Ltd,crunchbase,zero-g-8c48
+682-0,682,0,The Messenger,crunchbase,the-messenger-a84d
+683-0,683,0,Seoyon E-Hwa (South Korea),crunchbase,seoyon-e-hwa
+684-0,684,0,Partners in School Innovation,crunchbase,partners-in-school-innovation
+685-0,685,0,Wonderful Italy,crunchbase,wonderful-italy
+686-0,686,0,Viewster,crunchbase,viewster
+687-0,687,0,Doğuş Media Group,crunchbase,dogus-yayin-grubu
+688-0,688,0,Bank Rakyat Indonesia Agroniaga,crunchbase,bri-agro
+689-0,689,0,BonneGueule,crunchbase,bonne-gueule
+690-0,690,0,American Radio Relay League,crunchbase,arrl--american-radio-relay-league-
+691-0,691,0,Revive & Restore,crunchbase,revive-restore
+692-0,692,0,Groupe Royal Air Maroc,crunchbase,royal-air-maroc
+693-0,693,0,TrustCo Bank,crunchbase,trustco-bank
+694-0,694,0,LSG Sky Chefs,crunchbase,lsg-sky-chefs-group
+695-0,695,0,BlueStacks,crunchbase,bluestacks
+696-0,696,0,BioVidria (United States),crunchbase,biovidria
+697-0,697,0,Vital Energy,crunchbase,laredo-energy
+698-0,698,0,Seco/Warwick,crunchbase,seco-warwick-sa
+699-0,699,0,Bower,crunchbase,bower
+700-0,700,0,Tacoma Public Utilities,crunchbase,tacoma-public-utilities
+701-0,701,0,Emerce,crunchbase,emerce
+702-0,702,0,Kentucky Educational Television,crunchbase,kentucky-educational-television
+703-0,703,0,Limbo,crunchbase,hdmessaging
+704-0,704,0,Cuero Record,crunchbase,the-cuero-record
+705-0,705,0,Catabasis Pharmaceuticals,crunchbase,catabasis-pharmaceuticals
+706-0,706,0,Metropolitan Models,crunchbase,metropolitan-models
+707-0,707,0,Trapp Family Lodge,crunchbase,trapp-family-lodge
+708-0,708,0,Computacenter,crunchbase,computacenter
+709-0,709,0,"Teng Yue Partners, L.P.",crunchbase,teng-yue-partners
+710-0,710,0,Citinite,crunchbase,citinite-
+711-0,711,0,IVAR (Czechia),crunchbase,ivar
+712-0,712,0,International Chemical Investors Group,crunchbase,international-chemical-investors-group
+713-0,713,0,News America Marketing,crunchbase,news-america-marketing
+714-0,714,0,Banque du Liban,crunchbase,banque-du-liban
+715-0,715,0,CTB/McGraw-Hill,crunchbase,ctb-mcgraw-hill-llc
+716-0,716,0,Nextgen Networks,crunchbase,nextgen-group
+717-0,717,0,Companhia Energética de Minas Gerais,crunchbase,cemig
+718-0,718,0,Attock Petroleum,crunchbase,attock-petroleum
+719-0,719,0,Country Development Bank Ltd.,crunchbase,country-development-bank
+720-0,720,0,"NSS Hindu College, Changanassery",crunchbase,nss-hindu-college
+721-0,721,0,Yelp Reservations,crunchbase,seatme
+722-0,722,0,Trams in A Coruña,crunchbase,compañía-de-tranvías-de-la-coruña
+723-0,723,0,Kuker-Ranken,crunchbase,kuker-ranken
+724-0,724,0,Peugeot,crunchbase,peugeot-sa
+725-0,725,0,Thomas Cook (India) Limited,crunchbase,thomas-cook-india
+726-0,726,0,KNS,crunchbase,kns
+727-0,727,0,Tata Hispano,crunchbase,tata-hispano-motors-carrocera
+728-0,728,0,PreTalen (United States),crunchbase,pretalen
+729-0,729,0,Moberly Monitor-Index,crunchbase,moberly-monitor-index
+730-0,730,0,Co-operators,crunchbase,the-co-operators-insurance-group
+731-0,731,0,Chance Rides,crunchbase,chance-rides
+732-0,732,0,Carraro,crunchbase,carraro-group
+733-0,733,0,The Examiner,crunchbase,the-examiner
+734-0,734,0,Yushiro Chemical Industry,crunchbase,yushiro-chemical-industry
+735-0,735,0,Zoup!,crunchbase,zoup
+736-0,736,0,SpotHero,crunchbase,spothero
+737-0,737,0,The Bridge,crunchbase,memphis-street-newspaper-organization
+738-0,738,0,Anderson Herald Bulletin,crunchbase,herald-bulletin
+739-0,739,0,Playlyfe,crunchbase,playlyfe
+740-0,740,0,Pentagon Federal Credit Union,crunchbase,pentagon-federal-credit-union
+741-0,741,0,Gencia (United States),crunchbase,gencia
+742-0,742,0,TradeMe,crunchbase,trade-me
+743-0,743,0,Waters (United Kingdom),crunchbase,waters-corporation
+744-0,744,0,DocBox (United States),crunchbase,docbox-d762
+745-0,745,0,Batavus,crunchbase,batavus
+746-0,746,0,Columbia Insurance Group,crunchbase,columbia-insurance
+747-0,747,0,KDVR,crunchbase,fox31
+748-0,748,0,Concentrix,crunchbase,concentrix-corporation
+749-0,749,0,PPG Paints,crunchbase,ppg-paints
+750-0,750,0,Broadband 4 Rural North,crunchbase,broadband-for-the-rural-north
+751-0,751,0,Simbex (United States),crunchbase,simbex
+752-0,752,0,Tonkotsu,crunchbase,tonkotsu
+753-0,753,0,Singapore Institute of Management,crunchbase,singapore-institute-of-management
+754-0,754,0,VisLab,crunchbase,vislab
+755-0,755,0,Modell's,crunchbase,modell-s-sporting-goods
+756-0,756,0,University of Jyväskylä,crunchbase,jyväskylän-yliopisto
+757-0,757,0,Kheiron Medical Technologies (United Kingdom),crunchbase,kheiron
+758-0,758,0,Dagrofa,crunchbase,dagrofa
+759-0,759,0,Davka Corporation,crunchbase,davka-corporation
+760-0,760,0,A&R Cambridge Ltd,crunchbase,arcam-2
+761-0,761,0,Broughton Foods Company,crunchbase,broughton-foods
+762-0,762,0,GCM Resources,crunchbase,gcm-resources
+763-0,763,0,University of Sydney,crunchbase,university-of-sydney
+764-0,764,0,Sigma,crunchbase,sigma-aktiebolag
+765-0,765,0,N3TWORK,crunchbase,n3twork
+766-0,766,0,Eco Inhibitors (Norway),crunchbase,eco-inhibitors
+767-0,767,0,Co-wheels,crunchbase,co-wheels-car-club
+768-0,768,0,General Dynamics Electric Boat,crunchbase,electric-boat-s
+769-0,769,0,Republic-Times,crunchbase,republic-times
+770-0,770,0,COOK Trading,crunchbase,cook
+771-0,771,0,we.R.play,crunchbase,we-r-play
+772-0,772,0,Neosentec,crunchbase,neosentec
+773-0,773,0,Amifa,crunchbase,amifa
+774-0,774,0,Shanghai Tang,crunchbase,shanghai-tang-group-limited
+775-0,775,0,Ministry of Works,crunchbase,ministry-of-works
+776-0,776,0,Domicil Real Estate AG,crunchbase,domicil-1f53
+777-0,777,0,"Nasdaq, Inc.",crunchbase,nasdaq-omx
+778-0,778,0,Hologic,crunchbase,hologic
+779-0,779,0,Kalmar Industries,crunchbase,kalmar
+780-0,780,0,Kodkod,crunchbase,kodkod
+781-0,781,0,Norse Projects,crunchbase,norse-projects
+782-0,782,0,The US Inquirer,crunchbase,the-us-inquirer
+783-0,783,0,Rottendorf Pharma,crunchbase,rottendorf-pharma
+784-0,784,0,ObeTherapy Biotechnology (France),crunchbase,obetherapy-biotechnology
+785-0,785,0,End,crunchbase,end
+786-0,786,0,Allgäuer Überlandwerk,crunchbase,allgäuer-überlandwerk
+787-0,787,0,American Home Assurance,crunchbase,american-home-direct
+788-0,788,0,Aldi Nord,crunchbase,aldi
+789-0,789,0,Takebishi Corporation,crunchbase,takebishi
+790-0,790,0,Iwjw,crunchbase,iwjw-iwjw
+791-0,791,0,Naviance,crunchbase,naviance
+792-0,792,0,NanoScale Corporation,crunchbase,nanoscale-corporation
+793-0,793,0,Universidade Estadual do Paraná,crunchbase,universidade-estadual-do-paraná
+794-0,794,0,Snowdon (United States),crunchbase,snowdon
+795-0,795,0,Metropolis International,crunchbase,metropolis-international
+796-0,796,0,1Spatial,crunchbase,1spatial
+797-0,797,0,Federal Aviation Administration,crunchbase,federal-aviation-administration
+798-0,798,0,Universidade Potiguar,crunchbase,universidade-potiguar
+799-0,799,0,Rave Mobile Safety,crunchbase,rave-mobile-safety
+800-0,800,0,Fibertel telefónica telecom,crunchbase,ernesto-sebastian-rivero
+801-0,801,0,LI-COR Biosciences,crunchbase,li-cor
+802-0,802,0,Genasys,crunchbase,american-technology-corp
+803-0,803,0,Cascade Drives (Sweden),crunchbase,cascade-drives
+804-0,804,0,Uría Menéndez,crunchbase,uría-menéndez
+805-0,805,0,Scansource,crunchbase,scansource
+806-0,806,0,X-FAB,crunchbase,x-fab-semiconductor-foundries
+807-0,807,0,Tokio Marine & Nichido Risk Consulting,crunchbase,tokio-marine-nichido-risk-consulting
+808-0,808,0,Saint Anselm College,crunchbase,saint-anselm-college
+809-0,809,0,Jollyes,crunchbase,jollyes
+810-0,810,0,PSI CRO (United Kingdom),crunchbase,psi-cro-ag
+811-0,811,0,Satellite Information Services,crunchbase,sports-information-services
+812-0,812,0,at+m marketing,crunchbase,at-m-integrated-marketing
+813-0,813,0,Strekin (Switzerland),crunchbase,strekin
+814-0,814,0,Ohana Biosciences (United States),crunchbase,ohana-biosciences
+815-0,815,0,Maschio Gaspardo,crunchbase,maschio-gaspardo
+816-0,816,0,Merced County Times,crunchbase,merced-county-times
+817-0,817,0,Autonomix Medical (United States),crunchbase,autonomix-medical
+818-0,818,0,Seihyo,crunchbase,seihyo
+819-0,819,0,G2V Optics,crunchbase,g2v-optics
+820-0,820,0,VillaSport,crunchbase,villasport-athletic-club-and-spa
+821-0,821,0,Ajo Copper News,crunchbase,ajo-copper-news
+822-0,822,0,Banca Pueyo,crunchbase,banca-pueyo
+823-0,823,0,Andritz (United Kingdom),crunchbase,andritz
+824-0,824,0,Earwolf,crunchbase,earwolf-media-llc
+825-0,825,0,Zimmerman Associates (United States),crunchbase,zimmerman-associates
+826-0,826,0,Exhilway private capital market,crunchbase,exhilway-global
+827-0,827,0,Sparkasse Essen,crunchbase,sparkasse-essen
+828-0,828,0,ComparaSemplice.it,crunchbase,comparasemplice-it
+829-0,829,0,Scinex Corporation,crunchbase,scinex
+830-0,830,0,EBAWE,crunchbase,ebawe-plant-technology
+831-0,831,0,Vision Values Holdings Limited,crunchbase,vision-values-holdings
+832-0,832,0,GAIL,crunchbase,gail-india-limited
+833-0,833,0,Accea,crunchbase,accea
+834-0,834,0,Duality Games,crunchbase,duality-games
+835-0,835,0,Capital & Regional,crunchbase,capital-regional-pptys
+836-0,836,0,Jean Coutu Group,crunchbase,the-jean-coutu-group-pjc-inc
+837-0,837,0,Newlight Technologies,crunchbase,newlight-technologies
+838-0,838,0,dormakaba Holding AG,crunchbase,kaba-lodging
+839-0,839,0,Ada Health,crunchbase,adahealth
+840-0,840,0,OTP Travel,crunchbase,otp-travel
+841-0,841,0,Bunge Limited,crunchbase,bunge
+842-0,842,0,Attributor,crunchbase,attributor
+843-0,843,0,Van Hattum en Blankevoort,crunchbase,van-hattum-en-blankevoort
+844-0,844,0,Invesco,crunchbase,invesco-perpetual
+845-0,845,0,gamerDNA,crunchbase,gamerdna
+846-0,846,0,Eurogentec,crunchbase,eurogentec
+847-0,847,0,Solaronix (Switzerland),crunchbase,solaronix
+848-0,848,0,CMC Limited,crunchbase,cmc-india-ltd
+849-0,849,0,Keolis Bordeaux,crunchbase,tbm-7bae
+850-0,850,0,Joseph Joseph,crunchbase,joseph-joseph
+851-0,851,0,Gulf Cryo,crunchbase,gulf-cryo
+852-0,852,0,RTX,crunchbase,rtx-corp
+853-0,853,0,Amedis,crunchbase,amedis-ue
+854-0,854,0,Minerals Technologies Inc.,crunchbase,minerals-technologies
+855-0,855,0,Defector Media,crunchbase,defector
+856-0,856,0,Katayama Rivet & Screw,crunchbase,katayama-rivet-screw
+857-0,857,0,happyeasygo,crunchbase,happyeasygo-group
+858-0,858,0,Alternative Technology Association,crunchbase,ata-5860
+859-0,859,0,GE Zenon,crunchbase,ge-water-process-technologies-inc
+860-0,860,0,1-800-GOT-JUNK?,crunchbase,1-800-got-junk
+861-0,861,0,VIVAQUA,crunchbase,vivaqua
+862-0,862,0,Pico Far East Holdings Limited,crunchbase,http-www-pico-com
+863-0,863,0,Generali Tranquilidade,crunchbase,tranquilidade-espirito-santo-group
+864-0,864,0,Hervana (Israel),crunchbase,hervana
+865-0,865,0,DuArt Film and Video,crunchbase,duart-media-services
+866-0,866,0,StataCorp,crunchbase,statacorp
+867-0,867,0,The TMI Group of Companies,crunchbase,testing-machines
+868-0,868,0,Oakpont,crunchbase,oakpont
+869-0,869,0,Administración Nacional de Usinas y Transmisiones Eléctricas,crunchbase,ute
+870-0,870,0,"Encore, Inc.",crunchbase,encore-software
+871-0,871,0,Fanucci Editore,crunchbase,fanucci-editore
+872-0,872,0,The People's Insurance Company (Group) of China Limited,crunchbase,picc-group
+873-0,873,0,Reederei Nord,crunchbase,reederei-nord-group
+874-0,874,0,Bartlett Tree Experts,crunchbase,bartlett-tree-experts-2
+875-0,875,0,Whisper Systems,crunchbase,whisper-systems
+876-0,876,0,Webull,crunchbase,webull-588b
+877-0,877,0,University of Petroșani,crunchbase,university-of-petrosani
+878-0,878,0,Persystent Software,crunchbase,persystent-technology
+879-0,879,0,Stavro Vind,crunchbase,prime-capital-ag
+880-0,880,0,Karus Therapeutics (United Kingdom),crunchbase,karus-therapeutics
+881-0,881,0,De norske Bokklubbene AS,crunchbase,de-norske-bokklubbene
+882-0,882,0,Blue Prism,crunchbase,blue-prism-group-plc
+883-0,883,0,Universidad Nueva Esparta,crunchbase,universidad-nueva-esparta
+884-0,884,0,Aridhia (United Kingdom),crunchbase,aridhia-informatics
+885-0,885,0,Esker SA,crunchbase,esker
+886-0,886,0,Nanocomp Technologies (United States),crunchbase,nanocomp-technologies
+887-0,887,0,Joseph-Beth Booksellers,crunchbase,joseph-beth-booksellers
+888-0,888,0,Brain Traffic,crunchbase,brain-traffic
+889-0,889,0,Grupo ACIR,crunchbase,acir-group
+890-0,890,0,"Advertising Nagata Co., Ltd.",crunchbase,advertising-nagata
+891-0,891,0,Scienta Omicron,crunchbase,scienta-omicron
+892-0,892,0,Bepress,crunchbase,bepress
+893-0,893,0,Lytro,crunchbase,lytro
+894-0,894,0,National Radio Astronomy Observatory,crunchbase,national-radio-astronomy-observatory
+895-0,895,0,Creavo (United Kingdom),crunchbase,creavo-medical-technologies
+896-0,896,0,Franka Emika GmbH,crunchbase,franka-emika
+897-0,897,0,CYGNET,crunchbase,cygnet
+898-0,898,0,Green Cargo,crunchbase,green-cargo
+899-0,899,0,The Stranger,crunchbase,the-stranger
+900-0,900,0,LifeIMAGE,crunchbase,lifeimage
+901-0,901,0,Pet Supplies Plus,crunchbase,pet-supplies-plus-2
+902-0,902,0,Japan Securities Depository Center,crunchbase,japan-securities-depository-center
+903-0,903,0,Stark Future,crunchbase,stark-future
+904-0,904,0,Octopus Investments,crunchbase,octopus-apollo-vct
+905-0,905,0,Genuine Parts Company,crunchbase,genuine-parts-company
+906-0,906,0,Dynamic Systems Integration (United States),crunchbase,dsi-a4e1
+907-0,907,0,Venator Solutions (United States),crunchbase,venator-solutions
+908-0,908,0,Streamline Numerics (United States),crunchbase,streamline-numerics
+909-0,909,0,Heesen Yachts,crunchbase,heesen-yachts
+910-0,910,0,Plantex (Slovakia),crunchbase,plantex
+911-0,911,0,PGE Dom Maklerski,crunchbase,pge-0d25
+912-0,912,0,Laugh Out Loud Productions,crunchbase,laugh-out-loud
+913-0,913,0,Troc.com,crunchbase,troc-com
+914-0,914,0,Level-5,crunchbase,level-5-8083
+915-0,915,0,Wajijiwa Entertainment,crunchbase,wajijia-entertainment
+916-0,916,0,La Michoacana Meat Market,crunchbase,la-michoacana-meat-market
+917-0,917,0,Game Insight,crunchbase,game-insight
+918-0,918,0,Shambhala Publications,crunchbase,shambhala-publications
+919-0,919,0,Inepar,crunchbase,inepar
+920-0,920,0,Swiftcover,crunchbase,swiftcover-com
+921-0,921,0,General Engineering and Research (United States),crunchbase,general-engineering-and-research
+922-0,922,0,Redfin,crunchbase,redfin
+923-0,923,0,easyJet,crunchbase,easyjet-plc
+924-0,924,0,Oramed Pharmaceuticals,crunchbase,oramed-pharmaceuticals
+925-0,925,0,Clementoni,crunchbase,clementoni
+926-0,926,0,Rebellion Defense,crunchbase,rebellion-defense
+927-0,927,0,Milwaukee Electric Tool Corporation,crunchbase,milwaukee-tool
+928-0,928,0,Drouot,crunchbase,drouot
+929-0,929,0,Iberia,crunchbase,iberia
+930-0,930,0,Universitas Islam Sultan Agung,crunchbase,universitas-islam-sultan-agung-semarang
+931-0,931,0,Masergy Communications,crunchbase,masergy-communications
+932-0,932,0,Daily Local News,crunchbase,daily-local-news
+933-0,933,0,GigaGen (United States),crunchbase,gigagen
+934-0,934,0,Great Big Story,crunchbase,great-big-story
+935-0,935,0,Macy's,crunchbase,macys
+936-0,936,0,Legacy Productions,crunchbase,legacy-productions
+937-0,937,0,New School,crunchbase,the-new-school
+938-0,938,0,Metro Technology Center,crunchbase,metro-technology-centers
+939-0,939,0,Revere Capital Advisors,crunchbase,revere-capital-advisors
+940-0,940,0,Aizu Bus,crunchbase,aizu-noriai-motor
+941-0,941,0,Los Altos Town Crier,crunchbase,los-altos-town-crier
+942-0,942,0,Akamai Technologies,crunchbase,akamai-technologies
+943-0,943,0,Preseria (Norway),crunchbase,preseria-as
+944-0,944,0,Accelerate Diagnostics,crunchbase,accelerate-diagnostics
+945-0,945,0,Luxel (United States),crunchbase,luxel-0fba
+946-0,946,0,Stellar Group,crunchbase,stellar
+947-0,947,0,Bede Gaming,crunchbase,bede-gaming
+948-0,948,0,Sportradar US,crunchbase,sportradar-us
+949-0,949,0,Maruhan,crunchbase,maruhan-corporation
+950-0,950,0,"Chief Investigator, Transport Safety",crunchbase,department-of-transport-victoria
+951-0,951,0,Flexflight,crunchbase,flexflight
+952-0,952,0,Arlington Asset Investment,crunchbase,arlington-asset-investment
+953-0,953,0,JSC Kuznetsov,crunchbase,uec-kuznetsov
+954-0,954,0,Platební instituce Roger,crunchbase,roger-ae3a
+955-0,955,0,Mey,crunchbase,mey-handels-gmbh
+956-0,956,0,Annual Reviews,crunchbase,annual-reviews
+957-0,957,0,Zynx Health,crunchbase,zynx-health
+958-0,958,0,WEL Networks,crunchbase,wel-networks
+959-0,959,0,Broetje-Automation GmbH,crunchbase,broetje-automation
+960-0,960,0,Chofu Seisakusho,crunchbase,chofu-seisakusho
+961-0,961,0,Kakuhiro Corporation,crunchbase,kakuhiro
+962-0,962,0,ParkingEye,crunchbase,parkingeye
+963-0,963,0,Steam,crunchbase,steam
+964-0,964,0,Xishanju Games,crunchbase,westhouse
+965-0,965,0,"University of Wales, Newport",crunchbase,university-of-wales-newport
+966-0,966,0,Beat Communication,crunchbase,beat-communication
+967-0,967,0,Cadbury,crunchbase,cadbury
+968-0,968,0,Variety,crunchbase,variety
+969-0,969,0,The Advocate,crunchbase,the-advocate-8dab
+970-0,970,0,BTG Pactual,crunchbase,btg-pactual
+971-0,971,0,Youth Against Rape,crunchbase,youth-against-rape
+972-0,972,0,Marble Arms,crunchbase,marble-arms
+973-0,973,0,Universidade Federal de São Paulo,crunchbase,federal-university-of-sao-paulo
+974-0,974,0,MBF Bioscience,crunchbase,mbf-bioscience
+975-0,975,0,Seifert Logistics Group,crunchbase,seifert-logistics-group
+976-0,976,0,Cape Fear Community College,crunchbase,cape-fear-community-college
+977-0,977,0,FNC Inc.,crunchbase,fnc
+978-0,978,0,Worcestershire Acute Hospitals NHS Trust,crunchbase,worcestershire-acute-hospitals-nhs-trust
+979-0,979,0,Emergent BioSolutions,crunchbase,emergent-biosolutions
+980-0,980,0,Saudi Arabian Amiantit Co.,crunchbase,amiantit
+981-0,981,0,TVBS Media Inc.,crunchbase,tvbs
+982-0,982,0,Docsity,crunchbase,docsity
+983-0,983,0,Kölle Zoo,crunchbase,koelle-zoo
+984-0,984,0,Plazm,crunchbase,plazm
+985-0,985,0,ReplayTV,crunchbase,replaytv
+986-0,986,0,St. Ambrose University,crunchbase,saint-ambrose-university
+987-0,987,0,TIAS.com,crunchbase,tiascom
+988-0,988,0,Foundry Networks,crunchbase,brocade-communications-systems
+989-0,989,0,Molly Fantasy,crunchbase,aeon-fantasy
+990-0,990,0,Alfabet,crunchbase,alfabet
+991-0,991,0,Paribus,crunchbase,paribus
+992-0,992,0,SS&C Technologies,crunchbase,ss-c-technologies
+993-0,993,0,Indian Institute of Management Kozhikode,crunchbase,indian-institute-of-management-kozhikode
+994-0,994,0,Rutter's,crunchbase,rutter-s-farm-stores
+995-0,995,0,Hobby Lobby,crunchbase,hobby-lobby
+996-0,996,0,Kindred Healthcare,crunchbase,kindred-healthcare
+997-0,997,0,Federal Reserve Bank of Minneapolis,crunchbase,federal-reserve-bank-of-minneapolis
+998-0,998,0,Sipa Press,crunchbase,sipa-press
+999-0,999,0,QuickChek,crunchbase,quickchek

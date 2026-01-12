@@ -1,0 +1,15 @@
+# Example EditSim (LamAPI edit similarity) runner config.
+dataset: mv
+max_rows: 5
+lamapi:
+  endpoint: ${ENTITY_RETRIEVAL_ENDPOINT}
+  token: ${ENTITY_RETRIEVAL_TOKEN}
+  limit: 10
+forcing:
+  force_gt_candidate: false
+  force_ids: []
+output:
+  base_dir: outputs
+  method: editsim
+editsim:
+  nil_threshold: 0.2

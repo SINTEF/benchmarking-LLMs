@@ -1,0 +1,18 @@
+{
+  "name": "sn",
+  "description": "SN test split with Wikidata ground truth.",
+  "source_table": "data/SN/SN_test.csv",
+  "source_gt": "data/SN/SN_gt.csv",
+  "table_path": "data/sn/table.csv",
+  "gt_path": "data/sn/gt.csv",
+  "mention_columns": ["buyer"],
+  "target_kg": "wikidata",
+  "seed": 13,
+  "table_columns": [
+    "buyer",
+    "street",
+    "locality",
+    "postcode",
+    "country"
+  ]
+}

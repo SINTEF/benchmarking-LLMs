@@ -1,0 +1,20 @@
+{
+  "name": "mv",
+  "description": "Movies test split with Wikidata ground truth.",
+  "source_table": "data/Movie/movies_test.csv",
+  "source_gt": "data/Movie/el_movies_gt_wikidata.csv",
+  "table_path": "data/mv/table.csv",
+  "gt_path": "data/mv/gt.csv",
+  "mention_columns": ["Title"],
+  "target_kg": "wikidata",
+  "seed": 13,
+  "table_columns": [
+    "Title",
+    "Release_Date",
+    "Duration",
+    "Genre",
+    "Country",
+    "Language",
+    "Director"
+  ]
+}

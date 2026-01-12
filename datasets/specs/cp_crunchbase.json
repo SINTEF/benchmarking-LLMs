@@ -1,0 +1,23 @@
+{
+  "name": "cp_crunchbase",
+  "description": "Companies test split with Crunchbase ground truth.",
+  "source_table": "data/Company/companies_test.csv",
+  "source_gt": "data/Company/el_companies_gt_crunchbase.csv",
+  "table_path": "data/cp/table.csv",
+  "gt_path": "data/cp/gt_crunchbase.csv",
+  "mention_columns": ["company"],
+  "target_kg": "crunchbase",
+  "seed": 13,
+  "table_columns": [
+    "company",
+    "Founded Year",
+    "Website",
+    "X (Twitter)",
+    "Employees",
+    "Coordinates",
+    "Founded By",
+    "Industry",
+    "Country",
+    "Headquarters"
+  ]
+}

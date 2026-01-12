@@ -1,0 +1,6 @@
+key,row,col,mention,target_kg,gt_id
+0-0,0,0,Alpha,wikidata,Q1
+1-0,1,0,Beta,wikidata,Q2
+2-0,2,0,Gamma,wikidata,Q3
+3-0,3,0,Delta,wikidata,Q4
+4-0,4,0,Epsilon,wikidata,Q5

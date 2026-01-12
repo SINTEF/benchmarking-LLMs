@@ -1,0 +1,16 @@
+# Example Alligator runner config.
+dataset: mv
+max_rows: 5
+lamapi:
+  endpoint: ${ENTITY_RETRIEVAL_ENDPOINT}
+  token: ${ENTITY_RETRIEVAL_TOKEN}
+  limit: 10
+forcing:
+  force_gt_candidate: true
+  force_ids: []
+output:
+  base_dir: outputs
+  method: alligator
+alligator:
+  model_path: /path/to/model
+  batch_size: 8

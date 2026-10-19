@@ -13,11 +13,13 @@ import streamlit as st
 
 from experiments.cost.candidates import make_lamapi_clients
 from experiments.cost.pricing import load_endpoints, load_prices
-from experiments.cost.tasks import discover_sources, load_taskset
+from experiments.cost.tasks import datasets_root_problem, discover_sources, load_taskset
 from experiments.runs.config import RunConfig
 from experiments.runs.byok import known_byok_providers, provider_preferences
 from experiments.runs.metrics import run_metrics
-from experiments.runs.eta import estimate_duration, fmt_duration, live_eta, lookup_plan, seconds_per_call_for
+from experiments.runs.eta import (
+    estimate_duration, fmt_duration, live_eta, lookup_plan, seconds_per_call_for, seconds_per_lookup_for,
+)
 from experiments.runs.store import ACTIVE, CANCELLING, DONE, FINISHED, QUEUED, RUNNING, RunStore
 
 SCHEMAS = {"base": "Base", "structured": "Structured (detailed)", "fewshot": "Few-shot"}
@@ -120,6 +122,11 @@ all_runs = store.list(300)
 with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not all_runs):
     datasets_root = os.getenv("DATASETS_ROOT", "")
     sources = get_sources(datasets_root)
+    if problem := datasets_root_problem(datasets_root):
+        st.warning(problem, icon=":material/folder_off:")
+    else:
+        n_semtab = sum(1 for s in sources if s.kind == "semtab")
+        st.caption(f":material/folder: {n_semtab} SemTab dataset(s) from `{datasets_root}` + the repo datasets")
     by_key = {s.key: s for s in sources}
     prices = get_prices()
 
@@ -146,19 +153,30 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
         st.caption(f":material/key: BYOK providers: **{', '.join(sorted(byok))}** ({byok_source})")
     elif provider_mode in (BYOK_ONLY, BYOK_FIRST):
         st.caption(
-            ":material/key_off: No BYOK provider known yet - runs use OpenRouter routing and learn them from "
-            "OpenRouter's `is_byok` flag. Set `OPENROUTER_BYOK_PROVIDERS=cerebras,...` in .env to choose them now."
+            ":material/key_off: No BYOK provider known yet. " + (
+                "**BYOK only** runs will refuse to start; " if provider_mode == BYOK_ONLY else ""
+            ) + "set `OPENROUTER_BYOK_PROVIDERS=cerebras,...` in .env (they are also learned from earlier "
+            "runs, via OpenRouter's `is_byok` flag)."
         )
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2 = st.columns(2)
     limit = c1.number_input("Limit (first N rows / cells, 0 = all)", min_value=0, value=0, step=100)
     lamapi_limit = c2.number_input("Candidates per mention", min_value=1, max_value=100, value=10)
-    concurrency = c3.number_input(
-        "Parallel requests", min_value=1, max_value=512, value=16,
-        help="Requests in flight at once. OpenRouter has no fixed limit on paid models, but providers answer "
-        "429 when pushed too hard; the run then pauses all requests and retries.",
+    c1, c2, c3 = st.columns(3)
+    concurrency = c1.number_input(
+        "Parallel LLM requests", min_value=1, max_value=512, value=16,
+        help="OpenRouter requests in flight at once. OpenRouter has no fixed limit on paid models, but providers "
+        "answer 429 when pushed too hard; the run then pauses all LLM requests and retries.",
     )
-    max_rpm = c4.number_input("Max requests / min (0 = no cap)", min_value=0, value=0, step=60)
+    max_rpm = c2.number_input(
+        "Max LLM requests / min (0 = no cap)", min_value=0, value=0, step=60,
+        help="Optional hard cap, e.g. your BYOK provider's documented requests-per-minute limit.",
+    )
+    lamapi_concurrency = c3.number_input(
+        "Parallel LamAPI requests", min_value=1, max_value=128, value=8,
+        help="Candidate lookups in flight at once. Only uncached lookups hit LamAPI; they run alongside the "
+        "LLM requests. LamAPI 429/5xx responses are retried with back-off.",
+    )
 
     c1, c2 = st.columns([1, 2])
     force_gt = c1.checkbox(
@@ -170,6 +188,7 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
     force_ids = tuple(extra_ids.replace(",", " ").split())
 
     combos = [(d, s, m) for d in dataset_keys for s in schemas for m in models]
+    spl, spl_src = seconds_per_lookup_for(store)
 
     # ---- time estimate
     if combos:
@@ -193,17 +212,20 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             calls = plan["cells"] + plan["tables"]
             est = estimate_duration(
                 calls, spc, int(concurrency), int(max_rpm), lookups_to_fetch=plan["to_fetch"],
-                seconds_per_lookup=0.6, seconds_per_call_source=spc_src,
+                seconds_per_lookup=spl, lamapi_concurrency=int(lamapi_concurrency),
+                seconds_per_call_source=spc_src,
             )
             rows.append({
                 "dataset": by_key[d].name, "schema": s, "model": m, "provider": route,
                 "calls": calls, "uncached lookups": plan["to_fetch"], "s/call": round(spc, 2),
+                "counts": "exact" if plan.get("exact", True) else "sampled",
                 "latency source": spc_src, "bottleneck": est.bottleneck, "duration": fmt_duration(est.seconds),
                 "_seconds": est.seconds, "_cfg": RunConfig(
                     dataset=d, model=m, schema=s, provider=pinned, provider_policy=policy,
                     limit=int(limit), lamapi_limit=int(lamapi_limit),
                     force_gt=force_gt, force_ids=list(force_ids), max_concurrency=int(concurrency),
-                    max_rpm=int(max_rpm), datasets_root=datasets_root or None,
+                    max_rpm=int(max_rpm), lamapi_concurrency=int(lamapi_concurrency),
+                    datasets_root=datasets_root or None,
                 ), "_est": est,
             })
         table = pd.DataFrame(rows)
@@ -226,10 +248,10 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             },
         )
         st.caption(
-            "Duration = calls ÷ throughput, where throughput is the lowest of *parallel requests ÷ seconds per call* "
-            "and the requests/min cap; uncached LamAPI lookups run alongside. Retries after 429s are not included. "
-            "Seconds per call come from calibration or earlier runs of the same model when available. "
-            "For cost, use the **Estimate cost** page."
+            "Duration = the slower of two pipelines running side by side: LLM calls ÷ min(*parallel LLM requests ÷ "
+            "seconds per call*, requests/min cap), and uncached lookups ÷ (*parallel LamAPI requests ÷ seconds per "
+            f"lookup*, {spl:.2f}s {spl_src}). Retries after 429s are not included. Seconds per call come from "
+            "calibration or earlier runs of the same model when available. For cost, use the **Estimate cost** page."
         )
         if not os.getenv("OPENROUTER_API_KEY"):
             st.error("OPENROUTER_API_KEY is not set in .env - runs would fail at once.")
@@ -281,9 +303,14 @@ def active_card(run) -> None:
         if p.get("provider_route") or byok_calls or shared:
             share = f" · {byok_calls / (byok_calls + shared):.0%} of calls on your keys" if byok_calls + shared else ""
             warn = (
-                " :orange[- some calls ran on OpenRouter's shared capacity; set your BYOK key to *Never use shared "
-                "capacity* in OpenRouter's settings to stop this]" if shared and byok_calls else ""
+                " :orange[- some calls ran on OpenRouter's shared capacity]" if shared and byok_calls else ""
             )
+            if p.get("shared_rejected"):
+                warn += (
+                    f" :orange[- {p['shared_rejected']:,} answers came from shared capacity and were discarded "
+                    f"and retried ({usd(p.get('shared_rejected_usd'))} wasted); set your BYOK key to *Never use "
+                    "shared capacity* in OpenRouter to avoid paying for them]"
+                )
             st.caption(f":material/key: {p.get('provider_route', '')}{share}{warn}")
         if live:
             st.caption(
@@ -458,7 +485,8 @@ def run_detail(run) -> None:
         keys = ["n_tasks", "n_done", "n_ok", "n_empty", "n_errors", "n_resumed", "llm_calls", "retries",
                 "rate_limited", "summaries_done", "summary_errors", "lamapi_cached", "lamapi_fetched",
                 "lamapi_failed", "gt_cells", "gt_present", "input_tokens", "output_tokens", "reasoning_tokens",
-                "cost_usd", "latency_p50_s", "latency_p90_s", "byok_calls", "shared_calls"]
+                "cost_usd", "latency_p50_s", "latency_p90_s", "byok_calls", "shared_calls", "shared_rejected",
+                "shared_rejected_usd"]
         st.dataframe(pd.DataFrame({"value": [p.get(k) for k in keys]}, index=keys), width="stretch", height=420)
     with c2:
         st.caption("Configuration")

@@ -143,6 +143,7 @@ class LamapiClient:
         query_param: str | None = None,
         token_in_query: bool | None = None,
         token_param: str | None = None,
+        pool_size: int = 32,
     ) -> None:
         if not endpoint:
             raise ValueError("LamAPI endpoint is required.")
@@ -159,7 +160,7 @@ class LamapiClient:
         )
         self.token_param = token_param or os.getenv("LAMAPI_TOKEN_PARAM", "token")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
-        self.session = _make_session()
+        self.session = _make_session(pool_size)  # >= the number of parallel lookups
 
     def _request_payload(
         self,

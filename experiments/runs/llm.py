@@ -46,6 +46,8 @@ class CallStats:
     calls: int = 0  # HTTP attempts
     retries: int = 0
     rate_limited: int = 0  # 429 responses
+    shared_rejected: int = 0  # answers served on shared capacity, discarded under "BYOK only"
+    shared_rejected_usd: float = 0.0  # what those discarded answers cost
 
 
 def _retry_after(resp: httpx.Response | None) -> float | None:
@@ -89,9 +91,13 @@ class OpenRouterClient:
         url: str = CHAT_URL,
         transport: httpx.AsyncBaseTransport | None = None,
         provider_prefs: dict[str, Any] | None = None,
+        require_byok: bool = False,
     ) -> None:
         self.model = model
         self.provider = provider
+        # OpenRouter has no request option forbidding shared capacity: with require_byok an answer
+        # not served on your own key is discarded and retried after a back-off.
+        self.require_byok = require_byok
         # OpenRouter "provider" object; a pinned ``provider`` tag is shorthand for order=[tag], no fallbacks
         self.provider_prefs = provider_prefs or (
             {"order": [provider], "allow_fallbacks": False} if provider else None
@@ -188,6 +194,13 @@ class OpenRouterClient:
                 continue
 
             usage = data.get("usage") or {}
+            if self.require_byok and not usage.get("is_byok"):
+                self.stats.shared_rejected += 1
+                self.stats.shared_rejected_usd += usage_cost(usage) or 0.0
+                last_error = f"served by {data.get('provider')} on OpenRouter shared capacity, not your BYOK key"
+                # Shared capacity is used when the key is throttled: pause everyone, then retry.
+                self.limiter.cooldown(_backoff(attempt))
+                continue
             details = usage.get("completion_tokens_details") or {}
             return ChatResult(
                 text=(choices[0].get("message") or {}).get("content") or "",

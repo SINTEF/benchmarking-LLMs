@@ -24,10 +24,10 @@ from experiments.cost.estimate import (
     profile_to_dict,
 )
 from experiments.cost.pricing import PriceBook, ProviderList, load_endpoints, load_prices, with_provider
-from experiments.cost.tasks import REPO_ROOT, discover_sources, load_taskset
+from experiments.cost.tasks import REPO_ROOT, datasets_root_problem, discover_sources, load_taskset
 from experiments.cost.tokens import get_counter
 from experiments.runs.byok import byok_tags, known_byok_providers, slug
-from experiments.runs.eta import estimate_duration, fmt_duration, seconds_per_call_for
+from experiments.runs.eta import estimate_duration, fmt_duration, seconds_per_call_for, seconds_per_lookup_for
 from experiments.runs.store import RunStore
 
 SCHEMAS = {
@@ -109,6 +109,8 @@ with st.sidebar:
         value=os.getenv("DATASETS_ROOT", ""),
         help="Shared folder with SemTab-style datasets (set DATASETS_ROOT in .env to make this the default).",
     )
+    if problem := datasets_root_problem(datasets_root):
+        st.warning(problem)
     prices = get_prices(st.session_state.price_refresh)
     if prices.source == "unavailable":
         st.error(f"OpenRouter prices unavailable: {prices.error}")
@@ -250,12 +252,16 @@ with st.expander("2. Assumptions (defaults match the Runs page and `make run-llm
         "Force GT ids into the candidates (as runs do by default)", value=True,
         help="Counts the forced GT candidates in the prompts and warms the exact cache entries runs will use.",
     )
-    t1, t2 = st.columns(2)
+    t1, t2, t3 = st.columns(3)
     concurrency = t1.number_input(
-        "Parallel requests (for the duration estimate)", min_value=1, max_value=512, value=16,
+        "Parallel LLM requests (for the duration estimate)", min_value=1, max_value=512, value=16,
         help="Same as the Runs page / --max-concurrency.",
     )
-    max_rpm = t2.number_input("Max requests / min (0 = no cap)", min_value=0, value=0, step=60)
+    max_rpm = t2.number_input("Max LLM requests / min (0 = no cap)", min_value=0, value=0, step=60)
+    lamapi_concurrency = t3.number_input(
+        "Parallel LamAPI requests", min_value=1, max_value=128, value=8,
+        help="Same as the Runs page / --lamapi-concurrency. Only uncached lookups hit LamAPI.",
+    )
 
 cfgs = {
     s: ProfileConfig(
@@ -328,6 +334,7 @@ for (dk, schema), prof in zip(done, profiles):
         to_fetch = prof.cache_misses + (0 if prof.exact else round((prof.n_tasks - prof.n_sampled) * miss_rate))
         est = estimate_duration(
             row["llm_calls"], spc, int(concurrency), int(max_rpm), lookups_to_fetch=to_fetch,
+            seconds_per_lookup=seconds_per_lookup_for(get_store())[0], lamapi_concurrency=int(lamapi_concurrency),
             seconds_per_call_source=spc_src,
         )
         row["duration_s"] = est.seconds

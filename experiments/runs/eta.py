@@ -109,17 +109,24 @@ def default_seconds_per_call(
 
 
 def lookup_plan(
-    taskset: TaskSet, client, force_gt: bool = True, force_ids: Iterable[str] = ()
-) -> dict[str, int]:
+    taskset: TaskSet, client, force_gt: bool = True, force_ids: Iterable[str] = (), sample_size: int = 3000,
+    seed: int = 13,
+) -> dict[str, Any]:
     """Which LamAPI lookups of a run are already cached (same keys the executor will use)?
 
-    ``client`` is a LamapiClient (offline is fine: only ``is_cached`` is used).
+    ``client`` is a LamapiClient (offline is fine: only ``is_cached`` is used). Datasets with more
+    than ``sample_size`` cells are sampled (a few whole tables' worth of reads instead of all of
+    them) and the counts extrapolated; ``exact`` says which.
     """
     gt = load_gt_ids(taskset.source) if force_gt else {}
     extra = list(force_ids)
+    tasks = taskset.tasks
+    exact = len(tasks) <= sample_size
+    if not exact:
+        tasks = tasks.sample(sample_size, random_state=seed).sort_values(["table_id", "row", "col"])
     seen: set[tuple] = set()
     cached = to_fetch = empty = cells = 0
-    for t in taskset.tasks.itertuples(index=False):
+    for t in tasks.itertuples(index=False):
         df = taskset.load_table(t.table_id)
         if t.row >= len(df) or t.col >= len(df.columns):
             continue
@@ -138,7 +145,13 @@ def lookup_plan(
             cached += 1
         else:
             to_fetch += 1
-    return {"cells": cells, "empty": empty, "unique_lookups": len(seen), "cached": cached, "to_fetch": to_fetch}
+    plan = {"cells": cells, "empty": empty, "unique_lookups": len(seen), "cached": cached, "to_fetch": to_fetch}
+    if not exact:
+        # Duplicate mentions are rarer in a sample than in the whole dataset, so to_fetch is an upper bound.
+        scale = len(taskset.tasks) / len(tasks)
+        plan = {k: round(v * scale) for k, v in plan.items()}
+    plan["exact"] = exact
+    return plan
 
 
 # --------------------------------------------------------------------------- live
@@ -200,6 +213,20 @@ def measured_seconds_per_call(store, model: str, provider: str | None = None) ->
         return None
     values.sort()
     return values[len(values) // 2], len(values)
+
+
+def seconds_per_lookup_for(store) -> tuple[float, str]:
+    """Seconds per uncached LamAPI lookup measured in earlier runs, else the default."""
+    total_s = total_n = 0.0
+    if store is not None:
+        for run in store.list(500):
+            p = run.progress
+            if p.get("lamapi_fetched"):
+                total_s += p.get("lamapi_seconds") or 0.0
+                total_n += p["lamapi_fetched"]
+    if total_n >= 20:
+        return total_s / total_n, f"measured on {int(total_n):,} lookups"
+    return DEFAULT_SECONDS_PER_LOOKUP, "assumed"
 
 
 def seconds_per_call_for(

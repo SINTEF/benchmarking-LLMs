@@ -10,14 +10,14 @@ from typing import Any, Callable, Iterable
 from experiments.cost.tasks import REPO_ROOT
 
 
-def make_lamapi_clients(lamapi_limit: int, cache_dir: str | Path | None = None):
+def make_lamapi_clients(lamapi_limit: int, cache_dir: str | Path | None = None, pool_size: int = 32):
     """(offline_client, online_client) sharing the runners' cache (same endpoint -> same cache keys)."""
     from experiments.retrieval.lamapi_client import LamapiClient, resolve_lamapi_endpoint, resolve_lamapi_token
 
     endpoint = resolve_lamapi_endpoint()
     cache = cache_dir or os.getenv("LAMAPI_CACHE_DIR") or REPO_ROOT / "data" / "lamapi_cache"
     token = resolve_lamapi_token()
-    kwargs = dict(endpoint=endpoint, token=token, num_candidates=lamapi_limit, cache_dir=cache)
+    kwargs = dict(endpoint=endpoint, token=token, num_candidates=lamapi_limit, cache_dir=cache, pool_size=pool_size)
     return LamapiClient(offline=True, **kwargs), LamapiClient(offline=False, **kwargs)
 
 

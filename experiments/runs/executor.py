@@ -17,12 +17,14 @@ run store every couple of seconds; that is what the console's monitoring page re
 from __future__ import annotations
 
 import asyncio
+import functools
 import logging
 import json
 import re
 import statistics
 import time
 from collections import deque
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Callable
@@ -97,6 +99,8 @@ class Progress:
     provider_route: str = ""  # how requests are routed (BYOK only / BYOK first / routing / pinned)
     byok_calls: int = 0  # linking + summary calls served on your own provider keys
     shared_calls: int = 0  # ... served on OpenRouter's shared capacity
+    shared_rejected: int = 0  # shared-capacity answers discarded under "BYOK only" (retried)
+    shared_rejected_usd: float = 0.0  # included in cost_usd
     providers: dict[str, int] = field(default_factory=dict)  # provider name -> calls
     byok_providers: list[str] = field(default_factory=list)  # slugs seen serving with your key
     recent_errors: list[str] = field(default_factory=list)
@@ -157,7 +161,9 @@ class RunExecutor:
         previous = self._load_previous(totals=self.p)
         self._summaries = self._load_summaries()
 
-        tasks = list(taskset.tasks.itertuples(index=False))
+        # Table by table: each table is read once and its summary is ready before its cells need it.
+        # (``limit`` has already picked the first N cells in GT order.)
+        tasks = list(taskset.tasks.sort_values(["table_id", "row", "col"], kind="stable").itertuples(index=False))
         self.p.n_tasks = len(tasks)
         self.p.n_tables = taskset.n_tables
         self.p.summaries_done = sum(1 for v in self._summaries.values() if v is not None)
@@ -191,13 +197,16 @@ class RunExecutor:
 
     async def _pipeline(self, taskset: TaskSet, todo: list, gt_ids: dict) -> None:
         cfg = self.cfg
-        online = self._lamapi_client or make_lamapi_clients(cfg.lamapi_limit)[1]
+        prefs = self._provider_preferences()  # first: may refuse to start ("BYOK only" without BYOK)
+        online = self._lamapi_client or make_lamapi_clients(cfg.lamapi_limit, pool_size=max(32, cfg.lamapi_concurrency))[1]
+        # Own thread pool: asyncio's default one has ~cores+4 threads and would cap LamAPI parallelism.
+        self._lamapi_pool = ThreadPoolExecutor(max_workers=cfg.lamapi_concurrency, thread_name_prefix="lamapi")
         limiter = RateLimiter(cfg.max_concurrency, cfg.max_rpm)
         self._limiter = limiter
-        prefs = self._provider_preferences()
         llm = OpenRouterClient(
             cfg.model, limiter, cfg.provider, self.api_key, cfg.max_retries, stats=self.stats,
             transport=self._llm_transport, provider_prefs=prefs,
+            require_byok=cfg.provider_policy == "byok",
         )
         in_q: asyncio.Queue = asyncio.Queue(maxsize=cfg.lamapi_concurrency * 4)
         ready_q: asyncio.Queue = asyncio.Queue(maxsize=cfg.max_concurrency * 4)
@@ -246,6 +255,7 @@ class RunExecutor:
                 for w in llm_workers:
                     w.cancel()
                 await llm.aclose()
+                self._lamapi_pool.shutdown(wait=False, cancel_futures=True)
         if self._fatal is not None:
             raise self._fatal
 
@@ -299,7 +309,9 @@ class RunExecutor:
         try:
             cached = client.is_cached(mention, ids=forced, target_kg=target_kg)
             started = time.monotonic()
-            result = await asyncio.to_thread(client.fetch_entities, mention, forced, target_kg)
+            result = await asyncio.get_running_loop().run_in_executor(
+                self._lamapi_pool, functools.partial(client.fetch_entities, mention, forced, target_kg)
+            )
             if cached:
                 self.p.lamapi_cached += 1
             else:
@@ -383,6 +395,12 @@ class RunExecutor:
         self._slug_of = {p.provider: slug(p.tag) for p in (endpoints.providers if endpoints else [])}
         byok, source = known_byok_providers(self.store) if self.cfg.provider_policy in ("byok", "byok_first") else (set(), "")
         prefs, desc = provider_preferences(self.cfg.provider_policy, self.cfg.provider, endpoints, byok)
+        if self.cfg.provider_policy == "byok" and prefs is None:
+            # "BYOK only" never silently becomes OpenRouter routing.
+            raise FatalAPIError(
+                f"BYOK only: {desc}. Set OPENROUTER_BYOK_PROVIDERS in .env (e.g. cerebras) or pick another "
+                "provider option."
+            )
         self.p.provider_route = desc + (f" (BYOK from {source})" if byok else "")
         logger.info("provider routing: %s", self.p.provider_route)
         return prefs
@@ -466,6 +484,8 @@ class RunExecutor:
         self.p.llm_calls = self.stats.calls
         self.p.retries = self.stats.retries
         self.p.rate_limited = self.stats.rate_limited
+        self.p.shared_rejected = self.stats.shared_rejected
+        self.p.shared_rejected_usd = self.stats.shared_rejected_usd
         limiter = getattr(self, "_limiter", None)
         self.p.in_flight = limiter.in_flight if limiter else 0
         self.p.cooling_down = limiter.cooling_down if limiter else False
@@ -475,7 +495,9 @@ class RunExecutor:
             self.p.latency_p90_s = lat[min(len(lat) - 1, int(0.9 * len(lat)))]
         self.p.recent_errors = list(self._errors)
         self.p.gt_missing_examples = list(self._gt_missing)
-        return self.p.to_dict()
+        d = self.p.to_dict()
+        d["cost_usd"] = self.p.cost_usd + self.p.shared_rejected_usd  # discarded answers were paid for too
+        return d
 
     def _report(self) -> str | None:
         snap = self._snapshot()

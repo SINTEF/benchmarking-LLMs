@@ -49,9 +49,11 @@ class FakeLamapi:
 class FakeOpenRouter:
     """httpx transport: answers with the last forced id in the prompt, tracks peak concurrency."""
 
-    def __init__(self, fail_first_with: int | None = None, always: int | None = None, delay: float = 0.02):
+    def __init__(self, fail_first_with: int | None = None, always: int | None = None, delay: float = 0.02,
+                 shared_first: int = 0):
         self.in_flight = self.peak = self.requests = 0
         self.bodies: list[dict] = []
+        self.shared_first = shared_first  # first N answers come from shared capacity (is_byok false)
         self.fail_first_with = fail_first_with
         self.always = always
         self.delay = delay
@@ -72,7 +74,8 @@ class FakeOpenRouter:
         answer = "A table about movies." if "summary" in prompt.lower() and "ANSWER" not in prompt else "ANSWER:Q2"
         return httpx.Response(200, json={
             "choices": [{"message": {"content": answer}}],
-            "usage": {"prompt_tokens": 100, "completion_tokens": 5, "cost": 0.0001, "is_byok": True},
+            "usage": {"prompt_tokens": 100, "completion_tokens": 5, "cost": 0.0001,
+                      "is_byok": len(self.bodies) > self.shared_first},
             "provider": "Fake",
         })
 
@@ -173,6 +176,27 @@ class TestExecutor(unittest.TestCase):
             self.assertEqual(p["byok_calls"], fake.requests)
             self.assertEqual(p["shared_calls"], 0)
             self.assertIn("BYOK only", p["provider_route"])
+
+    def test_byok_only_rejects_shared_answers(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict("os.environ", {"OPENROUTER_BYOK_PROVIDERS": "cerebras"}), \
+                mock.patch("experiments.cost.pricing.load_endpoints", return_value=None), \
+                mock.patch("experiments.runs.llm._backoff", return_value=0.01):
+            fake = FakeOpenRouter(shared_first=2)
+            _, manifest, _ = self._run(tmp, fake, provider_policy="byok")
+            p = manifest["progress"]
+            self.assertEqual(p["shared_rejected"], 2)
+            self.assertEqual(p["shared_calls"], 0)  # nothing accepted from shared capacity
+            self.assertEqual(p["n_ok"], 5)
+            self.assertAlmostEqual(p["cost_usd"], 0.0001 * fake.requests)  # rejected answers were paid too
+
+    def test_byok_only_without_byok_provider_fails(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict("os.environ", {"OPENROUTER_BYOK_PROVIDERS": ""}), \
+                mock.patch("experiments.cost.pricing.load_endpoints", return_value=None):
+            fake = FakeOpenRouter()
+            _, manifest, _ = self._run(tmp, fake, provider_policy="byok")
+            self.assertEqual(manifest["status"], FAILED)
+            self.assertIn("BYOK only", manifest["error"])
+            self.assertEqual(fake.requests, 0)
 
     def test_bad_key_fails_fast(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -291,3 +315,21 @@ class TestByok(unittest.TestCase):
         cfg = RunConfig.from_dict(old)
         self.assertEqual(cfg.provider_policy, "routing")
         self.assertNotEqual(cfg.run_dir(_source()), RunConfig(**old).run_dir(_source()))  # new default: byok
+
+
+class TestDatasetsRoot(unittest.TestCase):
+    def test_problem_points_to_parent_with_datasets(self) -> None:
+        from experiments.cost.tasks import datasets_root_problem
+
+        with tempfile.TemporaryDirectory() as tmp:
+            ds = Path(tmp, "Round9")
+            (ds / "tables").mkdir(parents=True)
+            (ds / "gt").mkdir()
+            (ds / "gt" / "cea.csv").write_text("T1,1,0,http://www.wikidata.org/entity/Q1\n")
+            Path(ds / "tables" / "T1.csv").write_text("name\nRome\n")
+            empty = Path(tmp, "entity-linking")
+            empty.mkdir()
+            self.assertIsNone(datasets_root_problem(tmp))
+            self.assertIn("parent folder", datasets_root_problem(empty))
+            with mock.patch.dict("os.environ", {"HOME": tmp}):
+                self.assertIsNone(datasets_root_problem("~"))  # "~" is expanded

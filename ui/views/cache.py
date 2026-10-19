@@ -11,7 +11,7 @@ import pandas as pd
 import streamlit as st
 
 from experiments.cost.candidates import make_lamapi_clients
-from experiments.cost.tasks import REPO_ROOT, discover_sources, load_taskset
+from experiments.cost.tasks import REPO_ROOT, datasets_root_problem, discover_sources, load_taskset
 from experiments.runs.eta import lookup_plan
 from experiments.runs.store import default_db_path
 
@@ -103,6 +103,8 @@ st.caption(
 )
 c1, c2, c3 = st.columns([2, 1, 1])
 sources = discover_sources(Path(os.environ["DATASETS_ROOT"]).expanduser() if os.getenv("DATASETS_ROOT") else None)
+if problem := datasets_root_problem():
+    st.warning(problem)
 picked = c1.multiselect("Datasets", [s.key for s in sources], default=[s.key for s in sources if s.kind == "spec"])
 lamapi_limit = c2.number_input("Candidates per mention", 1, 100, 10)
 force_gt = c3.checkbox("GT ids forced", value=True)
@@ -117,6 +119,7 @@ if st.button("Check coverage", icon=":material/fact_check:", disabled=not picked
         u = plan["unique_lookups"] or 1
         cov.append({"Dataset": src.name, "Cells": plan["cells"], "Unique lookups": plan["unique_lookups"],
                     "Cached": plan["cached"], "To fetch": plan["to_fetch"], "Coverage": plan["cached"] / u,
+                    "Counts": "exact" if plan["exact"] else "sampled",
                     "Checked in": f"{time.time() - started:.1f}s"})
         bar.progress((i + 1) / len(picked))
     bar.empty()

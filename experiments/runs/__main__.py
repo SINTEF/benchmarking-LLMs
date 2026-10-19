@@ -31,9 +31,9 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--lamapi-limit", type=int, default=10)
     p.add_argument("--no-force-gt", action="store_true", help="do NOT force the GT ids into the candidates")
     p.add_argument("--force-id", action="append", default=[], help="extra id forced into every candidate list")
-    p.add_argument("--concurrency", type=int, default=16, help="parallel LLM requests")
-    p.add_argument("--max-rpm", type=int, default=0, help="requests/minute cap (0 = none)")
-    p.add_argument("--lamapi-concurrency", type=int, default=8)
+    p.add_argument("--concurrency", type=int, default=16, help="parallel LLM (OpenRouter) requests")
+    p.add_argument("--max-rpm", type=int, default=0, help="LLM requests/minute cap (0 = none)")
+    p.add_argument("--lamapi-concurrency", type=int, default=8, help="parallel LamAPI lookups")
     p.add_argument("--output-dir", default="outputs")
     p.add_argument("--datasets-root", default=None)
 

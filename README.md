@@ -28,6 +28,7 @@ make eval PRED=outputs/mv/editsim/<hash>/predictions.csv GT=data/mv/gt.csv
 
 ```bash
 make run-llm DATASET=mv MAX_ROWS=5 MODEL=openai/gpt-oss-120b CONCURRENCY=16
+make run-llm DATASET=semtab:2T_2020 MAX_ROWS=200   # any SemTab folder under DATASETS_ROOT
 make run-crocodile DATASET=mv MAX_ROWS=5
 make run-alligator DATASET=mv MAX_ROWS=5
 make run-editsim DATASET=mv MAX_ROWS=5 NIL_THRESHOLD=0.2
@@ -81,7 +82,9 @@ python -m experiments.runs resume <id>   # continues where it stopped; failed ce
 
 How a run works (`experiments/runs/executor.py`): prompts are built with LionLinker's own prompt
 generator (byte-identical, see `tests/test_cost_estimator.py`), but requests are sent in parallel
-(`--concurrency`, optional `--max-rpm`) instead of LionLinker's one-at-a-time loop. A 429 pauses
+(`--concurrency` LLM requests, optional `--max-rpm`; LamAPI lookups separately with
+`--lamapi-concurrency`, default 8, on their own thread and connection pool) instead of
+LionLinker's one-at-a-time loop. A 429 pauses
 all requests (honouring `Retry-After`) before retrying; other transient errors are retried with
 backoff; failed cells are recorded as errors instead of silently becoming NIL. Every cell is
 appended to `results.jsonl` in the run folder, so runs resume. Cost comes from OpenRouter's usage
@@ -93,8 +96,11 @@ so a run stays on one provider/quantization and a 429 makes it back off instead 
 shared capacity. BYOK providers come from `OPENROUTER_BYOK_PROVIDERS=cerebras,...` in `.env`, the
 BYOK list API (`OPENROUTER_MANAGEMENT_KEY`), or are learned from `is_byok` in earlier runs (the
 very first run uses OpenRouter routing). OpenRouter can still serve some calls from the same
-provider's shared capacity when your key is throttled; set the key to "Never use shared capacity"
-in OpenRouter to forbid that. Each run reports the share of calls served on your keys.
+provider's shared capacity when your key is throttled, and no request option forbids it: under
+"BYOK only" such answers (`is_byok: false`) are discarded, the run backs off and retries, and a run
+with no known BYOK provider refuses to start. Discarded answers are still billed (shown as
+`shared_rejected_usd`); set the key to "Never use shared capacity" in OpenRouter so it answers
+429 instead.
 
 Duration estimate: throughput = min(parallel requests ÷ seconds per call, requests/min cap ÷ 60);
 uncached LamAPI lookups run alongside. Seconds per call come from calibration, else the median of
@@ -143,8 +149,10 @@ Prompts are always filled with real LamAPI candidates (free; it also warms `data
 for the real run). Calibration replaces the remaining assumptions — table summary length,
 output/reasoning tokens and the provider's tokenizer — with values measured from real calls.
 
-SemTab datasets are discovered from `DATASETS_ROOT` (set in `.env`): any folder with
-`tables/*.csv` and a `gt/cea*.csv` file.
+SemTab datasets are discovered from `DATASETS_ROOT` (set in `.env`, `~` allowed, e.g.
+`DATASETS_ROOT=~/Documents/Datasets`): every sub-folder with `tables/*.csv` and a `gt/cea*.csv`
+file (`table,row,col,uri`, row 1 = first data row; several URIs separated by spaces are all
+correct and all forced into the candidates). Docker mounts the same folder read-only at `/datasets`.
 
 ## Data
 

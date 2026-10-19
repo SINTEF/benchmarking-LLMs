@@ -129,6 +129,22 @@ def discover_sources(datasets_root: Path | None = None) -> list[DatasetSource]:
     return sources
 
 
+def datasets_root_problem(root: str | Path | None = None) -> str | None:
+    """Why no SemTab dataset is found under the datasets folder, or None when some are."""
+    value = root if root not in (None, "") else os.getenv("DATASETS_ROOT")
+    if not value:
+        return "DATASETS_ROOT is not set in .env, so only the repo datasets are available."
+    path = Path(value).expanduser()
+    if not path.is_dir():
+        return f"Datasets folder {path} does not exist."
+    if any(s.kind == "semtab" for s in discover_sources(path)):
+        return None
+    nested = [p.name for p in path.parent.iterdir() if p.is_dir() and p != path
+              and (p / "tables").is_dir() and _find_cea_file(p)] if path.parent.is_dir() else []
+    hint = f" The parent folder {path.parent} has some ({', '.join(nested[:4])}...) - point DATASETS_ROOT there." if nested else ""
+    return (f"No SemTab dataset in {path}: each dataset needs <name>/tables/*.csv and <name>/gt/cea*.csv.{hint}")
+
+
 # --------------------------------------------------------------------------- task lists
 
 

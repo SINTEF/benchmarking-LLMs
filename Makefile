@@ -11,6 +11,7 @@ PROVIDER ?= openrouter
 PROMPT_SCHEMA ?= base
 CONCURRENCY ?= 16
 MAX_RPM ?= 0
+LAMAPI_CONCURRENCY ?= 8
 NIL_THRESHOLD ?= 0.0
 FORCE_GT ?= 0
 FORCE_ID ?=
@@ -33,7 +34,8 @@ run-llm:
 		--provider $(PROVIDER) \
 		--prompt-schema $(PROMPT_SCHEMA) \
 		--max-concurrency $(CONCURRENCY) \
-		--max-rpm $(MAX_RPM)
+		--max-rpm $(MAX_RPM) \
+		--lamapi-concurrency $(LAMAPI_CONCURRENCY)
 
 run-crocodile:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.runners.run_crocodile \

@@ -19,7 +19,7 @@ from pathlib import Path
 from experiments.common.env import load_dotenv
 from experiments.common.logging import get_logger
 from experiments.cost.tasks import REPO_ROOT
-from experiments.runners.common import add_common_args, add_dataset_args
+from experiments.runners.common import add_common_args
 from experiments.runs.config import SCHEMAS, RunConfig
 from experiments.runs.executor import RunExecutor
 from experiments.runs.store import RunStore
@@ -29,7 +29,12 @@ logger = get_logger(__name__)
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    add_dataset_args(parser)
+    # Any dataset the console lists: repo specs (mv) or SemTab folders under DATASETS_ROOT (semtab:2T_2020).
+    parser.add_argument("--dataset", required=True, help="repo dataset (mv, sn...) or semtab:<folder>")
+    parser.add_argument("--table-path", type=str, default=None)
+    parser.add_argument("--gt-path", type=str, default=None)
+    parser.add_argument("--target-kg", type=str, default=None)
+    parser.add_argument("--datasets-root", default=None, help="SemTab datasets folder (default: DATASETS_ROOT)")
     add_common_args(parser)
     parser.add_argument("--model", required=True, type=str)
     parser.add_argument("--provider", default="openrouter", choices=["openrouter"], help="LLM API (OpenRouter only)")
@@ -41,9 +46,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--prompt-schema", choices=SCHEMAS, default="base")
     parser.add_argument("--model-api-key", default=None, type=str)
-    parser.add_argument("--max-concurrency", type=int, default=16)
-    parser.add_argument("--max-rpm", type=int, default=0, help="requests per minute cap (0 = none)")
-    parser.add_argument("--lamapi-concurrency", type=int, default=8)
+    parser.add_argument("--max-concurrency", type=int, default=16, help="parallel LLM (OpenRouter) requests")
+    parser.add_argument("--max-rpm", type=int, default=0, help="LLM requests per minute cap (0 = none)")
+    parser.add_argument("--lamapi-concurrency", type=int, default=8, help="parallel LamAPI lookups")
     parser.add_argument(
         "--no-force-gt", action="store_true",
         help="do not force GT ids into the candidates (forced by default; --force-gt-candidate is implied)",
@@ -78,6 +83,7 @@ def main() -> None:
         max_rpm=args.max_rpm,
         lamapi_concurrency=args.lamapi_concurrency,
         output_dir=args.output_dir,
+        datasets_root=args.datasets_root,
     )
     source = config.resolve_source()
     overrides = {}

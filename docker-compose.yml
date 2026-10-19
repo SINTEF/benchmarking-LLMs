@@ -1,4 +1,5 @@
-# `docker compose up -d`  ->  console at http://localhost:8501, a run worker, MongoDB for Crocodile/Alligator
+# `docker compose up -d`  ->  console at http://localhost:8501, an LLM run worker, a Crocodile/Alligator
+# run worker and MongoDB (used by Crocodile/Alligator)
 #
 # DATASETS_ROOT is read from .env (default ./data/external) and mounted read-only at /datasets, so
 # the shared datasets are never copied into the image or the repo.
@@ -26,7 +27,7 @@ services:
     build: .
     pull_policy: build
     restart: unless-stopped
-    command: ["python", "-m", "experiments.runs", "worker"]
+    command: ["python", "-m", "experiments.runs", "worker", "--methods", "llm"]
     stop_grace_period: 30s
     env_file: .env
     environment:
@@ -36,6 +37,26 @@ services:
       - ${DATASETS_ROOT:-./data/external}:/datasets:ro
     healthcheck:
       disable: true
+
+  # Crocodile / Alligator runs: tensorflow==2.18 needs Python <= 3.12, so these linkers get their own
+  # image and worker (~1.8 GB, built once). They store their working data in the mongo service.
+  linkers:
+    build:
+      context: .
+      dockerfile: Dockerfile.linkers
+    pull_policy: build
+    restart: unless-stopped
+    command: ["python", "-m", "experiments.runs", "worker", "--methods", "crocodile,alligator"]
+    stop_grace_period: 30s
+    env_file: .env
+    environment:
+      DATASETS_ROOT: /datasets
+      MONGO_URI: mongodb://mongo:27017
+    volumes:
+      - .:/app
+      - ${DATASETS_ROOT:-./data/external}:/datasets:ro
+    depends_on:
+      - mongo
 
   mongo:
     image: mongo:7

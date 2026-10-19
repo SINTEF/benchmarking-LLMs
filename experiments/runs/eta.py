@@ -240,3 +240,21 @@ def seconds_per_call_for(
     if past:
         return past[0], f"median of {past[1]} earlier run(s)"
     return default_seconds_per_call(reasoning, None, latency_s, throughput_tps, output_tokens)
+
+
+def seconds_per_cell_for_method(store, method: str) -> tuple[float, int] | None:
+    """Median seconds per cell of earlier finished runs of a classic linker (whole pipeline, per table)."""
+    values = []
+    if store is None:
+        return None
+    for run in store.list(500):
+        p = run.progress
+        if run.config.get("method") != method or run.status != "done" or not run.elapsed_s:
+            continue
+        done = (p.get("n_done") or 0) - (p.get("n_resumed") or 0)
+        if done > 0:
+            values.append(run.elapsed_s / done)
+    if not values:
+        return None
+    values.sort()
+    return values[len(values) // 2], len(values)

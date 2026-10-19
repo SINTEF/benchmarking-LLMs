@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS workers (
     current_run TEXT
 );
 """
+METHOD_SQL = "COALESCE(json_extract(config, '$.method'), 'llm')"  # runs from before methods were LLM runs
 
 
 @dataclass
@@ -110,6 +111,9 @@ class RunStore:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self._conn() as conn:
             conn.executescript(SCHEMA)
+            cols = {r["name"] for r in conn.execute("PRAGMA table_info(workers)")}
+            if "methods" not in cols:  # stores created before workers were per method
+                conn.execute("ALTER TABLE workers ADD COLUMN methods TEXT")
 
     @contextmanager
     def _conn(self) -> Iterator[sqlite3.Connection]:
@@ -162,14 +166,16 @@ class RunStore:
         with self._conn() as conn:
             return [Run.from_row(r) for r in conn.execute(query, args).fetchall()]
 
-    def claim_next(self, worker_id: str) -> Run | None:
-        """Atomically move the oldest queued run to running for this worker."""
+    def claim_next(self, worker_id: str, methods: tuple[str, ...] | None = None) -> Run | None:
+        """Atomically move the oldest queued run (of one of ``methods``) to running for this worker."""
         now = time.time()
+        query, args = "SELECT id FROM runs WHERE status = ?", [QUEUED]
+        if methods:
+            query += f" AND {METHOD_SQL} IN ({','.join('?' * len(methods))})"
+            args.extend(methods)
         with self._conn() as conn:
             conn.execute("BEGIN IMMEDIATE")
-            row = conn.execute(
-                "SELECT id FROM runs WHERE status = ? ORDER BY created_at LIMIT 1", (QUEUED,)
-            ).fetchone()
+            row = conn.execute(query + " ORDER BY created_at LIMIT 1", args).fetchone()
             if row is None:
                 conn.execute("COMMIT")
                 return None
@@ -255,13 +261,14 @@ class RunStore:
 
     # ------------------------------------------------------------------ workers
 
-    def worker_heartbeat(self, worker_id: str, current_run: str | None) -> None:
+    def worker_heartbeat(self, worker_id: str, current_run: str | None, methods: tuple[str, ...] = ("llm",)) -> None:
         now = time.time()
         with self._conn() as conn:
             conn.execute(
-                "INSERT INTO workers (id, host, pid, started_at, heartbeat, current_run) VALUES (?, ?, ?, ?, ?, ?) "
+                "INSERT INTO workers (id, host, pid, started_at, heartbeat, current_run, methods) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?) "
                 "ON CONFLICT(id) DO UPDATE SET heartbeat = excluded.heartbeat, current_run = excluded.current_run",
-                (worker_id, socket.gethostname(), os.getpid(), now, now, current_run),
+                (worker_id, socket.gethostname(), os.getpid(), now, now, current_run, ",".join(methods)),
             )
 
     def workers(self, alive_within_s: float = 30.0) -> list[dict[str, Any]]:

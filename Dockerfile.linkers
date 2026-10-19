@@ -1,0 +1,19 @@
+# Image for the classic table linkers (Crocodile, Alligator). They pin tensorflow==2.18 and numpy<2,
+# which need Python <= 3.12, so they get their own image and worker instead of sharing the console's
+# Python 3.13 environment. The repo is bind-mounted at /app by docker-compose, like the main image.
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PYTHONPATH=/app \
+    TF_CPP_MIN_LOG_LEVEL=2
+
+WORKDIR /app
+
+COPY requirements-linkers.txt /tmp/requirements-linkers.txt
+RUN pip install -r /tmp/requirements-linkers.txt \
+    && python -m spacy download en_core_web_sm \
+    && python -c "import crocodile, alligator; print('linkers ok')"
+
+CMD ["python", "-m", "experiments.runs", "worker", "--methods", "crocodile,alligator"]

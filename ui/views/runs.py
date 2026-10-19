@@ -14,11 +14,12 @@ import streamlit as st
 from experiments.cost.candidates import make_lamapi_clients
 from experiments.cost.pricing import load_endpoints, load_prices
 from experiments.cost.tasks import datasets_root_problem, discover_sources, load_taskset
-from experiments.runs.config import RunConfig
+from experiments.runs.config import LINKER_METHODS, METHODS, RunConfig
 from experiments.runs.byok import known_byok_providers, provider_preferences
 from experiments.runs.metrics import run_metrics
 from experiments.runs.eta import (
-    estimate_duration, fmt_duration, live_eta, lookup_plan, seconds_per_call_for, seconds_per_lookup_for,
+    estimate_duration, fmt_duration, live_eta, lookup_plan, seconds_per_call_for, seconds_per_cell_for_method,
+    seconds_per_lookup_for,
 )
 from experiments.runs.store import ACTIVE, CANCELLING, DONE, FINISHED, QUEUED, RUNNING, RunStore
 
@@ -135,48 +136,70 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
         "Datasets", list(by_key), default=[k for k in ["spec:mv"] if k in by_key],
         format_func=lambda k: f"{by_key[k].name}  ·  {'repo' if by_key[k].kind == 'spec' else 'SemTab'}",
     )
-    schemas = c2.multiselect("Prompt schemas", list(SCHEMAS), default=["base"], format_func=SCHEMAS.get)
-    models = st.multiselect(
-        "Models (OpenRouter)", sorted(prices.models) or [DEFAULT_MODEL],
-        default=[DEFAULT_MODEL] if DEFAULT_MODEL in prices.models or not prices.models else [],
-        placeholder="Type to search, e.g. gpt-oss, llama, qwen...",
+    methods = c2.multiselect(
+        "Methods", list(METHODS), default=["llm"], format_func=METHODS.get,
+        help="LLM: LionLinker prompts sent to OpenRouter models. Crocodile and Alligator: the classic ML table "
+        "linkers, run by the `linkers` worker (MongoDB + TensorFlow image). All use the same LamAPI candidates "
+        "and GT forcing, and are scored with the same P/R/F1.",
     )
-    byok, byok_source = known_byok_providers(store)
-    provider_mode = st.radio(
-        "Provider", [BYOK_ONLY, BYOK_FIRST, ROUTING, CHEAPEST], horizontal=True,
-        help="BYOK only: requests go to the providers you have your own key for, and a 429 makes the run back "
-        "off and retry instead of moving to another provider - one provider and quantization per run, no "
-        "OpenRouter credits. BYOK first: OpenRouter may fall back to shared capacity when your key is throttled. "
-        "Routing: OpenRouter decides. Pinned: one specific endpoint.",
-    )
-    if byok:
-        st.caption(f":material/key: BYOK providers: **{', '.join(sorted(byok))}** ({byok_source})")
-    elif provider_mode in (BYOK_ONLY, BYOK_FIRST):
-        st.caption(
-            ":material/key_off: No BYOK provider known yet. " + (
-                "**BYOK only** runs will refuse to start; " if provider_mode == BYOK_ONLY else ""
-            ) + "set `OPENROUTER_BYOK_PROVIDERS=cerebras,...` in .env (they are also learned from earlier "
-            "runs, via OpenRouter's `is_byok` flag)."
+    use_llm = "llm" in methods
+    linkers = [m for m in methods if m in LINKER_METHODS]
+    schemas, models, provider_mode, byok = [], [], BYOK_ONLY, set()
+    if use_llm:
+        st.markdown("**LLM**")
+        c1, c2 = st.columns([2, 3])
+        schemas = c1.multiselect("Prompt schemas", list(SCHEMAS), default=["base"], format_func=SCHEMAS.get)
+        models = c2.multiselect(
+            "Models (OpenRouter)", sorted(prices.models) or [DEFAULT_MODEL],
+            default=[DEFAULT_MODEL] if DEFAULT_MODEL in prices.models or not prices.models else [],
+            placeholder="Type to search, e.g. gpt-oss, llama, qwen...",
         )
+        byok, byok_source = known_byok_providers(store)
+        provider_mode = st.radio(
+            "Provider", [BYOK_ONLY, BYOK_FIRST, ROUTING, CHEAPEST], horizontal=True,
+            help="BYOK only: requests go to the providers you have your own key for, and a 429 makes the run back "
+            "off and retry instead of moving to another provider - one provider and quantization per run, no "
+            "OpenRouter credits. BYOK first: OpenRouter may fall back to shared capacity when your key is throttled. "
+            "Routing: OpenRouter decides. Pinned: one specific endpoint.",
+        )
+        if byok:
+            st.caption(f":material/key: BYOK providers: **{', '.join(sorted(byok))}** ({byok_source})")
+        elif provider_mode in (BYOK_ONLY, BYOK_FIRST):
+            st.caption(
+                ":material/key_off: No BYOK provider known yet. " + (
+                    "**BYOK only** runs will refuse to start; " if provider_mode == BYOK_ONLY else ""
+                ) + "set `OPENROUTER_BYOK_PROVIDERS=cerebras,...` in .env (they are also learned from earlier "
+                "runs, via OpenRouter's `is_byok` flag)."
+            )
 
     c1, c2 = st.columns(2)
     limit = c1.number_input("Limit (first N rows / cells, 0 = all)", min_value=0, value=0, step=100)
     lamapi_limit = c2.number_input("Candidates per mention", min_value=1, max_value=100, value=10)
-    c1, c2, c3 = st.columns(3)
-    concurrency = c1.number_input(
-        "Parallel LLM requests", min_value=1, max_value=512, value=16,
-        help="OpenRouter requests in flight at once. OpenRouter has no fixed limit on paid models, but providers "
-        "answer 429 when pushed too hard; the run then pauses all LLM requests and retries.",
-    )
-    max_rpm = c2.number_input(
-        "Max LLM requests / min (0 = no cap)", min_value=0, value=0, step=60,
-        help="Optional hard cap, e.g. your BYOK provider's documented requests-per-minute limit.",
-    )
-    lamapi_concurrency = c3.number_input(
+    # Inputs that apply to the chosen methods only: LLM parallelism, LamAPI parallelism, linker processes.
+    cols = iter(st.columns(int(use_llm) * 2 + 1 + int(bool(linkers))))
+    concurrency = max_rpm = 0
+    if use_llm:
+        concurrency = next(cols).number_input(
+            "Parallel LLM requests", min_value=1, max_value=512, value=16,
+            help="OpenRouter requests in flight at once. OpenRouter has no fixed limit on paid models, but "
+            "providers answer 429 when pushed too hard; the run then pauses all LLM requests and retries.",
+        )
+        max_rpm = next(cols).number_input(
+            "Max LLM requests / min (0 = no cap)", min_value=0, value=0, step=60,
+            help="Optional hard cap, e.g. your BYOK provider's documented requests-per-minute limit.",
+        )
+    lamapi_concurrency = next(cols).number_input(
         "Parallel LamAPI requests", min_value=1, max_value=128, value=8,
-        help="Candidate lookups in flight at once. Only uncached lookups hit LamAPI; they run alongside the "
-        "LLM requests. LamAPI 429/5xx responses are retried with back-off.",
+        help="LLM runs: candidate lookups in flight at once (only uncached ones hit LamAPI), alongside the "
+        "LLM requests; LamAPI 429/5xx responses are retried with back-off. Crocodile/Alligator fetch "
+        "candidates themselves, with their worker processes.",
     )
+    linker_workers = 4
+    if linkers:
+        linker_workers = next(cols).number_input(
+            "Crocodile / Alligator processes", min_value=1, max_value=32, value=4,
+            help="Worker processes each linker uses per table (candidate retrieval and ML ranking).",
+        )
 
     c1, c2 = st.columns([1, 2])
     force_gt = c1.checkbox(
@@ -188,11 +211,29 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
     force_ids = tuple(extra_ids.replace(",", " ").split())
 
     combos = [(d, s, m) for d in dataset_keys for s in schemas for m in models]
+    linker_combos = [(d, meth) for d in dataset_keys for meth in linkers]
     spl, spl_src = seconds_per_lookup_for(store)
 
     # ---- time estimate
-    if combos:
+    if combos or linker_combos:
         rows = []
+        for d, meth in linker_combos:
+            plan = get_plan(d, datasets_root, int(limit), int(lamapi_limit), force_gt, force_ids)
+            measured = seconds_per_cell_for_method(store, meth)
+            seconds = plan["cells"] * measured[0] if measured else None
+            rows.append({
+                "dataset": by_key[d].name, "method": METHODS[meth], "schema": "—", "model": "—", "provider": "—",
+                "calls": plan["cells"], "uncached lookups": None, "s/call": round(measured[0], 3) if measured else None,
+                "counts": "exact" if plan.get("exact", True) else "sampled",
+                "latency source": f"median of {measured[1]} earlier run(s), per cell" if measured
+                else "unknown until the first run",
+                "bottleneck": "—", "duration": fmt_duration(seconds) if seconds else "measured by the first run",
+                "_seconds": seconds or 0.0, "_cfg": RunConfig(
+                    dataset=d, method=meth, limit=int(limit), lamapi_limit=int(lamapi_limit), force_gt=force_gt,
+                    force_ids=list(force_ids), linker_workers=int(linker_workers),
+                    datasets_root=datasets_root or None,
+                ), "_est": None,
+            })
         for d, s, m in combos:
             plan = get_plan(d, datasets_root, int(limit), int(lamapi_limit), force_gt, force_ids)
             price = prices.models.get(m)
@@ -216,7 +257,7 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
                 seconds_per_call_source=spc_src,
             )
             rows.append({
-                "dataset": by_key[d].name, "schema": s, "model": m, "provider": route,
+                "dataset": by_key[d].name, "method": METHODS["llm"], "schema": s, "model": m, "provider": route,
                 "calls": calls, "uncached lookups": plan["to_fetch"], "s/call": round(spc, 2),
                 "counts": "exact" if plan.get("exact", True) else "sampled",
                 "latency source": spc_src, "bottleneck": est.bottleneck, "duration": fmt_duration(est.seconds),
@@ -230,15 +271,20 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             })
         table = pd.DataFrame(rows)
         total_s = table["_seconds"].sum()
-        st.markdown(
-            f"**{len(rows)} run(s), {int(table['calls'].sum()):,} LLM calls, about {fmt_duration(total_s)}** "
-            "if they run one after another on one worker."
-        )
+        unmeasured = sum(1 for r in rows if r["_seconds"] == 0 and r["_est"] is None)
+        if unmeasured == len(rows):
+            st.markdown(f"**{len(rows)} run(s)** - duration unknown until a first Crocodile/Alligator run is measured.")
+        else:
+            st.markdown(
+                f"**{len(rows)} run(s), about {fmt_duration(total_s)}** if each worker runs them one after another"
+                + (f" (plus {unmeasured} linker run(s) not measured yet)" if unmeasured else "") + "."
+            )
         st.dataframe(
             table.drop(columns=["_seconds", "_cfg", "_est"]), hide_index=True, width="stretch",
             column_config={
-                "calls": st.column_config.NumberColumn("LLM calls", format="localized",
-                                                       help="Non-empty mention cells + one table summary per table."),
+                "calls": st.column_config.NumberColumn(
+                    "LLM calls / cells", format="localized",
+                    help="LLM: non-empty mention cells + one table summary per table. Crocodile/Alligator: cells."),
                 "uncached lookups": st.column_config.NumberColumn(
                     format="localized", help="LamAPI lookups not in data/lamapi_cache yet (fetched during the run)."),
                 "s/call": st.column_config.NumberColumn("Seconds / call"),
@@ -248,21 +294,29 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             },
         )
         st.caption(
-            "Duration = the slower of two pipelines running side by side: LLM calls ÷ min(*parallel LLM requests ÷ "
+            ("Crocodile/Alligator duration = cells × the median seconds per cell of their earlier finished runs "
+             "(whole pipeline, one table at a time). " if linkers else "") +
+            ("" if not use_llm else
+            "LLM duration = the slower of two pipelines running side by side: LLM calls ÷ min(*parallel LLM requests ÷ "
             "seconds per call*, requests/min cap), and uncached lookups ÷ (*parallel LamAPI requests ÷ seconds per "
             f"lookup*, {spl:.2f}s {spl_src}). Retries after 429s are not included. Seconds per call come from "
-            "calibration or earlier runs of the same model when available. For cost, use the **Estimate cost** page."
+            "calibration or earlier runs of the same model when available. For cost, use the **Estimate cost** page.")
         )
-        if not os.getenv("OPENROUTER_API_KEY"):
+        if linkers and not any(set(linkers) & set((w.get("methods") or "llm").split(",")) for w in store.workers()):
+            st.warning(
+                "No worker for Crocodile/Alligator is running - those runs will wait. Start it with "
+                "`docker compose up -d linkers` (first build ~1.8 GB).", icon=":material/warning:",
+            )
+        if use_llm and not os.getenv("OPENROUTER_API_KEY"):
             st.error("OPENROUTER_API_KEY is not set in .env - runs would fail at once.")
         if st.button(f"Queue {len(rows)} run(s)", type="primary", icon=":material/play_arrow:"):
             for r in rows:
                 cfg = r["_cfg"]
-                store.submit(cfg.to_dict(), cfg.label(), estimate=r["_est"].to_dict())
+                store.submit(cfg.to_dict(), cfg.label(), estimate=r["_est"].to_dict() if r["_est"] else {})
             st.toast(f"Queued {len(rows)} run(s).", icon=":material/check:")
             st.rerun()
     else:
-        st.info("Pick at least one dataset, prompt schema and model.")
+        st.info("Pick at least one dataset and method (LLM runs also need a prompt schema and a model).")
 
 
 # --------------------------------------------------------------------------- monitor
@@ -287,20 +341,29 @@ def active_card(run) -> None:
         rate = eta.get("rate_per_s")
         m[0].metric("Throughput", f"{rate * 60:,.0f}/min" if rate else "—")
         m[1].metric("ETA", fmt_duration(eta.get("eta_s")), help=f"Elapsed {fmt_duration(run.elapsed_s)}")
-        m[2].metric("Cost so far", usd(p.get("cost_usd")), help=f"Projected total: {usd(eta.get('projected_cost_usd'))}")
-        m[3].metric(
-            "In flight", f"{p.get('in_flight', 0)} / {p.get('max_concurrency', '?')}",
-            help="Requests in flight / max parallel requests" + (" · paused after a 429" if p.get("cooling_down") else ""),
-        )
-        m[4].metric("Errors · 429s", f"{p.get('n_errors', 0)} · {p.get('rate_limited', 0)}",
-                    help=f"{p.get('retries', 0)} retries so far")
+        is_llm = run.config.get("method", "llm") == "llm"
+        if is_llm:
+            m[2].metric("Cost so far", usd(p.get("cost_usd")), help=f"Projected total: {usd(eta.get('projected_cost_usd'))}")
+            m[3].metric(
+                "In flight", f"{p.get('in_flight', 0)} / {p.get('max_concurrency', '?')}",
+                help="Requests in flight / max parallel requests" + (" · paused after a 429" if p.get("cooling_down") else ""),
+            )
+            m[4].metric("Errors · 429s", f"{p.get('n_errors', 0)} · {p.get('rate_limited', 0)}",
+                        help=f"{p.get('retries', 0)} retries so far")
+        else:
+            m[2].metric("Tables", f"{p.get('tables_done', 0):,} / {p.get('tables_total', 0):,}",
+                        help="Tables linked in this attempt (cells finish a table at a time).")
+            m[3].metric("Cells in current table", f"{p.get('in_flight', 0):,}")
+            m[4].metric("Errors", f"{p.get('n_errors', 0):,}", help="Cells of tables the linker failed on.")
         gt_cells = p.get("gt_cells") or 0
         m[5].metric("GT in candidates", f"{p.get('gt_present', 0) / gt_cells:.1%}" if gt_cells else "—",
                     help="Cells whose GT id is among the candidates sent to the model.")
         live = live_metrics(run.run_dir, run.config.get("dataset", ""), run.config.get("datasets_root")) \
             if run.run_dir else None
         byok_calls, shared = p.get("byok_calls", 0), p.get("shared_calls", 0)
-        if p.get("provider_route") or byok_calls or shared:
+        if not is_llm and p.get("provider_route"):
+            st.caption(f":material/account_tree: {p['provider_route']}")
+        elif p.get("provider_route") or byok_calls or shared:
             share = f" · {byok_calls / (byok_calls + shared):.0%} of calls on your keys" if byok_calls + shared else ""
             warn = (
                 " :orange[- some calls ran on OpenRouter's shared capacity]" if shared and byok_calls else ""
@@ -408,7 +471,8 @@ def compare(runs, rows) -> None:
     df = pd.DataFrame([
         {"dataset": r.config.get("dataset", "").split(":", 1)[-1], "id": r.id,
          # the dataset is the chart heading, so bars are labelled by prompt and model only
-         "run": " · ".join(x for x in (r.config.get("schema"), r.config.get("model", "").split("/")[-1],
+         "run": METHODS.get(r.config.get("method", "llm"), "?") if r.config.get("method", "llm") != "llm" else
+                " · ".join(x for x in (r.config.get("schema"), r.config.get("model", "").split("/")[-1],
                                          r.config.get("provider")) if x),
          "F1": row["f1"], "P": row["precision"], "R": row["recall"], "cells": row["cells"],
          "cost": row["cost"], "created": r.created_at}
@@ -418,6 +482,12 @@ def compare(runs, rows) -> None:
     for dataset, part in df.groupby("dataset", sort=True):
         part = part.sort_values("F1", ascending=False)
         st.markdown(f"**{dataset}**")
+        if part["cells"].nunique() > 1:
+            st.caption(
+                ":material/warning: These runs cover different numbers of cells "
+                f"({', '.join(f'{int(c):,}' for c in sorted(part['cells'].dropna().unique()))}); "
+                "compare F1 only between runs with the same limit."
+            )
         # a single series: the chart title names it, no legend needed
         st.bar_chart(part.set_index("run")["F1"], horizontal=True, height=60 + 32 * len(part),
                      x_label="", y_label="F1")

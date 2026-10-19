@@ -58,6 +58,29 @@ Outputs:
 - `outputs/{dataset}/{method}/{settings_hash}/predictions.csv`
 - `outputs/{dataset}/{method}/{settings_hash}/report.json`
 
+## Crocodile and Alligator
+
+The classic table linkers [Crocodile](https://github.com/enRichMyData/crocodile) (`crocodile-linker`)
+and [Alligator](https://github.com/enRichMyData/alligator) (`alligator-linker`) run from the same
+console (Runs page, **Methods**) on the same datasets, LamAPI candidates and GT forcing, and are
+scored with the same P/R/F1. They pin `tensorflow==2.18` and `numpy<2` (Python <= 3.12), so they
+run in their own image and worker: the `linkers` service of `docker compose` (`Dockerfile.linkers`,
+~1.8 GB, built once), which uses the `mongo` service as their working store.
+
+Each table is linked by one instance: rows up to the last target cell, the library's column
+classifier with every target column forced to NE, the cell's GT ids as `correct_qids`, and the
+top candidate it stores in MongoDB as the prediction. CLI (inside the image):
+
+```bash
+make run-crocodile DATASET=mv MAX_ROWS=100
+docker compose run --rm linkers python -m experiments.runners.run_alligator --dataset semtab:2t-red --max-rows 500
+python -m experiments.runs submit --method crocodile --dataset mv --limit 100   # queued for the linkers worker
+```
+
+Earlier versions of `run_crocodile`/`run_alligator` silently fell back to LamAPI's top candidate
+when the libraries were missing; outputs in `outputs/*/crocodile|alligator` produced before this
+change are that fallback, not the linkers.
+
 ## Running and monitoring LLM runs
 
 The console (`make up` or `make ui`) has three pages:
@@ -112,7 +135,7 @@ measured over the last 90 s.
 With Docker (recommended):
 
 ```bash
-make up     # = docker compose up -d --build  ->  http://localhost:8501 (+ worker + MongoDB)
+make up     # = docker compose up -d --build  ->  http://localhost:8501 (+ LLM worker, linkers worker, MongoDB)
 make logs   # follow the console logs
 make down
 ```

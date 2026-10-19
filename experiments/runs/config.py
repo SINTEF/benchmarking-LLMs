@@ -10,6 +10,10 @@ from experiments.common.hashing import stable_hash
 from experiments.cost.tasks import REPO_ROOT, DatasetSource, discover_sources
 
 SCHEMAS = ("base", "structured", "fewshot")
+METHODS = {"llm": "LLM (OpenRouter)", "crocodile": "Crocodile", "alligator": "Alligator"}
+LINKER_METHODS = ("crocodile", "alligator")  # classic linkers: own worker image (Dockerfile.linkers)
+# Fields that only matter to LLM runs; left out of a classic linker run's folder hash and label.
+LLM_FIELDS = {"model", "schema", "provider", "provider_policy", "max_concurrency", "max_rpm", "max_retries"}
 
 # Fields that do not change the results: excluded from the run-directory hash so a resumed or
 # re-tuned run (other concurrency) keeps writing to the same folder.
@@ -19,7 +23,8 @@ SPEED_FIELDS = {"max_concurrency", "max_rpm", "lamapi_concurrency", "max_retries
 @dataclass
 class RunConfig:
     dataset: str  # DatasetSource key ("spec:mv", "semtab:HardTablesR2") or a spec name ("mv")
-    model: str  # OpenRouter model id
+    model: str = ""  # OpenRouter model id (LLM runs)
+    method: str = "llm"  # llm | crocodile | alligator
     schema: str = "base"
     provider: str | None = None  # OpenRouter endpoint tag, used when provider_policy == "pin"
     provider_policy: str = "byok"  # byok | byok_first | routing | pin (see experiments/runs/byok.py)
@@ -30,12 +35,17 @@ class RunConfig:
     max_concurrency: int = 16  # parallel LLM requests
     max_rpm: int = 0  # requests per minute cap; 0 = none
     lamapi_concurrency: int = 8
+    linker_workers: int = 4  # Crocodile/Alligator worker processes per table
     max_retries: int = 6
     seed: int = 13
     output_dir: str = "outputs"
     datasets_root: str | None = None
 
     def __post_init__(self) -> None:
+        if self.method not in METHODS:
+            raise ValueError(f"Unknown method '{self.method}'. Use one of {list(METHODS)}.")
+        if self.method == "llm" and not self.model:
+            raise ValueError("LLM runs need a model.")
         if self.schema not in SCHEMAS:
             raise ValueError(f"Unknown prompt schema '{self.schema}'. Use one of {SCHEMAS}.")
         if self.max_concurrency < 1:
@@ -65,16 +75,22 @@ class RunConfig:
         raise ValueError(f"Unknown dataset '{self.dataset}'. Available: {', '.join(s.key for s in sources)}")
 
     def run_dir(self, source: DatasetSource) -> Path:
-        settings = {k: v for k, v in self.to_dict().items() if k not in SPEED_FIELDS}
-        if settings["provider_policy"] in ("routing", "pin"):
-            del settings["provider_policy"]  # same folder as runs made before policies existed
+        settings = {k: v for k, v in self.to_dict().items() if k not in SPEED_FIELDS | {"linker_workers"}}
+        if settings["method"] == "llm":
+            del settings["method"]  # same folder as runs made before other methods existed
+            if settings["provider_policy"] in ("routing", "pin"):
+                del settings["provider_policy"]  # same folder as runs made before policies existed
+        else:
+            settings = {k: v for k, v in settings.items() if k not in LLM_FIELDS}
         settings["dataset"] = source.key
         base = Path(self.output_dir)
         if not base.is_absolute():
             base = REPO_ROOT / base
-        return base / source.name / "llm" / stable_hash(settings)
+        return base / source.name / self.method / stable_hash(settings)
 
     def label(self) -> str:
         name = self.dataset.split(":", 1)[-1]
+        if self.method != "llm":
+            return f"{name} · {METHODS[self.method]}"
         where = {"pin": f" @ {self.provider}", "byok": " @ BYOK", "byok_first": " @ BYOK first"}.get(self.provider_policy, "")
         return f"{name} · {self.schema} · {self.model}{where}"

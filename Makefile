@@ -37,14 +37,16 @@ run-llm:
 		--max-rpm $(MAX_RPM) \
 		--lamapi-concurrency $(LAMAPI_CONCURRENCY)
 
+# Needs the linkers image (tensorflow 2.18, Python <= 3.12) and MongoDB: runs in docker compose.
 run-crocodile:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.runners.run_crocodile \
+	docker compose run --rm linkers python -m experiments.runners.run_crocodile \
 		--dataset $(DATASET) \
 		--max-rows $(MAX_ROWS) \
 		--output-dir $(OUTPUT_DIR)
 
+# Needs the linkers image (tensorflow 2.18, Python <= 3.12) and MongoDB: runs in docker compose.
 run-alligator:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.runners.run_alligator \
+	docker compose run --rm linkers python -m experiments.runners.run_alligator \
 		--dataset $(DATASET) \
 		--max-rows $(MAX_ROWS) \
 		--output-dir $(OUTPUT_DIR)

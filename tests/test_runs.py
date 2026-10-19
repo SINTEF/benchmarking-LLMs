@@ -333,3 +333,50 @@ class TestDatasetsRoot(unittest.TestCase):
             self.assertIn("parent folder", datasets_root_problem(empty))
             with mock.patch.dict("os.environ", {"HOME": tmp}):
                 self.assertIsNone(datasets_root_problem("~"))  # "~" is expanded
+
+
+class TestLinkers(unittest.TestCase):
+    def test_store_claims_by_method(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs.db")
+            old = store.submit({"dataset": "mv", "model": "m"}, "old llm run")  # no method key: LLM
+            croc = store.submit({"dataset": "mv", "method": "crocodile"}, "croc")
+            self.assertEqual(store.claim_next("w", ("crocodile", "alligator")).id, croc)
+            self.assertIsNone(store.claim_next("w", ("crocodile", "alligator")))
+            self.assertEqual(store.claim_next("w", ("llm",)).id, old)
+
+    def test_config_folders(self) -> None:
+        llm = RunConfig(dataset="mv", model="m")
+        croc = RunConfig(dataset="mv", method="crocodile")
+        self.assertEqual(llm.run_dir(_source()).parent.name, "llm")
+        self.assertEqual(croc.run_dir(_source()).parent.name, "crocodile")
+        self.assertEqual(croc.label(), "mv · Crocodile")
+        # LLM-only settings do not change a linker run's folder
+        self.assertEqual(croc.run_dir(_source()), RunConfig(dataset="mv", method="crocodile", schema="fewshot").run_dir(_source()))
+        with self.assertRaises(ValueError):
+            RunConfig(dataset="mv")  # LLM runs need a model
+
+    def test_pipeline_records_and_scores(self) -> None:
+        from experiments.runs.linkers import LinkerExecutor
+
+        gt = load_gt_ids(_source())
+        calls = []
+
+        def fake_link_table(self, taskset, table_id, cells, gt_ids):
+            calls.append([self._forced(t, gt_ids) for t in cells])
+            df = taskset.load_table(table_id)
+            preds = {"__mentions__": {(int(t.row), int(t.col)): str(df.iloc[int(t.row), int(t.col)]) for t in cells}}
+            for t in cells:  # right on every cell but the first
+                gid = gt_ids[(t.table_id, int(t.row), int(t.col))][0]
+                preds[(int(t.row), int(t.col))] = {"id": "Q0" if int(t.row) == 0 else gid, "score": 0.9,
+                                                   "candidates": [{"id": gid}]}
+            return preds
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(LinkerExecutor, "_link_table", fake_link_table):
+            cfg = RunConfig(dataset="spec:test", method="crocodile", limit=5, output_dir=tmp)
+            manifest = LinkerExecutor(cfg, source=_source()).run()
+            p = manifest["progress"]
+            self.assertEqual((p["n_ok"], p["tables_done"], p["gt_present"]), (5, 1, 5))
+            self.assertEqual(calls[0][0], gt[("__spec__", 0, 0)])  # GT ids forced
+            self.assertAlmostEqual(manifest["report"]["precision"], 4 / 5)
+            self.assertTrue(Path(tmp, "test", "crocodile").is_dir())

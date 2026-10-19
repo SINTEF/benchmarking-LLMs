@@ -71,6 +71,8 @@ class Progress:
     n_empty: int = 0  # empty mention: NIL without calling the model
     n_errors: int = 0
     n_tables: int = 0
+    tables_total: int = 0  # classic linkers: tables to link in this attempt
+    tables_done: int = 0
     summaries_done: int = 0
     summary_errors: int = 0
     llm_calls: int = 0  # HTTP attempts (incl. retries and summaries)
@@ -487,8 +489,9 @@ class RunExecutor:
         self.p.shared_rejected = self.stats.shared_rejected
         self.p.shared_rejected_usd = self.stats.shared_rejected_usd
         limiter = getattr(self, "_limiter", None)
-        self.p.in_flight = limiter.in_flight if limiter else 0
-        self.p.cooling_down = limiter.cooling_down if limiter else False
+        if limiter:  # LLM runs; classic linkers set in_flight themselves (cells of the current table)
+            self.p.in_flight = limiter.in_flight
+            self.p.cooling_down = limiter.cooling_down
         if self._latencies:
             lat = sorted(self._latencies)
             self.p.latency_p50_s = statistics.median(lat)

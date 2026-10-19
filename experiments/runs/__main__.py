@@ -22,7 +22,9 @@ from experiments.runs.worker import run_worker
 
 def add_run_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--dataset", required=True, help="spec name (mv) or source key (semtab:HardTablesR2)")
-    p.add_argument("--model", required=True, help="OpenRouter model id")
+    p.add_argument("--method", choices=["llm", "crocodile", "alligator"], default="llm")
+    p.add_argument("--model", default="", help="OpenRouter model id (LLM runs)")
+    p.add_argument("--linker-workers", type=int, default=4, help="Crocodile/Alligator worker processes")
     p.add_argument("--schema", choices=SCHEMAS, default="base")
     p.add_argument("--provider", default=None, help="pin an OpenRouter endpoint tag, e.g. groq")
     p.add_argument("--provider-policy", choices=["byok", "byok_first", "routing"], default="byok",
@@ -40,7 +42,8 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
 
 def config_from_args(a: argparse.Namespace) -> RunConfig:
     return RunConfig(
-        dataset=a.dataset, model=a.model, schema=a.schema, provider=a.provider,
+        dataset=a.dataset, model=a.model, method=a.method, linker_workers=a.linker_workers,
+        schema=a.schema, provider=a.provider,
         provider_policy="pin" if a.provider else a.provider_policy, limit=a.limit,
         lamapi_limit=a.lamapi_limit, force_gt=not a.no_force_gt, force_ids=a.force_id,
         max_concurrency=a.concurrency, max_rpm=a.max_rpm, lamapi_concurrency=a.lamapi_concurrency,
@@ -54,6 +57,8 @@ def main() -> None:
     sub = parser.add_subparsers(dest="cmd", required=True)
     w = sub.add_parser("worker", help="execute queued runs")
     w.add_argument("--once", action="store_true", help="run at most one queued run, then exit")
+    w.add_argument("--methods", default="llm",
+                   help="comma-separated methods this worker executes: llm, crocodile, alligator")
     s = sub.add_parser("submit", help="queue a run")
     add_run_args(s)
     sub.add_parser("list", help="show runs")
@@ -65,7 +70,7 @@ def main() -> None:
 
     store = RunStore()
     if a.cmd == "worker":
-        run_worker(store, once=a.once)
+        run_worker(store, once=a.once, methods=tuple(m.strip() for m in a.methods.split(",") if m.strip()))
     elif a.cmd == "submit":
         cfg = config_from_args(a)
         cfg.resolve_source()  # fail fast on a bad dataset name

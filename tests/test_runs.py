@@ -51,6 +51,7 @@ class FakeOpenRouter:
 
     def __init__(self, fail_first_with: int | None = None, always: int | None = None, delay: float = 0.02):
         self.in_flight = self.peak = self.requests = 0
+        self.bodies: list[dict] = []
         self.fail_first_with = fail_first_with
         self.always = always
         self.delay = delay
@@ -65,11 +66,13 @@ class FakeOpenRouter:
         self.peak = max(self.peak, self.in_flight)
         await asyncio.sleep(self.delay)
         self.in_flight -= 1
-        prompt = json.loads(request.content)["messages"][0]["content"]
+        body = json.loads(request.content)
+        self.bodies.append(body)
+        prompt = body["messages"][0]["content"]
         answer = "A table about movies." if "summary" in prompt.lower() and "ANSWER" not in prompt else "ANSWER:Q2"
         return httpx.Response(200, json={
             "choices": [{"message": {"content": answer}}],
-            "usage": {"prompt_tokens": 100, "completion_tokens": 5, "cost": 0.0001},
+            "usage": {"prompt_tokens": 100, "completion_tokens": 5, "cost": 0.0001, "is_byok": True},
             "provider": "Fake",
         })
 
@@ -125,6 +128,7 @@ class TestGtIds(unittest.TestCase):
 
 class TestExecutor(unittest.TestCase):
     def _run(self, tmp, fake: FakeOpenRouter, store=None, run_id=None, **cfg):
+        cfg.setdefault("provider_policy", "routing")
         config = RunConfig(dataset="spec:test", model="m/x", limit=6, output_dir=tmp, max_concurrency=4, **cfg)
         lamapi = FakeLamapi()
         ex = RunExecutor(config, store, run_id, api_key="k", lamapi_client=lamapi,
@@ -158,6 +162,17 @@ class TestExecutor(unittest.TestCase):
             _, manifest2, _ = self._run(tmp, fake2)
             self.assertEqual(fake2.requests, 0)
             self.assertEqual(manifest2["progress"]["n_resumed"], 5)
+
+    def test_byok_only_routing(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict("os.environ", {"OPENROUTER_BYOK_PROVIDERS": "cerebras"}), \
+                mock.patch("experiments.cost.pricing.load_endpoints", return_value=None):
+            fake = FakeOpenRouter()
+            _, manifest, _ = self._run(tmp, fake, provider_policy="byok")
+            self.assertTrue(all(b["provider"] == {"order": ["cerebras"], "allow_fallbacks": False} for b in fake.bodies))
+            p = manifest["progress"]
+            self.assertEqual(p["byok_calls"], fake.requests)
+            self.assertEqual(p["shared_calls"], 0)
+            self.assertIn("BYOK only", p["provider_route"])
 
     def test_bad_key_fails_fast(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -217,3 +232,62 @@ class TestEta(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMetrics(unittest.TestCase):
+    def test_prf_with_nil_and_alternatives(self) -> None:
+        from experiments.evaluation.metrics import evaluate
+
+        gt = pd.DataFrame({
+            "key": ["a", "b", "c", "d", "e", "e"],
+            "gt_id": ["Q1", "Q2", "NIL", "Q4", "Q5", "Q55"],  # e: two valid ids
+        })
+        pred = pd.DataFrame({
+            "key": ["a", "b", "c", "d", "e", "z"],  # z has no GT row: ignored
+            "pred_id": ["Q1", "Q9", "NIL", "No Identifier", "Q55", "Q7"],
+        })
+        r = evaluate(pred, gt)
+        # entity predictions: a, b, e (d's "No Identifier" counts as NIL) -> 2 correct (a, e)
+        self.assertEqual((r["tp"], r["predicted_entities"], r["gold_entities"]), (2, 3, 4))
+        self.assertAlmostEqual(r["precision"], 2 / 3)
+        self.assertAlmostEqual(r["recall"], 2 / 4)
+        self.assertAlmostEqual(r["f1"], 2 * (2 / 3) * 0.5 / (2 / 3 + 0.5))
+        self.assertAlmostEqual(r["accuracy"], 3 / 5)  # a, c (NIL), e
+        self.assertEqual((r["nil_correct"], r["nil_pred_count"], r["nil_gt_count"]), (1, 2, 1))
+
+    def test_run_metrics_partial(self) -> None:
+        from experiments.runs.metrics import run_metrics
+
+        with tempfile.TemporaryDirectory() as tmp:
+            gt = load_gt_ids(_source())
+            first = sorted(gt)[:2]
+            lines = [
+                {"key": f"{r}-{c}", "pred_id": gt[(t, r, c)][0], "status": "ok"} for t, r, c in first
+            ]
+            lines[1]["pred_id"] = "NIL"  # an errored cell counts as no prediction
+            Path(tmp, "results.jsonl").write_text("\n".join(json.dumps(x) for x in lines))
+            r = run_metrics(tmp, _source())
+            self.assertEqual(r["evaluated"], 2)  # only cells finished so far
+            self.assertEqual((r["precision"], r["recall"]), (1.0, 0.5))
+
+
+class TestByok(unittest.TestCase):
+    def test_preferences(self) -> None:
+        from experiments.cost.pricing import ProviderList, parse_endpoints
+        from experiments.runs.byok import provider_preferences
+
+        eps = ProviderList("m", parse_endpoints(json.loads((FIXTURES / "openrouter_endpoints_gpt_oss_120b.json").read_text())), "cache")
+        prefs, _ = provider_preferences("byok", None, eps, {"cerebras", "openai"})
+        self.assertEqual(prefs, {"order": ["cerebras"], "allow_fallbacks": False})  # openai does not serve it
+        prefs, _ = provider_preferences("byok_first", None, eps, {"cerebras"})
+        self.assertTrue(prefs["allow_fallbacks"])
+        prefs, desc = provider_preferences("byok", None, eps, {"openai"})
+        self.assertIsNone(prefs)
+        self.assertIn("routing", desc)
+        self.assertEqual(provider_preferences("pin", "groq", eps, set())[0]["order"], ["groq"])
+
+    def test_old_configs_keep_routing_and_folder(self) -> None:
+        old = {"dataset": "mv", "model": "openai/gpt-oss-120b"}
+        cfg = RunConfig.from_dict(old)
+        self.assertEqual(cfg.provider_policy, "routing")
+        self.assertNotEqual(cfg.run_dir(_source()), RunConfig(**old).run_dir(_source()))  # new default: byok

@@ -36,6 +36,7 @@ class ChatResult:
     seconds: float  # successful attempt only
     attempts: int
     provider: str | None
+    is_byok: bool = False  # served on your own provider key
 
 
 @dataclass
@@ -87,9 +88,14 @@ class OpenRouterClient:
         stats: CallStats | None = None,
         url: str = CHAT_URL,
         transport: httpx.AsyncBaseTransport | None = None,
+        provider_prefs: dict[str, Any] | None = None,
     ) -> None:
         self.model = model
         self.provider = provider
+        # OpenRouter "provider" object; a pinned ``provider`` tag is shorthand for order=[tag], no fallbacks
+        self.provider_prefs = provider_prefs or (
+            {"order": [provider], "allow_fallbacks": False} if provider else None
+        )
         self.limiter = limiter
         self.max_retries = max_retries
         self.stats = stats or CallStats()
@@ -114,8 +120,8 @@ class OpenRouterClient:
             "messages": [{"role": "user", "content": prompt}],
             "usage": {"include": True},
         }
-        if self.provider:
-            body["provider"] = {"order": [self.provider], "allow_fallbacks": False}
+        if self.provider_prefs:
+            body["provider"] = self.provider_prefs
         return body
 
     async def chat(self, prompt: str) -> ChatResult:
@@ -192,5 +198,6 @@ class OpenRouterClient:
                 seconds=seconds,
                 attempts=attempt + 1,
                 provider=data.get("provider"),
+                is_byok=bool(usage.get("is_byok")),
             )
         raise CallError(f"gave up after {self.max_retries + 1} attempts: {last_error}")

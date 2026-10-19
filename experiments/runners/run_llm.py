@@ -34,6 +34,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--model", required=True, type=str)
     parser.add_argument("--provider", default="openrouter", choices=["openrouter"], help="LLM API (OpenRouter only)")
     parser.add_argument("--pin-provider", default=None, help="OpenRouter endpoint tag to pin, e.g. groq")
+    parser.add_argument(
+        "--provider-policy", choices=["byok", "byok_first", "routing"], default="byok",
+        help="byok: only your BYOK providers, back off on 429 (default); byok_first: then shared capacity; "
+        "routing: let OpenRouter decide. See experiments/runs/byok.py",
+    )
     parser.add_argument("--prompt-schema", choices=SCHEMAS, default="base")
     parser.add_argument("--model-api-key", default=None, type=str)
     parser.add_argument("--max-concurrency", type=int, default=16)
@@ -64,6 +69,7 @@ def main() -> None:
         model=args.model,
         schema=args.prompt_schema,
         provider=args.pin_provider,
+        provider_policy="pin" if args.pin_provider else args.provider_policy,
         limit=args.max_rows,
         lamapi_limit=args.lamapi_limit,
         force_gt=not args.no_force_gt,
@@ -97,7 +103,8 @@ def main() -> None:
         raise
     report = manifest.get("report") or {}
     logger.info(
-        "%s: %s · accuracy %s · $%.4f -> %s", config.label(), manifest["status"], report.get("accuracy"),
+        "%s: %s · P %s R %s F1 %s · $%.4f -> %s", config.label(), manifest["status"],
+        *(f"{report[k]:.4f}" if k in report else "—" for k in ("precision", "recall", "f1")),
         manifest["progress"]["cost_usd"], executor.run_dir / "predictions.csv",
     )
     if manifest["status"] != "done":

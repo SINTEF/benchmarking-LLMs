@@ -26,6 +26,7 @@ from experiments.cost.estimate import (
 from experiments.cost.pricing import PriceBook, ProviderList, load_endpoints, load_prices, with_provider
 from experiments.cost.tasks import REPO_ROOT, discover_sources, load_taskset
 from experiments.cost.tokens import get_counter
+from experiments.runs.byok import byok_tags, known_byok_providers, slug
 from experiments.runs.eta import estimate_duration, fmt_duration, seconds_per_call_for
 from experiments.runs.store import RunStore
 
@@ -36,6 +37,7 @@ SCHEMAS = {
 }
 DEFAULT_MODEL = "openai/gpt-oss-120b"
 CHEAPEST = "__cheapest__"
+BYOK = "__byok__"
 TYPICAL_INPUT = 700  # tokens; only used to rank providers
 
 
@@ -163,12 +165,14 @@ model_choices = st.multiselect(
 )
 
 selected = []  # (ModelPrice at the chosen provider, ProviderList | None)
+byok_known, _ = known_byok_providers(get_store())
 if model_choices:
     st.markdown("**Provider**")
     st.caption(
         "OpenRouter serves each model through several providers, at different prices and quantizations. "
         "Unless a provider is pinned, OpenRouter routes between them, so the real cost can land anywhere "
-        "in the *across providers* range shown in the results."
+        "in the *across providers* range shown in the results. Runs default to your BYOK providers "
+        "(billed by the provider at its listed price; OpenRouter's BYOK fee is not included)."
     )
 for m in model_choices:
     base = prices.models[m]
@@ -184,7 +188,14 @@ for m in model_choices:
     ranked = sorted(eps.providers, key=lambda p: (not p.healthy, p.call_cost(TYPICAL_INPUT, typical_out)))
     cheapest = eps.cheapest(TYPICAL_INPUT, typical_out)
 
-    def fmt(tag: str, eps=eps, cheapest=cheapest) -> str:
+    byok_eps = [p for p in ranked if slug(p.tag) in set(byok_tags(eps, byok_known))]
+    byok_best = min(byok_eps, key=lambda p: (not p.healthy, p.call_cost(TYPICAL_INPUT, typical_out))) if byok_eps else None
+
+    def fmt(tag: str, eps=eps, cheapest=cheapest, byok_best=byok_best) -> str:
+        if tag == BYOK:
+            p = byok_best
+            return (f"Your BYOK provider (default for runs) - {p.provider} · {p.quantization} · "
+                    f"${p.input_per_token * 1e6:.3f} in / ${p.output_per_token * 1e6:.3f} out per 1M")
         p = cheapest if tag == CHEAPEST else eps.by_tag(tag)
         desc = (
             f"{p.provider} · {p.quantization} · ${p.input_per_token * 1e6:.3f} in / "
@@ -192,8 +203,9 @@ for m in model_choices:
         )
         return f"Cheapest available - {desc}" if tag == CHEAPEST else desc
 
-    choice = st.selectbox(m, [CHEAPEST] + [p.tag for p in ranked], format_func=fmt, key=f"provider_{m}")
-    chosen = cheapest if choice == CHEAPEST else eps.by_tag(choice)
+    options = ([BYOK] if byok_best else []) + [CHEAPEST] + [p.tag for p in ranked]
+    choice = st.selectbox(m, options, format_func=fmt, key=f"provider_{m}")
+    chosen = byok_best if choice == BYOK else cheapest if choice == CHEAPEST else eps.by_tag(choice)
     selected.append((with_provider(base, chosen), eps))
 
 models = [mp for mp, _ in selected]

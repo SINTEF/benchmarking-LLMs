@@ -21,7 +21,8 @@ class RunConfig:
     dataset: str  # DatasetSource key ("spec:mv", "semtab:HardTablesR2") or a spec name ("mv")
     model: str  # OpenRouter model id
     schema: str = "base"
-    provider: str | None = None  # OpenRouter endpoint tag to pin (e.g. "groq"); None = OpenRouter routing
+    provider: str | None = None  # OpenRouter endpoint tag, used when provider_policy == "pin"
+    provider_policy: str = "byok"  # byok | byok_first | routing | pin (see experiments/runs/byok.py)
     limit: int = 0  # first N rows (spec) / cells (SemTab); 0 = all
     lamapi_limit: int = 10
     force_gt: bool = True  # put every GT id of the cell into its candidate list
@@ -39,10 +40,17 @@ class RunConfig:
             raise ValueError(f"Unknown prompt schema '{self.schema}'. Use one of {SCHEMAS}.")
         if self.max_concurrency < 1:
             raise ValueError("max_concurrency must be >= 1")
+        if self.provider and self.provider_policy != "pin":
+            self.provider_policy = "pin"
+        if self.provider_policy not in ("byok", "byok_first", "routing", "pin"):
+            raise ValueError(f"Unknown provider_policy '{self.provider_policy}'.")
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "RunConfig":
         known = {f.name for f in fields(cls)}
+        data = dict(data)
+        # Runs queued before provider policies existed used OpenRouter routing (or a pinned tag).
+        data.setdefault("provider_policy", "pin" if data.get("provider") else "routing")
         return cls(**{k: v for k, v in data.items() if k in known})
 
     def to_dict(self) -> dict[str, Any]:
@@ -58,6 +66,8 @@ class RunConfig:
 
     def run_dir(self, source: DatasetSource) -> Path:
         settings = {k: v for k, v in self.to_dict().items() if k not in SPEED_FIELDS}
+        if settings["provider_policy"] in ("routing", "pin"):
+            del settings["provider_policy"]  # same folder as runs made before policies existed
         settings["dataset"] = source.key
         base = Path(self.output_dir)
         if not base.is_absolute():
@@ -66,4 +76,5 @@ class RunConfig:
 
     def label(self) -> str:
         name = self.dataset.split(":", 1)[-1]
-        return f"{name} · {self.schema} · {self.model}" + (f" @ {self.provider}" if self.provider else "")
+        where = {"pin": f" @ {self.provider}", "byok": " @ BYOK", "byok_first": " @ BYOK first"}.get(self.provider_policy, "")
+        return f"{name} · {self.schema} · {self.model}{where}"

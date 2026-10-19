@@ -61,8 +61,8 @@ def main() -> None:
     mismatches[cols].head(50).to_csv(mismatches_path, index=False)
 
     print(
-        "Accuracy: "
-        f"{report['accuracy']:.4f} ({report['correct']}/{report['evaluated']})."
+        f"P {report['precision']:.4f}  R {report['recall']:.4f}  F1 {report['f1']:.4f}  "
+        f"accuracy {report['accuracy']:.4f} ({report['correct']}/{report['evaluated']})."
     )
 
 

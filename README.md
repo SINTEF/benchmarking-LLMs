@@ -87,6 +87,15 @@ backoff; failed cells are recorded as errors instead of silently becoming NIL. E
 appended to `results.jsonl` in the run folder, so runs resume. Cost comes from OpenRouter's usage
 report, including the upstream provider cost for BYOK keys.
 
+Provider routing (`--provider-policy`, Runs page "Provider"): by default runs go only to the
+providers you have a BYOK key for in OpenRouter (`provider.order` = those providers, no fallbacks),
+so a run stays on one provider/quantization and a 429 makes it back off instead of moving to
+shared capacity. BYOK providers come from `OPENROUTER_BYOK_PROVIDERS=cerebras,...` in `.env`, the
+BYOK list API (`OPENROUTER_MANAGEMENT_KEY`), or are learned from `is_byok` in earlier runs (the
+very first run uses OpenRouter routing). OpenRouter can still serve some calls from the same
+provider's shared capacity when your key is throttled; set the key to "Never use shared capacity"
+in OpenRouter to forbid that. Each run reports the share of calls served on your keys.
+
 Duration estimate: throughput = min(parallel requests ÷ seconds per call, requests/min cap ÷ 60);
 uncached LamAPI lookups run alongside. Seconds per call come from calibration, else the median of
 earlier runs of the same model, else an assumption. During a run the ETA uses the throughput

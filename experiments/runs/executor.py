@@ -39,6 +39,7 @@ from experiments.forcing import load_gt_ids
 from experiments.runs.config import RunConfig
 from experiments.runs.limiter import RateLimiter
 from experiments.runs.llm import CallError, CallStats, FatalAPIError, OpenRouterClient
+from experiments.runs.metrics import gt_frame, score
 from experiments.runs.store import CANCELLED, CANCELLING, DONE, FAILED, RunStore
 
 logger = get_logger(__name__)
@@ -93,6 +94,11 @@ class Progress:
     started_at: float = field(default_factory=time.time)
     session_started_at: float = field(default_factory=time.time)
     session_done_at_start: int = 0
+    provider_route: str = ""  # how requests are routed (BYOK only / BYOK first / routing / pinned)
+    byok_calls: int = 0  # linking + summary calls served on your own provider keys
+    shared_calls: int = 0  # ... served on OpenRouter's shared capacity
+    providers: dict[str, int] = field(default_factory=dict)  # provider name -> calls
+    byok_providers: list[str] = field(default_factory=list)  # slugs seen serving with your key
     recent_errors: list[str] = field(default_factory=list)
     gt_missing_examples: list[str] = field(default_factory=list)
 
@@ -188,9 +194,10 @@ class RunExecutor:
         online = self._lamapi_client or make_lamapi_clients(cfg.lamapi_limit)[1]
         limiter = RateLimiter(cfg.max_concurrency, cfg.max_rpm)
         self._limiter = limiter
+        prefs = self._provider_preferences()
         llm = OpenRouterClient(
             cfg.model, limiter, cfg.provider, self.api_key, cfg.max_retries, stats=self.stats,
-            transport=self._llm_transport,
+            transport=self._llm_transport, provider_prefs=prefs,
         )
         in_q: asyncio.Queue = asyncio.Queue(maxsize=cfg.lamapi_concurrency * 4)
         ready_q: asyncio.Queue = asyncio.Queue(maxsize=cfg.max_concurrency * 4)
@@ -359,13 +366,39 @@ class RunExecutor:
                 "latency_s": round(res.seconds, 3),
                 "attempts": res.attempts,
                 "provider": res.provider,
+                "is_byok": res.is_byok,
             },
             counted=True,
         )
 
     # ------------------------------------------------------------------ bookkeeping
 
+    def _provider_preferences(self) -> dict | None:
+        from experiments.cost.pricing import load_endpoints
+        from experiments.runs.byok import known_byok_providers, provider_preferences, slug
+
+        endpoints = None
+        if self.cfg.provider_policy in ("byok", "byok_first"):
+            endpoints = load_endpoints(self.cfg.model)
+        self._slug_of = {p.provider: slug(p.tag) for p in (endpoints.providers if endpoints else [])}
+        byok, source = known_byok_providers(self.store) if self.cfg.provider_policy in ("byok", "byok_first") else (set(), "")
+        prefs, desc = provider_preferences(self.cfg.provider_policy, self.cfg.provider, endpoints, byok)
+        self.p.provider_route = desc + (f" (BYOK from {source})" if byok else "")
+        logger.info("provider routing: %s", self.p.provider_route)
+        return prefs
+
     def _account_call(self, res) -> None:
+        from experiments.runs.byok import slug
+
+        name = res.provider or "unknown"
+        self.p.providers[name] = self.p.providers.get(name, 0) + 1
+        if res.is_byok:
+            self.p.byok_calls += 1
+            s = getattr(self, "_slug_of", {}).get(name) or slug(name)
+            if s not in self.p.byok_providers:
+                self.p.byok_providers.append(s)
+        else:
+            self.p.shared_calls += 1
         self.p.input_tokens += res.prompt_tokens
         self.p.output_tokens += res.completion_tokens
         self.p.reasoning_tokens += res.reasoning_tokens
@@ -486,16 +519,14 @@ class RunExecutor:
         pred_df.to_csv(self.run_dir / "predictions.csv", index=False)
 
         report = None
-        if self.source.kind == "spec" and self.source.gt_path and Path(self.source.gt_path).exists():
-            try:
-                from experiments.evaluation.metrics import evaluate
-
-                gt_df = pd.read_csv(self.source.gt_path)
-                gt_df = gt_df[gt_df["key"].isin(pred_df["key"])]
-                report = evaluate(pred_df, gt_df)
+        try:
+            # Cells never attempted (cancelled run) are left out rather than counted as NIL.
+            report = score(pd.DataFrame(latest.values()), gt_frame(self.source)) if latest else None
+            if report is not None:
+                report["total_pred"] = len(latest)
                 write_json(self.run_dir / "report.json", report)
-            except Exception as exc:  # noqa: BLE001 - evaluation is a bonus, never fail the run on it
-                logger.warning("evaluation failed: %s", exc)
+        except Exception as exc:  # noqa: BLE001 - evaluation is a bonus, never fail the run on it
+            logger.warning("evaluation failed: %s", exc)
 
         manifest = {
             "run_id": self.run_id,
@@ -510,6 +541,10 @@ class RunExecutor:
         write_json(self.run_dir / "manifest.json", manifest)
         if self.store and self.run_id:
             self.store.finish(self.run_id, status, error)
-        logger.info("%s: %s (%d ok, %d errors) -> %s", self.cfg.label(), status, self.p.n_ok, self.p.n_errors, self.run_dir)
+        logger.info(
+            "%s: %s (%d ok, %d errors)%s -> %s", self.cfg.label(), status, self.p.n_ok, self.p.n_errors,
+            f" P {report['precision']:.3f} R {report['recall']:.3f} F1 {report['f1']:.3f}" if report else "",
+            self.run_dir,
+        )
         return manifest
 

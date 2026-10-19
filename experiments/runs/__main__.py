@@ -25,6 +25,8 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--model", required=True, help="OpenRouter model id")
     p.add_argument("--schema", choices=SCHEMAS, default="base")
     p.add_argument("--provider", default=None, help="pin an OpenRouter endpoint tag, e.g. groq")
+    p.add_argument("--provider-policy", choices=["byok", "byok_first", "routing"], default="byok",
+                   help="byok (default): only BYOK providers; byok_first: then shared capacity; routing")
     p.add_argument("--limit", type=int, default=0, help="first N rows (spec) / cells (SemTab)")
     p.add_argument("--lamapi-limit", type=int, default=10)
     p.add_argument("--no-force-gt", action="store_true", help="do NOT force the GT ids into the candidates")
@@ -38,7 +40,8 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
 
 def config_from_args(a: argparse.Namespace) -> RunConfig:
     return RunConfig(
-        dataset=a.dataset, model=a.model, schema=a.schema, provider=a.provider, limit=a.limit,
+        dataset=a.dataset, model=a.model, schema=a.schema, provider=a.provider,
+        provider_policy="pin" if a.provider else a.provider_policy, limit=a.limit,
         lamapi_limit=a.lamapi_limit, force_gt=not a.no_force_gt, force_ids=a.force_id,
         max_concurrency=a.concurrency, max_rpm=a.max_rpm, lamapi_concurrency=a.lamapi_concurrency,
         output_dir=a.output_dir, datasets_root=a.datasets_root,

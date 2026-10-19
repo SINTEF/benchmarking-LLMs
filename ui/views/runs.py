@@ -15,12 +15,16 @@ from experiments.cost.candidates import make_lamapi_clients
 from experiments.cost.pricing import load_endpoints, load_prices
 from experiments.cost.tasks import discover_sources, load_taskset
 from experiments.runs.config import RunConfig
+from experiments.runs.byok import known_byok_providers, provider_preferences
+from experiments.runs.metrics import run_metrics
 from experiments.runs.eta import estimate_duration, fmt_duration, live_eta, lookup_plan, seconds_per_call_for
 from experiments.runs.store import ACTIVE, CANCELLING, DONE, FINISHED, QUEUED, RUNNING, RunStore
 
 SCHEMAS = {"base": "Base", "structured": "Structured (detailed)", "fewshot": "Few-shot"}
 DEFAULT_MODEL = "openai/gpt-oss-120b"
+BYOK_ONLY, BYOK_FIRST = "Your BYOK providers only", "BYOK first, then shared capacity"
 ROUTING, CHEAPEST = "OpenRouter routing", "Cheapest healthy provider (pinned)"
+POLICY = {BYOK_ONLY: "byok", BYOK_FIRST: "byok_first", ROUTING: "routing", CHEAPEST: "pin"}
 STATUS_ICON = {
     "queued": ":material/schedule:", "running": ":material/play_circle:", "cancelling": ":material/hourglass_top:",
     "done": ":material/check_circle:", "failed": ":material/error:", "cancelled": ":material/cancel:",
@@ -64,14 +68,47 @@ def usd(x: float | None) -> str:
     return f"${x:,.2f}" if x >= 1 else f"${x:.4f}"
 
 
-def read_report(run) -> dict | None:
-    if not run.run_dir:
-        return None
-    path = Path(run.run_dir) / "report.json"
+@st.cache_data(ttl=600, show_spinner=False)
+def run_source(dataset: str, datasets_root: str | None):
+    return RunConfig(dataset=dataset, model="-", datasets_root=datasets_root).resolve_source()
+
+
+@st.cache_data(ttl=15, show_spinner=False)
+def live_metrics(run_dir: str, dataset: str, datasets_root: str | None) -> dict | None:
+    """P/R/F1 over the cells finished so far; recomputed at most every 15 s."""
     try:
-        return json.loads(path.read_text()) if path.exists() else None
-    except (OSError, json.JSONDecodeError):
+        return run_metrics(run_dir, run_source(dataset, datasets_root))
+    except Exception:  # noqa: BLE001 - unknown dataset, unreadable GT...
         return None
+
+
+@st.cache_data(show_spinner=False)
+def _final_metrics(run_dir: str, dataset: str, datasets_root: str | None, mtime: float) -> dict | None:
+    path = Path(run_dir) / "report.json"
+    try:
+        report = json.loads(path.read_text()) if path.exists() else None
+    except (OSError, json.JSONDecodeError):
+        report = None
+    if report and "f1" in report:
+        return report
+    # Older run without P/R/F1 in its report: score its results now.
+    try:
+        return run_metrics(run_dir, run_source(dataset, datasets_root)) or report
+    except Exception:  # noqa: BLE001
+        return report
+
+
+def read_report(run) -> dict | None:
+    """Final metrics of a finished run (report.json, or computed from results.jsonl)."""
+    if not run.run_dir or not Path(run.run_dir).exists():
+        return None
+    results = Path(run.run_dir) / "results.jsonl"
+    mtime = results.stat().st_mtime if results.exists() else 0.0
+    return _final_metrics(run.run_dir, run.config.get("dataset", ""), run.config.get("datasets_root"), mtime)
+
+
+def pct(x: float | None) -> str:
+    return f"{x:.1%}" if x is not None else "—"
 
 
 store = get_store()
@@ -97,11 +134,21 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
         default=[DEFAULT_MODEL] if DEFAULT_MODEL in prices.models or not prices.models else [],
         placeholder="Type to search, e.g. gpt-oss, llama, qwen...",
     )
+    byok, byok_source = known_byok_providers(store)
     provider_mode = st.radio(
-        "Provider", [ROUTING, CHEAPEST], horizontal=True,
-        help="Routing lets OpenRouter pick (and fall back between) providers. Pinning the cheapest healthy "
-        "provider makes the price predictable but a single provider's rate limits apply.",
+        "Provider", [BYOK_ONLY, BYOK_FIRST, ROUTING, CHEAPEST], horizontal=True,
+        help="BYOK only: requests go to the providers you have your own key for, and a 429 makes the run back "
+        "off and retry instead of moving to another provider - one provider and quantization per run, no "
+        "OpenRouter credits. BYOK first: OpenRouter may fall back to shared capacity when your key is throttled. "
+        "Routing: OpenRouter decides. Pinned: one specific endpoint.",
     )
+    if byok:
+        st.caption(f":material/key: BYOK providers: **{', '.join(sorted(byok))}** ({byok_source})")
+    elif provider_mode in (BYOK_ONLY, BYOK_FIRST):
+        st.caption(
+            ":material/key_off: No BYOK provider known yet - runs use OpenRouter routing and learn them from "
+            "OpenRouter's `is_byok` flag. Set `OPENROUTER_BYOK_PROVIDERS=cerebras,...` in .env to choose them now."
+        )
 
     c1, c2, c3, c4 = st.columns(4)
     limit = c1.number_input("Limit (first N rows / cells, 0 = all)", min_value=0, value=0, step=100)
@@ -132,11 +179,13 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             price = prices.models.get(m)
             pinned = None
             latency = throughput = None
+            eps = get_endpoints(m)
             if provider_mode == CHEAPEST:
-                eps = get_endpoints(m)
                 best = eps.cheapest(700, 400 if price and price.reasoning else 10)
                 if best:
                     pinned, latency, throughput = best.tag, best.latency_s, best.throughput_tps
+            policy = "pin" if pinned else ("routing" if provider_mode == CHEAPEST else POLICY[provider_mode])
+            _, route = provider_preferences(policy, pinned, eps, byok)
             spc, spc_src = seconds_per_call_for(
                 store, m, pinned, bool(price and price.reasoning), latency_s=latency, throughput_tps=throughput,
                 output_tokens=400 if price and price.reasoning else 10,
@@ -147,11 +196,12 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
                 seconds_per_lookup=0.6, seconds_per_call_source=spc_src,
             )
             rows.append({
-                "dataset": by_key[d].name, "schema": s, "model": m, "provider": pinned or "routing",
+                "dataset": by_key[d].name, "schema": s, "model": m, "provider": route,
                 "calls": calls, "uncached lookups": plan["to_fetch"], "s/call": round(spc, 2),
                 "latency source": spc_src, "bottleneck": est.bottleneck, "duration": fmt_duration(est.seconds),
                 "_seconds": est.seconds, "_cfg": RunConfig(
-                    dataset=d, model=m, schema=s, provider=pinned, limit=int(limit), lamapi_limit=int(lamapi_limit),
+                    dataset=d, model=m, schema=s, provider=pinned, provider_policy=policy,
+                    limit=int(limit), lamapi_limit=int(lamapi_limit),
                     force_gt=force_gt, force_ids=list(force_ids), max_concurrency=int(concurrency),
                     max_rpm=int(max_rpm), datasets_root=datasets_root or None,
                 ), "_est": est,
@@ -225,6 +275,22 @@ def active_card(run) -> None:
         gt_cells = p.get("gt_cells") or 0
         m[5].metric("GT in candidates", f"{p.get('gt_present', 0) / gt_cells:.1%}" if gt_cells else "—",
                     help="Cells whose GT id is among the candidates sent to the model.")
+        live = live_metrics(run.run_dir, run.config.get("dataset", ""), run.config.get("datasets_root")) \
+            if run.run_dir else None
+        byok_calls, shared = p.get("byok_calls", 0), p.get("shared_calls", 0)
+        if p.get("provider_route") or byok_calls or shared:
+            share = f" · {byok_calls / (byok_calls + shared):.0%} of calls on your keys" if byok_calls + shared else ""
+            warn = (
+                " :orange[- some calls ran on OpenRouter's shared capacity; set your BYOK key to *Never use shared "
+                "capacity* in OpenRouter's settings to stop this]" if shared and byok_calls else ""
+            )
+            st.caption(f":material/key: {p.get('provider_route', '')}{share}{warn}")
+        if live:
+            st.caption(
+                f":material/insights: So far on {live['evaluated']:,} cells with GT - "
+                f"**P {pct(live['precision'])} · R {pct(live['recall'])} · F1 {pct(live['f1'])}** · "
+                f"accuracy {pct(live['accuracy'])}"
+            )
         if p.get("cooling_down"):
             st.caption(":material/pause: Provider returned 429 - all requests paused briefly. If this keeps happening, "
                        "lower *parallel requests* or set a requests/min cap.")
@@ -270,6 +336,9 @@ def monitor() -> None:
             "progress": (p.get("n_done", 0) / p["n_tasks"]) if p.get("n_tasks") else 0.0,
             "cells": p.get("n_tasks"),
             "errors": p.get("n_errors", 0),
+            "precision": report.get("precision") if report else None,
+            "recall": report.get("recall") if report else None,
+            "f1": report.get("f1") if report else None,
             "accuracy": report.get("accuracy") if report else None,
             "cost": p.get("cost_usd"),
             "duration": fmt_duration(r.elapsed_s),
@@ -281,7 +350,13 @@ def monitor() -> None:
         column_config={
             "progress": st.column_config.ProgressColumn("Progress", min_value=0.0, max_value=1.0, format="percent"),
             "cells": st.column_config.NumberColumn("Cells", format="localized"),
-            "accuracy": st.column_config.NumberColumn("Accuracy", format="percent"),
+            "precision": st.column_config.NumberColumn(
+                "P", format="percent", help="Correct entity predictions / cells where an entity was predicted."),
+            "recall": st.column_config.NumberColumn(
+                "R", format="percent", help="Correct entity predictions / cells whose GT is an entity."),
+            "f1": st.column_config.NumberColumn("F1", format="percent"),
+            "accuracy": st.column_config.NumberColumn(
+                "Acc", format="percent", help="All cells right, NIL included."),
             "cost": st.column_config.NumberColumn("Cost", format="dollar"),
             "created": st.column_config.DatetimeColumn("Created", format="D MMM HH:mm"),
         },
@@ -291,6 +366,44 @@ def monitor() -> None:
         run_detail(runs[selection[0]])
     else:
         st.caption("Select a run for details.")
+    compare(runs, rows)
+
+
+def compare(runs, rows) -> None:
+    """F1 of the latest finished run per configuration, one chart per dataset."""
+    scored = [
+        (r, row) for r, row in zip(runs, rows)
+        if r.status in FINISHED and row["f1"] is not None
+    ]
+    if len(scored) < 2:
+        return
+    st.subheader("Compare")
+    df = pd.DataFrame([
+        {"dataset": r.config.get("dataset", "").split(":", 1)[-1], "id": r.id,
+         # the dataset is the chart heading, so bars are labelled by prompt and model only
+         "run": " · ".join(x for x in (r.config.get("schema"), r.config.get("model", "").split("/")[-1],
+                                         r.config.get("provider")) if x),
+         "F1": row["f1"], "P": row["precision"], "R": row["recall"], "cells": row["cells"],
+         "cost": row["cost"], "created": r.created_at}
+        for r, row in scored
+    ]).sort_values("created").drop_duplicates("run", keep="last")
+    st.caption("Latest finished run per dataset · prompt · model. Bars show F1; hover for the value.")
+    for dataset, part in df.groupby("dataset", sort=True):
+        part = part.sort_values("F1", ascending=False)
+        st.markdown(f"**{dataset}**")
+        # a single series: the chart title names it, no legend needed
+        st.bar_chart(part.set_index("run")["F1"], horizontal=True, height=60 + 32 * len(part),
+                     x_label="", y_label="F1")
+        st.dataframe(
+            part[["run", "P", "R", "F1", "cells", "cost", "id"]], hide_index=True, width="stretch",
+            column_config={
+                "P": st.column_config.NumberColumn(format="percent"),
+                "R": st.column_config.NumberColumn(format="percent"),
+                "F1": st.column_config.NumberColumn(format="percent"),
+                "cells": st.column_config.NumberColumn("Cells", format="localized"),
+                "cost": st.column_config.NumberColumn("Cost", format="dollar"),
+            },
+        )
 
 
 def run_detail(run) -> None:
@@ -305,6 +418,29 @@ def run_detail(run) -> None:
             st.rerun()
     if run.error:
         st.error(run.error)
+
+    report = read_report(run) if run.status in FINISHED else (
+        live_metrics(run.run_dir, run.config.get("dataset", ""), run.config.get("datasets_root"))
+        if run.run_dir else None
+    )
+    if report:
+        scope = "" if run.status == DONE else f" (on the {report['evaluated']:,} cells finished so far)"
+        st.caption(f"Linking quality{scope}")
+        m = st.columns(4)
+        m[0].metric("Precision", pct(report["precision"]),
+                    help=f"{report['tp']:,} correct / {report['predicted_entities']:,} entity predictions")
+        m[1].metric("Recall", pct(report["recall"]),
+                    help=f"{report['tp']:,} correct / {report['gold_entities']:,} cells whose GT is an entity")
+        m[2].metric("F1", pct(report["f1"]))
+        m[3].metric("Accuracy", pct(report["accuracy"]),
+                    help=f"{report['correct']:,} / {report['evaluated']:,} cells right, NIL included")
+        if report.get("nil_gt_count"):
+            st.caption(
+                f"NIL detection ({report['nil_gt_count']:,} GT NIL cells): P {pct(report['nil_precision'])} · "
+                f"R {pct(report['nil_recall'])} · F1 {pct(report['nil_f1'])}"
+            )
+    elif run.status in FINISHED:
+        st.caption("No GT for this dataset, so no P/R/F1.")
 
     ticks = store.ticks(run.id)
     if len(ticks) >= 3:
@@ -322,17 +458,19 @@ def run_detail(run) -> None:
         keys = ["n_tasks", "n_done", "n_ok", "n_empty", "n_errors", "n_resumed", "llm_calls", "retries",
                 "rate_limited", "summaries_done", "summary_errors", "lamapi_cached", "lamapi_fetched",
                 "lamapi_failed", "gt_cells", "gt_present", "input_tokens", "output_tokens", "reasoning_tokens",
-                "cost_usd", "latency_p50_s", "latency_p90_s"]
+                "cost_usd", "latency_p50_s", "latency_p90_s", "byok_calls", "shared_calls"]
         st.dataframe(pd.DataFrame({"value": [p.get(k) for k in keys]}, index=keys), width="stretch", height=420)
     with c2:
         st.caption("Configuration")
         st.json(run.config, expanded=False)
         if run.run_dir:
             st.caption(f"Outputs: `{run.run_dir}`")
-        report = read_report(run)
         if report:
-            st.caption("Evaluation")
+            st.caption("Evaluation report")
             st.json(report, expanded=False)
+    if p.get("providers"):
+        st.caption("Calls per provider: " + " · ".join(
+            f"{name} {n:,}" for name, n in sorted(p["providers"].items(), key=lambda x: -x[1])))
     if p.get("gt_missing_examples"):
         st.warning(
             "Cells whose GT id is **not** among the candidates even though it was forced "

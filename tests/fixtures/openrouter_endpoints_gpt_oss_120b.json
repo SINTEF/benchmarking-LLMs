@@ -1,0 +1,7 @@
+{"data": {"id": "openai/gpt-oss-120b", "endpoints": [
+  {"provider_name": "Near AI", "tag": "near-ai/fp4", "quantization": "fp4", "context_length": 131072, "max_completion_tokens": 117964, "status": 0, "uptime_last_1d": 100, "pricing": {"prompt": "0.00000003", "completion": "0.00000015", "input_cache_read": "0.000000015", "discount": 0}},
+  {"provider_name": "Google", "tag": "google-vertex/global", "quantization": "unknown", "context_length": 131072, "max_completion_tokens": 117964, "status": -5, "uptime_last_1d": 26.1, "pricing": {"prompt": "0.00000001", "completion": "0.00000001", "discount": 0}},
+  {"provider_name": "Groq", "tag": "groq", "quantization": "unknown", "context_length": 131072, "max_completion_tokens": 65536, "status": 0, "uptime_last_1d": 100, "pricing": {"prompt": "0.00000015", "completion": "0.0000006", "discount": 0}},
+  {"provider_name": "Cerebras", "tag": "cerebras/fp16", "quantization": "fp16", "context_length": 131072, "max_completion_tokens": 40960, "status": 0, "uptime_last_1d": 100, "pricing": {"prompt": "0.00000035", "completion": "0.00000075", "discount": 0}},
+  {"provider_name": "Groq", "tag": "groq", "quantization": "unknown", "context_length": 131072, "status": 0, "pricing": {"prompt": "0.00000015", "completion": "0.0000006"}}
+]}}

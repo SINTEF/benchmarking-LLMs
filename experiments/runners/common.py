@@ -12,6 +12,7 @@ import pandas as pd
 from datasets.specs.registry import DatasetSpec, get_spec, list_specs
 from experiments.common.logging import get_logger
 from experiments.common.schemas import build_key
+from experiments.retrieval.lamapi_client import resolve_lamapi_endpoint, resolve_lamapi_token
 
 logger = get_logger(__name__)
 
@@ -29,8 +30,8 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--output-dir", type=str, default="outputs")
     parser.add_argument("--force-gt-candidate", action="store_true")
     parser.add_argument("--force-id", action="append", default=[])
-    parser.add_argument("--lamapi-endpoint", type=str, default=os.getenv("ENTITY_RETRIEVAL_ENDPOINT"))
-    parser.add_argument("--lamapi-token", type=str, default=os.getenv("ENTITY_RETRIEVAL_TOKEN"))
+    parser.add_argument("--lamapi-endpoint", type=str, default=resolve_lamapi_endpoint())
+    parser.add_argument("--lamapi-token", type=str, default=resolve_lamapi_token())
     parser.add_argument("--lamapi-limit", type=int, default=10)
     parser.add_argument("--lamapi-cache-dir", type=str, default=os.getenv("LAMAPI_CACHE_DIR"))
     parser.add_argument("--lamapi-offline", action="store_true")

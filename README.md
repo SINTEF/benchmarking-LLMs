@@ -27,16 +27,27 @@ make eval PRED=outputs/mv/editsim/<hash>/predictions.csv GT=data/mv/gt.csv
 ## Runners
 
 ```bash
-make run-llm DATASET=mv MAX_ROWS=5 MODEL=gpt-oss-120b
+make run-llm DATASET=mv MAX_ROWS=5 MODEL=openai/gpt-oss-120b CONCURRENCY=16
 make run-crocodile DATASET=mv MAX_ROWS=5
 make run-alligator DATASET=mv MAX_ROWS=5
 make run-editsim DATASET=mv MAX_ROWS=5 NIL_THRESHOLD=0.2
 ```
 
+Note: Crocodile and Alligator require MongoDB to run their native pipelines.
+Use the included `docker-compose.yml` to start MongoDB:
+
+```bash
+docker compose up -d
+```
+
 Common flags (all runners):
 - `--max-rows` for smoke tests
-- `--force-gt-candidate` to force GT ids into candidate sets
+- `--force-gt-candidate` to force GT ids into candidate sets (always on for `run-llm`; opt out with `--no-force-gt`)
 - `--force-id Qxxxx` (repeatable) to add extra forced ids
+
+Forced ids are passed to LamAPI as `ids=Q1 Q2` (space-separated; every GT id of the cell), so the
+correct entity is always among the candidates. Runs report how many cells still miss it (ids
+LamAPI does not know, or non-Wikidata GT such as `cp_crunchbase`).
 
 Makefile equivalents:
 - `FORCE_GT=1`
@@ -45,6 +56,86 @@ Makefile equivalents:
 Outputs:
 - `outputs/{dataset}/{method}/{settings_hash}/predictions.csv`
 - `outputs/{dataset}/{method}/{settings_hash}/report.json`
+
+## Running and monitoring LLM runs
+
+The console (`make up` or `make ui`) has three pages:
+
+- **Runs** - queue dataset × prompt × model runs with a duration estimate, then watch them live:
+  progress, throughput, ETA, cost so far / projected, requests in flight, errors and 429s, and the
+  share of cells whose GT id is among the candidates. Cancel, resume or retry failed cells.
+- **Estimate cost** - tokens, USD and duration before running (see below).
+- **Cache** - size of the LamAPI / OpenRouter caches and run outputs, and how many of a dataset's
+  LamAPI lookups are already cached.
+
+Runs are executed by a **worker**, not by the console, so they survive browser refreshes and
+console restarts. `docker compose up -d` starts one; without Docker run `make worker` next to
+`make ui`. The run store is `outputs/runs.db` (SQLite; override with `RUNS_DB`).
+
+```bash
+python -m experiments.runs submit --dataset mv --model openai/gpt-oss-120b --concurrency 32
+python -m experiments.runs list          # or: make runs
+python -m experiments.runs cancel <id>
+python -m experiments.runs resume <id>   # continues where it stopped; failed cells are retried
+```
+
+How a run works (`experiments/runs/executor.py`): prompts are built with LionLinker's own prompt
+generator (byte-identical, see `tests/test_cost_estimator.py`), but requests are sent in parallel
+(`--concurrency`, optional `--max-rpm`) instead of LionLinker's one-at-a-time loop. A 429 pauses
+all requests (honouring `Retry-After`) before retrying; other transient errors are retried with
+backoff; failed cells are recorded as errors instead of silently becoming NIL. Every cell is
+appended to `results.jsonl` in the run folder, so runs resume. Cost comes from OpenRouter's usage
+report, including the upstream provider cost for BYOK keys.
+
+Duration estimate: throughput = min(parallel requests ÷ seconds per call, requests/min cap ÷ 60);
+uncached LamAPI lookups run alongside. Seconds per call come from calibration, else the median of
+earlier runs of the same model, else an assumption. During a run the ETA uses the throughput
+measured over the last 90 s.
+
+## Cost estimation (before running LLMs)
+
+With Docker (recommended):
+
+```bash
+make up     # = docker compose up -d --build  ->  http://localhost:8501 (+ worker + MongoDB)
+make logs   # follow the console logs
+make down
+```
+
+The repo is bind-mounted into the container (code edits reload live; `outputs/` and caches stay
+on the host) and `DATASETS_ROOT` from `.env` is mounted read-only at `/datasets`.
+
+Without Docker:
+
+```bash
+pip install -r requirements.txt   # adds streamlit + tiktoken
+make ui                           # opens http://localhost:8501
+```
+
+Pick datasets × prompt schemas × models and get LLM calls, tokens and USD. The estimator
+rebuilds the exact LionLinker prompts (checked by `tests/test_cost_estimator.py`), counts tokens
+with tiktoken and prices them with live OpenRouter rates. No LLM is called.
+
+CLI equivalent:
+
+```bash
+make estimate DATASET=mv MODEL=openai/gpt-oss-120b
+python -m experiments.cost.estimate --dataset mv --dataset HardTablesR2 \
+    --schema base --schema fewshot --model openai/gpt-oss-120b --json estimate.json
+
+# prices differ per OpenRouter provider: default is the cheapest healthy one
+python -m experiments.cost.estimate --dataset mv --model openai/gpt-oss-120b --provider groq
+
+# exact numbers: send 20 fully filled prompts per run (real candidates + real table summary)
+python -m experiments.cost.estimate --dataset mv --model openai/gpt-oss-120b --calibrate 20
+```
+
+Prompts are always filled with real LamAPI candidates (free; it also warms `data/lamapi_cache`
+for the real run). Calibration replaces the remaining assumptions — table summary length,
+output/reasoning tokens and the provider's tokenizer — with values measured from real calls.
+
+SemTab datasets are discovered from `DATASETS_ROOT` (set in `.env`): any folder with
+`tables/*.csv` and a `gt/cea*.csv` file.
 
 ## Data
 

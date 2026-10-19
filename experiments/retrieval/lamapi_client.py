@@ -5,27 +5,62 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import threading
 from pathlib import Path
 from typing import Any, Iterable
 
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from experiments.common.logging import get_logger
 
 logger = get_logger(__name__)
 
+# SINTEF-hosted LamAPI (docs: https://lamapi.hel.sintef.cloud/). Override with ENTITY_RETRIEVAL_ENDPOINT.
+LAMAPI_BASE_URL = "https://lamapi.hel.sintef.cloud"
+LOOKUP_PATH = "/lookup/entity-retrieval"
+DEMO_TOKEN = "lamapi_demo_2023"  # public demo token from the LamAPI docs
+
+
+def resolve_lamapi_endpoint(value: str | None = None) -> str:
+    """Entity-retrieval URL from the argument / env, defaulting to the SINTEF LamAPI.
+
+    A bare base URL (e.g. https://lamapi.hel.sintef.cloud/) gets the lookup path appended.
+    """
+    url = (value or os.getenv("ENTITY_RETRIEVAL_ENDPOINT") or LAMAPI_BASE_URL).strip().rstrip("/")
+    if "/lookup/" not in url:
+        url += LOOKUP_PATH
+    return url
+
+
+def resolve_lamapi_token(value: str | None = None) -> str:
+    return value or os.getenv("ENTITY_RETRIEVAL_TOKEN") or DEMO_TOKEN
+
 
 def _normalize_ids(ids: str | Iterable[str] | None) -> list[str] | None:
+    """Sorted unique ids. A string may hold several ids separated by spaces or commas."""
     if ids is None:
         return None
-    if isinstance(ids, str):
-        raw = [ids]
-    else:
-        raw = list(ids)
-    cleaned = [str(item).strip() for item in raw if str(item).strip()]
-    if not cleaned:
-        return None
-    return sorted(set(cleaned))
+    raw = [ids] if isinstance(ids, str) else list(ids)
+    cleaned = {part for item in raw for part in str(item).replace(",", " ").split()}
+    return sorted(cleaned) or None
+
+
+def _make_session(pool_size: int = 32) -> requests.Session:
+    """Session with connection pooling and retries on 429/5xx (honours Retry-After)."""
+    retry = Retry(
+        total=5,
+        backoff_factor=1.0,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=("GET",),
+        respect_retry_after_header=True,
+    )
+    session = requests.Session()
+    adapter = HTTPAdapter(max_retries=retry, pool_connections=pool_size, pool_maxsize=pool_size)
+    session.mount("http://", adapter)
+    session.mount("https://", adapter)
+    return session
 
 
 def _cache_key(payload: dict[str, Any]) -> str:
@@ -124,6 +159,7 @@ class LamapiClient:
         )
         self.token_param = token_param or os.getenv("LAMAPI_TOKEN_PARAM", "token")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.session = _make_session()
 
     def _request_payload(
         self,
@@ -132,13 +168,27 @@ class LamapiClient:
         ids: list[str] | None,
         target_kg: str | None,
     ) -> dict[str, Any]:
-        return {
+        payload = {
             "endpoint": self.endpoint,
             "name": name,
             "limit": limit,
             "ids": ids,
             "target_kg": target_kg,
         }
+        if ids and len(ids) > 1:
+            # LamAPI wants space-separated ids; entries cached when they were comma-joined are wrong
+            # (only the first id came back), so multi-id lookups get a fresh cache key.
+            payload["ids_sep"] = "space"
+        return payload
+
+    def is_cached(
+        self,
+        name: str,
+        ids: str | Iterable[str] | None = None,
+        target_kg: str | None = None,
+    ) -> bool:
+        payload = self._request_payload(name, self.num_candidates, _normalize_ids(ids), target_kg)
+        return _safe_json_path(self.cache_dir, _cache_key(payload)).exists()
 
     def _cache_lookup(self, payload: dict[str, Any]) -> tuple[str, Path | None, Any | None]:
         key = _cache_key(payload)
@@ -148,7 +198,10 @@ class LamapiClient:
         return key, path, None
 
     def _cache_store(self, path: Path, payload: Any) -> None:
-        path.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
+        # Write-then-rename so parallel lookups never read a half-written file.
+        tmp = path.with_suffix(f".{os.getpid()}.{threading.get_ident()}.tmp")
+        tmp.write_text(json.dumps(payload, indent=2, ensure_ascii=True), encoding="utf-8")
+        os.replace(tmp, path)
 
     def _fetch_raw(
         self,
@@ -166,7 +219,7 @@ class LamapiClient:
 
         params: dict[str, Any] = {self.query_param: name, "limit": self.num_candidates}
         if ids_list:
-            params["ids"] = ",".join(ids_list)
+            params["ids"] = " ".join(ids_list)  # LamAPI splits on spaces; commas break the lookup
         if target_kg:
             params["target_kg"] = target_kg
         if self.token and self.token_in_query:
@@ -177,7 +230,7 @@ class LamapiClient:
             headers["Authorization"] = f"Bearer {self.token}"
 
         logger.debug("LamAPI request %s params=%s", self.endpoint, params)
-        response = requests.get(self.endpoint, params=params, headers=headers, timeout=60)
+        response = self.session.get(self.endpoint, params=params, headers=headers, timeout=60)
         response.raise_for_status()
         data = response.json()
         self._cache_store(path, data)

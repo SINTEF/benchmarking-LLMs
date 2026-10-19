@@ -1,5 +1,42 @@
+# `docker compose up -d`  ->  console at http://localhost:8501, a run worker, MongoDB for Crocodile/Alligator
+#
+# DATASETS_ROOT is read from .env (default ./data/external) and mounted read-only at /datasets, so
+# the shared datasets are never copied into the image or the repo.
 
 services:
+  ui:
+    build: .
+    pull_policy: build # local image only - never try to pull it from Docker Hub
+    restart: unless-stopped
+    ports:
+      - "8501:8501"
+    env_file: .env
+    environment:
+      DATASETS_ROOT: /datasets # container path; overrides the host path from .env
+      MONGO_URI: mongodb://mongo:27017
+    volumes:
+      - .:/app # code, outputs/, data/lamapi_cache/, .cache/ live on the host
+      - ${DATASETS_ROOT:-./data/external}:/datasets:ro
+    depends_on:
+      - mongo
+
+  # Executes the runs queued from the console (or `python -m experiments.runs submit`). Shares the
+  # repo bind mount with the console, so both see the same run store (outputs/runs.db) and caches.
+  worker:
+    build: .
+    pull_policy: build
+    restart: unless-stopped
+    command: ["python", "-m", "experiments.runs", "worker"]
+    stop_grace_period: 30s
+    env_file: .env
+    environment:
+      DATASETS_ROOT: /datasets
+    volumes:
+      - .:/app
+      - ${DATASETS_ROOT:-./data/external}:/datasets:ro
+    healthcheck:
+      disable: true
+
   mongo:
     image: mongo:7
     restart: unless-stopped

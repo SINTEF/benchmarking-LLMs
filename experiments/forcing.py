@@ -140,3 +140,36 @@ def assert_forced_present(candidates: list[dict], forced_ids: Iterable[str]) -> 
     missing = sorted(forced_set - seen)
     if missing:
         logger.warning("Forced ids missing from candidates: %s", ", ".join(missing))
+
+
+def load_gt_ids(source) -> dict[tuple[str, int, int], list[str]]:
+    """(table_id, row, col) -> every GT id of that cell, for a ``DatasetSource``.
+
+    Rows are 0-based data rows, i.e. the coordinates used by ``TaskSet.tasks``. NIL cells are left
+    out. A cell may have several GT ids (multiple GT rows, or SemTab URIs separated by spaces):
+    all of them are kept so all of them can be forced into the candidate list.
+    """
+    from experiments.cost.tasks import SPEC_TABLE_ID
+
+    mapping: dict[tuple[str, int, int], list[str]] = defaultdict(list)
+    if source.kind == "spec":
+        if not source.gt_path or not Path(source.gt_path).exists():
+            return {}
+        df = pd.read_csv(source.gt_path)
+        for _, row in df.iterrows():
+            r, c = (int(x) for x in _resolve_key(row).split("-"))
+            gt_id = _resolve_gt_id(row)
+            if gt_id != "NIL":
+                mapping[(SPEC_TABLE_ID, r, c)].append(gt_id)
+    elif source.kind == "semtab":
+        df = pd.read_csv(source.cea_path, header=None, dtype=str)
+        for table_id, r, c, uris in df.iloc[:, :4].itertuples(index=False):
+            try:
+                key = (str(table_id), int(r) - 1, int(c))  # SemTab row 1 == first data row
+            except (TypeError, ValueError):
+                continue  # header line or malformed row
+            for uri in str(uris).split() if isinstance(uris, str) else []:
+                gt_id = normalize_identifier(uri)
+                if gt_id != "NIL":
+                    mapping[key].append(gt_id)
+    return {key: sorted(set(ids)) for key, ids in mapping.items()}

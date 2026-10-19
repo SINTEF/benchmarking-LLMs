@@ -200,6 +200,14 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             "Crocodile / Alligator processes", min_value=1, max_value=32, value=4,
             help="Worker processes each linker uses per table (candidate retrieval and ML ranking).",
         )
+    bow = True
+    if "crocodile" in linkers:
+        bow = st.checkbox(
+            "Crocodile: bag-of-words similarity", value=True,
+            help="Compares the row's text with each candidate's description through LamAPI's /entity/bow "
+            "(ENTITY_BOW_ENDPOINT). Crocodile's ranker was trained with this feature; without it the feature "
+            "is 0 for every candidate. Alligator does not use it.",
+        )
 
     c1, c2 = st.columns([1, 2])
     force_gt = c1.checkbox(
@@ -222,7 +230,8 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             measured = seconds_per_cell_for_method(store, meth)
             seconds = plan["cells"] * measured[0] if measured else None
             rows.append({
-                "dataset": by_key[d].name, "method": METHODS[meth], "schema": "—", "model": "—", "provider": "—",
+                "dataset": by_key[d].name, "method": METHODS[meth] + (" + BoW" if meth == "crocodile" and bow else ""),
+                "schema": "—", "model": "—", "provider": "—",
                 "calls": plan["cells"], "uncached lookups": None, "s/call": round(measured[0], 3) if measured else None,
                 "counts": "exact" if plan.get("exact", True) else "sampled",
                 "latency source": f"median of {measured[1]} earlier run(s), per cell" if measured
@@ -230,7 +239,7 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
                 "bottleneck": "—", "duration": fmt_duration(seconds) if seconds else "measured by the first run",
                 "_seconds": seconds or 0.0, "_cfg": RunConfig(
                     dataset=d, method=meth, limit=int(limit), lamapi_limit=int(lamapi_limit), force_gt=force_gt,
-                    force_ids=list(force_ids), linker_workers=int(linker_workers),
+                    force_ids=list(force_ids), linker_workers=int(linker_workers), bow=bow,
                     datasets_root=datasets_root or None,
                 ), "_est": None,
             })
@@ -471,7 +480,7 @@ def compare(runs, rows) -> None:
     df = pd.DataFrame([
         {"dataset": r.config.get("dataset", "").split(":", 1)[-1], "id": r.id,
          # the dataset is the chart heading, so bars are labelled by prompt and model only
-         "run": METHODS.get(r.config.get("method", "llm"), "?") if r.config.get("method", "llm") != "llm" else
+         "run": RunConfig.from_dict(r.config).label().split(" · ", 1)[-1] if r.config.get("method", "llm") != "llm" else
                 " · ".join(x for x in (r.config.get("schema"), r.config.get("model", "").split("/")[-1],
                                          r.config.get("provider")) if x),
          "F1": row["f1"], "P": row["precision"], "R": row["recall"], "cells": row["cells"],

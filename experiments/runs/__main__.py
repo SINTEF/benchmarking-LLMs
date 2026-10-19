@@ -25,6 +25,7 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--method", choices=["llm", "crocodile", "alligator"], default="llm")
     p.add_argument("--model", default="", help="OpenRouter model id (LLM runs)")
     p.add_argument("--linker-workers", type=int, default=4, help="Crocodile/Alligator worker processes")
+    p.add_argument("--no-bow", action="store_true", help="Crocodile: no bag-of-words similarity feature")
     p.add_argument("--schema", choices=SCHEMAS, default="base")
     p.add_argument("--provider", default=None, help="pin an OpenRouter endpoint tag, e.g. groq")
     p.add_argument("--provider-policy", choices=["byok", "byok_first", "routing"], default="byok",
@@ -42,7 +43,7 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
 
 def config_from_args(a: argparse.Namespace) -> RunConfig:
     return RunConfig(
-        dataset=a.dataset, model=a.model, method=a.method, linker_workers=a.linker_workers,
+        dataset=a.dataset, model=a.model, method=a.method, linker_workers=a.linker_workers, bow=not a.no_bow,
         schema=a.schema, provider=a.provider,
         provider_policy="pin" if a.provider else a.provider_policy, limit=a.limit,
         lamapi_limit=a.lamapi_limit, force_gt=not a.no_force_gt, force_ids=a.force_id,

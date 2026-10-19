@@ -69,7 +69,10 @@ run in their own image and worker: the `linkers` service of `docker compose` (`D
 
 Each table is linked by one instance: rows up to the last target cell, the library's column
 classifier with every target column forced to NE, the cell's GT ids as `correct_qids`, and the
-top candidate it stores in MongoDB as the prediction. CLI (inside the image):
+top candidate it stores in MongoDB as the prediction. Crocodile also gets LamAPI's bag-of-words
+endpoint (`ENTITY_BOW_ENDPOINT`, default `<lamapi>/entity/bow`; `--no-bow` / Runs page checkbox to
+turn it off): it does not read that variable itself, and without it its `bow_similarity` ranking
+feature is 0 for every candidate (on 100 `mv` rows: F1 0.93 without, 1.00 with). CLI (inside the image):
 
 ```bash
 make run-crocodile DATASET=mv MAX_ROWS=100

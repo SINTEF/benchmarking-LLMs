@@ -36,6 +36,7 @@ class RunConfig:
     max_rpm: int = 0  # requests per minute cap; 0 = none
     lamapi_concurrency: int = 8
     linker_workers: int = 4  # Crocodile/Alligator worker processes per table
+    bow: bool = True  # Crocodile: bag-of-words row/description similarity (ENTITY_BOW_ENDPOINT)
     max_retries: int = 6
     seed: int = 13
     output_dir: str = "outputs"
@@ -61,6 +62,8 @@ class RunConfig:
         data = dict(data)
         # Runs queued before provider policies existed used OpenRouter routing (or a pinned tag).
         data.setdefault("provider_policy", "pin" if data.get("provider") else "routing")
+        # Crocodile runs from before this setting existed ran without bag-of-words.
+        data.setdefault("bow", False)
         return cls(**{k: v for k, v in data.items() if k in known})
 
     def to_dict(self) -> dict[str, Any]:
@@ -82,6 +85,8 @@ class RunConfig:
                 del settings["provider_policy"]  # same folder as runs made before policies existed
         else:
             settings = {k: v for k, v in settings.items() if k not in LLM_FIELDS}
+        if settings.get("method") != "crocodile" or not settings["bow"]:
+            del settings["bow"]  # only Crocodile uses it; BoW-off keeps the folder of earlier runs
         settings["dataset"] = source.key
         base = Path(self.output_dir)
         if not base.is_absolute():
@@ -91,6 +96,7 @@ class RunConfig:
     def label(self) -> str:
         name = self.dataset.split(":", 1)[-1]
         if self.method != "llm":
-            return f"{name} · {METHODS[self.method]}"
+            bow = " + BoW" if self.method == "crocodile" and self.bow else ""
+            return f"{name} · {METHODS[self.method]}{bow}"
         where = {"pin": f" @ {self.provider}", "byok": " @ BYOK", "byok_first": " @ BYOK first"}.get(self.provider_policy, "")
         return f"{name} · {self.schema} · {self.model}{where}"

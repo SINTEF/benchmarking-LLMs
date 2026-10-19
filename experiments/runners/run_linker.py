@@ -31,6 +31,7 @@ def main(method: str) -> None:
     parser.add_argument("--datasets-root", default=None)
     parser.add_argument("--workers", type=int, default=4, help="worker processes per table")
     parser.add_argument("--no-force-gt", action="store_true", help="do not force GT ids into the candidates")
+    parser.add_argument("--no-bow", action="store_true", help="Crocodile: no bag-of-words similarity feature")
     parser.add_argument("--no-store", action="store_true", help="do not register the run in the run store")
     add_common_args(parser)
     args = parser.parse_args()
@@ -51,6 +52,7 @@ def main(method: str) -> None:
     config = RunConfig(
         dataset=args.dataset, method=method, limit=args.max_rows, lamapi_limit=args.lamapi_limit,
         force_gt=not args.no_force_gt, force_ids=list(args.force_id), linker_workers=args.workers,
+        bow=not args.no_bow,
         output_dir=args.output_dir, datasets_root=args.datasets_root,
     )
     store = run_id = None

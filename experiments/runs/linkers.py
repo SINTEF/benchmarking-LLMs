@@ -72,7 +72,8 @@ class LinkerExecutor(RunExecutor):
 
     async def _pipeline(self, taskset: TaskSet, todo: list, gt_ids: dict) -> None:
         method = self.cfg.method
-        self.p.provider_route = f"{METHODS[method]} · {self.cfg.linker_workers} worker process(es) per table"
+        bow = (" · bag-of-words on" if self.cfg.bow else " · bag-of-words off") if method == "crocodile" else ""
+        self.p.provider_route = f"{METHODS[method]} · {self.cfg.linker_workers} worker process(es) per table{bow}"
         self.p.max_concurrency = self.cfg.linker_workers
         by_table: OrderedDict[str, list] = OrderedDict()
         for t in todo:
@@ -105,6 +106,11 @@ class LinkerExecutor(RunExecutor):
                     self._record_cell(t, preds, gt_ids, seconds / max(len(cells), 1))
 
     # ------------------------------------------------------------------ one table
+
+    def _bow_endpoint(self, endpoint: str) -> str | None:
+        if not self.cfg.bow:
+            return None
+        return os.getenv("ENTITY_BOW_ENDPOINT") or f"{lamapi_base(endpoint)}/entity/bow"
 
     def _base(self, t) -> dict[str, Any]:
         return {"key": cell_key(t.table_id, t.row, t.col), "table_id": t.table_id, "row": int(t.row), "col": int(t.col)}
@@ -170,6 +176,9 @@ class LinkerExecutor(RunExecutor):
                 mongo_uri=mongo_uri, save_output_to_csv=False, return_dataframe=False,
                 # Crocodile appends this string to the LamAPI URL as-is: space-separated ids
                 correct_qids={k: " ".join(v) for k, v in forced.items()},
+                # Crocodile does not read ENTITY_BOW_ENDPOINT itself: without this argument its
+                # bow_similarity feature is 0.0 for every candidate.
+                entity_bow_endpoint=self._bow_endpoint(endpoint),
             )
             db_name, collection, field = Crocodile._DB_NAME, Crocodile._INPUT_COLLECTION, "el_results"
         else:

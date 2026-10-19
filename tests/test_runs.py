@@ -350,7 +350,7 @@ class TestLinkers(unittest.TestCase):
         croc = RunConfig(dataset="mv", method="crocodile")
         self.assertEqual(llm.run_dir(_source()).parent.name, "llm")
         self.assertEqual(croc.run_dir(_source()).parent.name, "crocodile")
-        self.assertEqual(croc.label(), "mv · Crocodile")
+        self.assertEqual(croc.label(), "mv · Crocodile + BoW")
         # LLM-only settings do not change a linker run's folder
         self.assertEqual(croc.run_dir(_source()), RunConfig(dataset="mv", method="crocodile", schema="fewshot").run_dir(_source()))
         with self.assertRaises(ValueError):
@@ -380,3 +380,25 @@ class TestLinkers(unittest.TestCase):
             self.assertEqual(calls[0][0], gt[("__spec__", 0, 0)])  # GT ids forced
             self.assertAlmostEqual(manifest["report"]["precision"], 4 / 5)
             self.assertTrue(Path(tmp, "test", "crocodile").is_dir())
+
+
+class TestCrocodileBow(unittest.TestCase):
+    def test_bow_setting(self) -> None:
+        from experiments.runs.linkers import LinkerExecutor
+
+        old = {"dataset": "mv", "method": "crocodile"}  # queued before the setting existed: ran without BoW
+        legacy = RunConfig.from_dict(old)
+        self.assertFalse(legacy.bow)
+        on = RunConfig(dataset="mv", method="crocodile")
+        self.assertTrue(on.bow)
+        self.assertNotEqual(on.run_dir(_source()), legacy.run_dir(_source()))
+        self.assertEqual(on.label(), "mv · Crocodile + BoW")
+        gator = RunConfig(dataset="mv", method="alligator")
+        self.assertEqual(gator.run_dir(_source()), RunConfig(dataset="mv", method="alligator", bow=False).run_dir(_source()))
+
+        with mock.patch.dict("os.environ", {"ENTITY_BOW_ENDPOINT": "https://lamapi.test/entity/bow"}):
+            ex = LinkerExecutor(on, source=_source())
+            self.assertEqual(ex._bow_endpoint("https://lamapi.test/lookup/entity-retrieval"), "https://lamapi.test/entity/bow")
+            self.assertIsNone(LinkerExecutor(legacy, source=_source())._bow_endpoint("x"))
+        with mock.patch.dict("os.environ", {"ENTITY_BOW_ENDPOINT": ""}):
+            self.assertEqual(ex._bow_endpoint("https://h/lookup/entity-retrieval"), "https://h/entity/bow")

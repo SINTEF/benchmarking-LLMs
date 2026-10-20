@@ -1,6 +1,11 @@
 # `docker compose up -d`  ->  console at http://localhost:8501, an LLM run worker, a Crocodile/Alligator
 # run worker and MongoDB (used by Crocodile/Alligator)
 #
+# Only the console publishes a port, on CONSOLE_BIND:CONSOLE_PORT (default 127.0.0.1:8501, set both in
+# .env). The console has no login and can spend your OpenRouter key: on a server keep it on localhost
+# and reach it through an SSH tunnel or a reverse proxy with authentication, or set CONSOLE_BIND=0.0.0.0
+# only on a trusted network. MongoDB is internal to the compose network (no host port).
+#
 # DATASETS_ROOT is read from .env (default ./data/external) and mounted read-only at /datasets, so
 # the shared datasets are never copied into the image or the repo.
 
@@ -10,16 +15,13 @@ services:
     pull_policy: build # local image only - never try to pull it from Docker Hub
     restart: unless-stopped
     ports:
-      - "8501:8501"
+      - "${CONSOLE_BIND:-127.0.0.1}:${CONSOLE_PORT:-8501}:8501"
     env_file: .env
     environment:
       DATASETS_ROOT: /datasets # container path; overrides the host path from .env
-      MONGO_URI: mongodb://mongo:27017
     volumes:
       - .:/app # code, outputs/, data/lamapi_cache/, .cache/ live on the host
       - ${DATASETS_ROOT:-./data/external}:/datasets:ro
-    depends_on:
-      - mongo
 
   # Executes the runs queued from the console (or `python -m experiments.runs submit`). Shares the
   # repo bind mount with the console, so both see the same run store (outputs/runs.db) and caches.
@@ -58,13 +60,28 @@ services:
     depends_on:
       - mongo
 
+  # Working store of Crocodile/Alligator, reached as mongodb://mongo:27017 inside the compose network.
+  # No host port: nothing outside the stack needs it, and it would clash with a MongoDB already on the
+  # host. To inspect it: `docker compose exec mongo mongosh`, or `make mongo-debug` (see mongo-debug).
   mongo:
     image: mongo:7
     restart: unless-stopped
-    ports:
-      - "27017:27017"
     volumes:
       - mongo_data:/data/db
+
+  # Opt-in, for debugging only: publishes MongoDB on 127.0.0.1:MONGO_DEBUG_PORT (default 27018, so it
+  # does not clash with a MongoDB on 27017) for Compass/mongosh from the host. A plain forwarder: mongo
+  # itself is never restarted. Not started by `docker compose up` (profile "debug"):
+  #   make mongo-debug         ->  mongodb://localhost:27018
+  #   make mongo-debug-stop
+  mongo-debug:
+    image: alpine/socat:1.8.1.1
+    profiles: ["debug"]
+    command: ["TCP-LISTEN:27017,fork,reuseaddr", "TCP:mongo:27017"]
+    ports:
+      - "127.0.0.1:${MONGO_DEBUG_PORT:-27018}:27017"
+    depends_on:
+      - mongo
 
 volumes:
   mongo_data:

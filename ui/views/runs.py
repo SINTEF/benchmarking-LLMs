@@ -443,9 +443,11 @@ def monitor() -> None:
             "duration": fmt_duration(r.elapsed_s),
             "created": datetime.fromtimestamp(r.created_at),
         })
+    # The key changes after a delete so the (index-based) selection does not jump to other runs.
+    table_key = f"history_{st.session_state.setdefault('history_version', 0)}"
     st.dataframe(
-        pd.DataFrame(rows), hide_index=True, width="stretch", key="history",
-        on_select="rerun", selection_mode="single-row",
+        pd.DataFrame(rows), hide_index=True, width="stretch", key=table_key,
+        on_select="rerun", selection_mode="multi-row",
         column_config={
             "progress": st.column_config.ProgressColumn("Progress", min_value=0.0, max_value=1.0, format="percent"),
             "cells": st.column_config.NumberColumn("Cells", format="localized"),
@@ -460,12 +462,46 @@ def monitor() -> None:
             "created": st.column_config.DatetimeColumn("Created", format="D MMM HH:mm"),
         },
     )
-    selection = st.session_state.get("history", {}).get("selection", {}).get("rows", [])
-    if selection:
-        run_detail(runs[selection[0]])
-    else:
-        st.caption("Select a run for details.")
+    selection = st.session_state.get(table_key, {}).get("selection", {}).get("rows", [])
+    selected = [runs[i] for i in selection if i < len(runs)]
+    if selected:
+        delete_selected(selected)
+    if len(selected) == 1:
+        run_detail(selected[0])
+    elif not selected:
+        st.caption("Select a run for details, or several to delete them.")
     compare(runs, rows)
+
+
+def delete_selected(selected) -> None:
+    """Delete the selected runs from the history, optionally with their output folders."""
+    active = [r for r in selected if r.status in ACTIVE]
+    finished = [r for r in selected if r.status not in ACTIVE]
+    with st.popover(f"Delete {len(selected)} selected", icon=":material/delete:", disabled=not finished):
+        st.markdown(f"Delete **{len(finished)}** run(s) from the history:")
+        st.markdown("\n".join(f"- `{r.id}` {r.label} · {r.status}" for r in finished[:15])
+                    + (f"\n- ... and {len(finished) - 15} more" if len(finished) > 15 else ""))
+        if active:
+            st.caption(f"{len(active)} selected run(s) are still queued or running and stay: cancel them first.")
+        outputs = st.checkbox(
+            "Also delete their output folders (results, predictions, reports)", value=False,
+            help="Cannot be undone. A folder another run in the history still uses (same settings) is kept.",
+        )
+        if st.button("Delete", type="primary", icon=":material/delete_forever:", key="confirm_delete"):
+            from experiments.runs.manage import delete_runs
+
+            rep = delete_runs(store, [r.id for r in finished], outputs=outputs)
+            msg = f"Deleted {len(rep.deleted)} run(s)"
+            if outputs:
+                msg += f" and {len(rep.folders_removed)} output folder(s)"
+                if rep.folders_kept:
+                    msg += f"; kept {len(rep.folders_kept)} folder(s): " + "; ".join(
+                        f"{Path(f).name} ({why})" for f, why in rep.folders_kept.items())
+            st.session_state["history_version"] += 1
+            st.toast(msg, icon=":material/delete:")
+            st.rerun()
+    if not finished:
+        st.caption("Selected runs are still queued or running: cancel them before deleting.")
 
 
 def compare(runs, rows) -> None:

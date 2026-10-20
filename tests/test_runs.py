@@ -443,3 +443,68 @@ class TestPromptsContent(unittest.TestCase):
             samples = [json.loads(l) for l in (ex.run_dir / "sample_prompts.jsonl").read_text().splitlines()]
             self.assertEqual(len(samples), 5)
             self.assertIn("A table about movies.", samples[0]["prompt"])  # the real summary, not N.A.
+
+
+class TestDeleteRuns(unittest.TestCase):
+    def _store_with_runs(self, tmp):
+        store = RunStore(Path(tmp) / "runs.db")
+        out = Path(tmp) / "outputs"
+
+        def finished(run_dir: Path, status=DONE):
+            run_dir.mkdir(parents=True, exist_ok=True)
+            (run_dir / "results.jsonl").write_text("{}\n")
+            rid = store.submit({"dataset": "mv", "model": "m", "output_dir": str(out)}, "r")
+            store.update_progress(rid, {"n_done": 1}, run_dir=str(run_dir))
+            store.finish(rid, status)
+            return rid
+
+        return store, out, finished
+
+    def test_delete_history_and_outputs(self) -> None:
+        from experiments.runs.manage import delete_runs
+
+        with tempfile.TemporaryDirectory() as tmp:
+            store, out, finished = self._store_with_runs(tmp)
+            a = finished(out / "mv" / "llm" / "aaa")
+            shared1 = finished(out / "mv" / "llm" / "shared")
+            shared2 = finished(out / "mv" / "llm" / "shared")  # same settings -> same folder
+            active = store.submit({"dataset": "mv", "model": "m"}, "queued")
+
+            rep = delete_runs(store, [a, shared1, active], outputs=True)
+            self.assertEqual(sorted(rep.deleted), sorted([a, shared1]))
+            self.assertEqual(rep.skipped_active, [active])
+            self.assertFalse((out / "mv" / "llm" / "aaa").exists())
+            self.assertTrue((out / "mv" / "llm" / "shared").exists())  # still used by shared2
+            self.assertIn(shared2, next(iter(rep.folders_kept.values())))
+            self.assertIsNone(store.get(a))
+            self.assertEqual(store.ticks(a), [])
+            self.assertIsNotNone(store.get(active))
+
+            rep = delete_runs(store, [shared2])  # history only
+            self.assertEqual(rep.folders_removed, [])
+            self.assertTrue((out / "mv" / "llm" / "shared").exists())
+
+            last = finished(out / "mv" / "llm" / "shared")  # same folder, now used by this run only
+            delete_runs(store, [last], outputs=True)
+            self.assertFalse((out / "mv").exists())  # emptied dataset/method folders are pruned
+            self.assertTrue(out.exists())
+
+    def test_never_removes_outside_outputs(self) -> None:
+        from experiments.runs.manage import delete_runs
+
+        with tempfile.TemporaryDirectory() as tmp:
+            store, out, finished = self._store_with_runs(tmp)
+            elsewhere = Path(tmp) / "precious"
+            rid = finished(elsewhere)
+            rep = delete_runs(store, [rid], outputs=True)
+            self.assertTrue(elsewhere.exists())
+            self.assertIn("not inside the outputs folder", rep.folders_kept[str(elsewhere)])
+
+    def test_container_paths(self) -> None:
+        from experiments.runs.manage import local_run_dir
+        from experiments.runs.store import Run
+
+        run = Run("x", 0, 0, DONE, None, {}, "/app/outputs/mv/llm/abc", None, None, None, None, None)
+        from experiments.cost.tasks import REPO_ROOT
+
+        self.assertEqual(local_run_dir(run), REPO_ROOT / "outputs" / "mv" / "llm" / "abc")

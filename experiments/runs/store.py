@@ -240,6 +240,29 @@ class RunStore:
                 (QUEUED, now, run_id, *FINISHED),
             )
 
+    def delete(self, run_ids: list[str]) -> list[str]:
+        """Remove finished runs and their progress samples from the store; returns the ids removed.
+
+        Active runs (queued, running, cancelling) are never deleted: cancel them first.
+        """
+        if not run_ids:
+            return []
+        marks = ",".join("?" * len(run_ids))
+        with self._conn() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            removable = [
+                r["id"] for r in conn.execute(
+                    f"SELECT id FROM runs WHERE id IN ({marks}) AND status NOT IN ({','.join('?' * len(ACTIVE))})",
+                    (*run_ids, *ACTIVE),
+                )
+            ]
+            if removable:
+                rm = ",".join("?" * len(removable))
+                conn.execute(f"DELETE FROM ticks WHERE run_id IN ({rm})", removable)
+                conn.execute(f"DELETE FROM runs WHERE id IN ({rm})", removable)
+            conn.execute("COMMIT")
+        return removable
+
     def mark_stale(self, max_age_s: float = STALE_AFTER_S) -> int:
         """Runs whose worker died (no heartbeat) become 'interrupted' so they can be resumed."""
         now = time.time()

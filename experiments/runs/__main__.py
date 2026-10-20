@@ -67,6 +67,10 @@ def main() -> None:
     c.add_argument("run_id")
     r = sub.add_parser("resume", help="queue a finished/cancelled/failed run again (continues where it stopped)")
     r.add_argument("run_id")
+    d = sub.add_parser("delete", help="remove finished runs from the history")
+    d.add_argument("run_ids", nargs="+")
+    d.add_argument("--outputs", action="store_true",
+                   help="also delete their output folders (unless another run still uses the folder)")
     a = parser.parse_args()
 
     store = RunStore()
@@ -89,6 +93,17 @@ def main() -> None:
         store.cancel(a.run_id)
     elif a.cmd == "resume":
         store.requeue(a.run_id)
+    elif a.cmd == "delete":
+        from experiments.runs.manage import delete_runs
+
+        rep = delete_runs(store, a.run_ids, outputs=a.outputs)
+        print(f"deleted {len(rep.deleted)} run(s): {' '.join(rep.deleted) or '-'}")
+        for rid in rep.skipped_active:
+            print(f"skipped {rid}: still queued or running - cancel it first")
+        for folder in rep.folders_removed:
+            print(f"removed {folder}")
+        for folder, why in rep.folders_kept.items():
+            print(f"kept {folder}: {why}")
 
 
 if __name__ == "__main__":

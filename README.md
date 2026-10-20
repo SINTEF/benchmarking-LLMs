@@ -104,6 +104,7 @@ python -m experiments.runs submit --dataset mv --model openai/gpt-oss-120b --con
 python -m experiments.runs list          # or: make runs
 python -m experiments.runs cancel <id>
 python -m experiments.runs resume <id>   # continues where it stopped; failed cells are retried
+python -m experiments.runs delete <id> ... [--outputs]   # remove from history (+ output folders)
 ```
 
 How a run works (`experiments/runs/executor.py`): prompts are built with LionLinker's own prompt

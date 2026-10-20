@@ -18,7 +18,7 @@ FORCE_ID ?=
 PRED ?=
 GT ?=
 
-.PHONY: build-datasets run-llm run-crocodile run-alligator run-editsim eval ui worker runs estimate test up down logs
+.PHONY: build-datasets run-llm run-crocodile run-alligator run-editsim eval ui worker runs estimate test up down logs mongo-debug mongo-debug-stop
 
 build-datasets:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) datasets/builders/build_mv.py
@@ -87,13 +87,21 @@ estimate:
 test:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m unittest discover -s tests -v
 
-# Docker: console on http://localhost:8501, run worker, MongoDB
+# Docker: console on http://localhost:$CONSOLE_PORT (default 8501), run workers, MongoDB (internal only)
 up:
 	docker compose up -d --build
-	@echo "Console: http://localhost:8501"
+	@port=$$(grep -s '^CONSOLE_PORT=' .env | cut -d= -f2); echo "Console: http://localhost:$${port:-8501}"
 
 down:
 	docker compose down
 
 logs:
 	docker compose logs -f ui worker
+
+# Debugging only: MongoDB on 127.0.0.1:$MONGO_DEBUG_PORT (default 27018) without restarting anything.
+mongo-debug:
+	docker compose --profile debug up -d mongo-debug
+	@port=$$(grep -s '^MONGO_DEBUG_PORT=' .env | cut -d= -f2); echo "MongoDB: mongodb://localhost:$${port:-27018} (stop with: make mongo-debug-stop)"
+
+mongo-debug-stop:
+	docker compose --profile debug rm -sf mongo-debug

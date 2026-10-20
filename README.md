@@ -153,13 +153,35 @@ other datasets (flagged), then an assumption. During a run the ETA uses the pace
 With Docker (recommended):
 
 ```bash
-make up     # = docker compose up -d --build  ->  http://localhost:8501 (+ LLM worker, linkers worker, MongoDB)
+make up     # = docker compose up -d --build  ->  http://localhost:8501 (+ LLM worker, linkers worker, internal MongoDB)
 make logs   # follow the console logs
 make down
 ```
 
 The repo is bind-mounted into the container (code edits reload live; `outputs/` and caches stay
 on the host) and `DATASETS_ROOT` from `.env` is mounted read-only at `/datasets`.
+
+Only the console publishes a port: `CONSOLE_BIND:CONSOLE_PORT`, default `127.0.0.1:8501` (set both
+in `.env`). MongoDB stays inside the compose network, so it never clashes with a MongoDB already
+running on the host. To inspect it:
+
+```bash
+docker compose exec mongo mongosh   # shell inside the container, nothing published
+make mongo-debug                    # MongoDB on mongodb://localhost:27018 (MONGO_DEBUG_PORT) for Compass etc.
+make mongo-debug-stop               # unpublish it again
+```
+
+`mongo-debug` is a small forwarder in the `debug` compose profile: plain `docker compose up` never
+starts it, it binds to `127.0.0.1` only, and MongoDB is not restarted when it is turned on or off.
+
+On a server (VM): the console has no login and can spend your OpenRouter key, so keep the default
+`127.0.0.1` and open it through an SSH tunnel (or put it behind a reverse proxy with
+authentication); set `CONSOLE_BIND=0.0.0.0` only on a trusted network.
+
+```bash
+ssh -L 8501:localhost:8501 user@vm    # console: http://localhost:8501 on your laptop
+ssh -L 27018:localhost:27018 user@vm  # MongoDB, after `make mongo-debug` on the VM
+```
 
 Without Docker:
 

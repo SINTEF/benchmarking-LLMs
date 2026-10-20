@@ -1,0 +1,8 @@
+# Classic table linkers (Dockerfile.linkers, Python 3.12). Both pin tensorflow==2.18, numpy<2,
+# pymongo==4.11 and aiohttp==3.11.11, so they install side by side.
+crocodile-linker==0.1.1
+alligator-linker==0.1.0
+# What experiments.runs needs to run their worker (no lion_linker/torch here)
+pandas==2.2.3
+requests==2.32.4
+httpx>=0.27

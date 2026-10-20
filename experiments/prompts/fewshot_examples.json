@@ -1,0 +1,71 @@
+{
+  "lamapi_endpoint": "https://lamapi.hel.sintef.cloud/lookup/entity-retrieval",
+  "lamapi_limit": 10,
+  "seed": 13,
+  "examples": [
+    {
+      "kind": "film",
+      "row": 44193,
+      "column": "Title",
+      "mention": "The ridiculous",
+      "gt": "Q3795545",
+      "answer": "Q3795545",
+      "title": "film title shared by several entities",
+      "source": "data/Movie/movies_train.csv",
+      "candidate_ids": [
+        "Q12661055",
+        "Q3795545",
+        "Q2404067",
+        "Q7332906",
+        "Q7332907",
+        "Q7332905",
+        "Q53414394",
+        "Q82660480",
+        "Q3235605"
+      ]
+    },
+    {
+      "kind": "company",
+      "row": 31274,
+      "column": "company",
+      "mention": "Carvel",
+      "gt": "Q5047520",
+      "answer": "Q5047520",
+      "title": "company name shared by several entities",
+      "source": "data/Company/companies_train.csv",
+      "candidate_ids": [
+        "Q2910702",
+        "Q5132028",
+        "Q5047520",
+        "Q5047516",
+        "Q122231972",
+        "Q26234778",
+        "Q435004",
+        "Q5047517",
+        "Q16727861"
+      ]
+    },
+    {
+      "kind": "film",
+      "row": 11724,
+      "column": "Title",
+      "mention": "Class",
+      "gt": "Q1095987",
+      "answer": "NIL",
+      "title": "the correct entity is not among the candidates",
+      "source": "data/Movie/movies_train.csv",
+      "candidate_ids": [
+        "Q11194635",
+        "Q16889133",
+        "Q600134",
+        "Q4479242",
+        "Q6617695",
+        "Q5127846",
+        "Q5127848",
+        "P7174",
+        "Q217594",
+        "Q15978777"
+      ]
+    }
+  ]
+}

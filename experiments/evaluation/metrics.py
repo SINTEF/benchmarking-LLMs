@@ -29,29 +29,63 @@ def normalize_identifier(value: Any) -> str:
     return text
 
 
+def _ratio(num: int, den: int) -> float:
+    return num / den if den else 0.0
+
+
+def _f1(precision: float, recall: float) -> float:
+    return 2 * precision * recall / (precision + recall) if precision + recall else 0.0
+
+
 def compute_accuracy(pred_df: pd.DataFrame, gt_df: pd.DataFrame) -> dict[str, Any]:
-    merged = pred_df.merge(gt_df, on="key", how="inner", suffixes=("_pred", "_gt"))
+    """Accuracy plus entity-linking precision / recall / F1 over the cells that have a GT row.
+
+    A cell may have several GT rows (alternative correct ids): a prediction matching any of them
+    is correct. Definitions (as in SemTab CEA, NIL = "no entity"):
+
+    * precision = correct entity predictions / cells where an entity (non-NIL) was predicted
+    * recall    = correct entity predictions / cells whose GT is an entity
+    * F1        = harmonic mean of the two
+    * accuracy  = cells right, NIL included / all evaluated cells
+    * nil_*     = the same three for NIL detection (predicting NIL where the GT is NIL)
+    """
+    gt = gt_df[["key", "gt_id"]].copy()
+    gt["gt_norm"] = gt["gt_id"].apply(normalize_identifier)
+    gold = gt.groupby("key")["gt_norm"].agg(lambda ids: frozenset(ids)).rename("gold")
+    pred = pred_df.drop_duplicates("key", keep="last").set_index("key")["pred_id"].apply(normalize_identifier)
+    merged = pd.concat([pred.rename("pred_norm"), gold], axis=1, join="inner")
     if merged.empty:
         raise ValueError("No overlapping keys between predictions and GT.")
 
-    merged["pred_norm"] = merged["pred_id"].apply(normalize_identifier)
-    merged["gt_norm"] = merged["gt_id"].apply(normalize_identifier)
-    correct_mask = merged["pred_norm"] == merged["gt_norm"]
+    gt_nil = merged["gold"].apply(lambda ids: ids == frozenset({"NIL"}))
+    pred_nil = merged["pred_norm"] == "NIL"
+    hit = merged.apply(lambda r: r["pred_norm"] in r["gold"], axis=1)
 
     evaluated = int(len(merged))
-    correct = int(correct_mask.sum())
-    accuracy = correct / evaluated if evaluated else 0.0
-    nil_gt_count = int((merged["gt_norm"] == "NIL").sum())
-    nil_pred_count = int((merged["pred_norm"] == "NIL").sum())
-    nil_correct = int(((merged["gt_norm"] == "NIL") & (merged["pred_norm"] == "NIL")).sum())
+    correct = int(hit.sum())
+    tp = int((hit & ~pred_nil).sum())
+    predicted = int((~pred_nil).sum())
+    gold_entities = int((~gt_nil).sum())
+    nil_correct = int((gt_nil & pred_nil).sum())
+    precision, recall = _ratio(tp, predicted), _ratio(tp, gold_entities)
+    nil_precision, nil_recall = _ratio(nil_correct, int(pred_nil.sum())), _ratio(nil_correct, int(gt_nil.sum()))
 
     return {
         "evaluated": evaluated,
         "correct": correct,
-        "accuracy": accuracy,
-        "nil_gt_count": nil_gt_count,
-        "nil_pred_count": nil_pred_count,
+        "accuracy": _ratio(correct, evaluated),
+        "precision": precision,
+        "recall": recall,
+        "f1": _f1(precision, recall),
+        "tp": tp,
+        "predicted_entities": predicted,
+        "gold_entities": gold_entities,
+        "nil_gt_count": int(gt_nil.sum()),
+        "nil_pred_count": int(pred_nil.sum()),
         "nil_correct": nil_correct,
+        "nil_precision": nil_precision,
+        "nil_recall": nil_recall,
+        "nil_f1": _f1(nil_precision, nil_recall),
     }
 
 

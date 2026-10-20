@@ -1,0 +1,48 @@
+### Example 1: film title shared by several entities
+- Table data around the mention:
+|Title|Release_Date|Duration|Genre|Country|Language|Director|
+|The Dealer from Amsterdam|1925-01-01|nan|silent film|Germany|nan|Victor Janson|
+|The ridiculous|1916-01-01|nan|silent film|Italy|nan|Edoardo Bencivenga|
+|The Redemption|1924-01-01|nan|silent film|Italy|nan|Guglielmo Zorzi|
+- Column name:
+Title
+- Entity mention:
+The ridiculous
+- Candidate entities:
+<id: Q12661055; name: The ridiculous; description: quality of a character, situation or work; types: quality>,<id: Q3795545; name: The ridiculous; description: 1916 film by Edoardo Bencivenga; types: film>,<id: Q2404067; name: Ridiculous; description: TV series; types: television program>,<id: Q7332906; name: Ridiculous; description: album by Squeeze; types: album>,<id: Q7332907; name: Ridiculous; description: Wikimedia disambiguation page; types: Wikimedia disambiguation page>,<id: Q7332905; name: ridiculous; description: deserving of ridicule, absurd; types: >,<id: Q53414394; name: The ridiculous mouse.; description: scientific article published in September 2005; types: scholarly article>,<id: Q82660480; name: The ridiculous mouse; description: scientific article published on 01 March 2006; types: scholarly article>,<id: Q3235605; name: The Ridiculous Wishes; description: French literary fairy tale by Charles Perrault; types: literary work,three wishes joke,fairy tale>
+Answer:
+ANSWER:Q3795545
+
+---
+
+### Example 2: company name shared by several entities
+- Table data around the mention:
+|company|Founded Year|Website|X (Twitter)|Employees|Coordinates|Founded By|Industry|Country|Headquarters|
+|Carulla|1905-00-00|https://www.carulla.com/|PlaceresCarulla|nan|nan|nan|supermarket|nan|Envigado|
+|Carvel|1929-00-00|http://carvel.com/|CarvelIceCream|nan|nan|Tom Carvel|foodservice|United States of America|Farmington|
+|Casa da Moeda do Brasil|1694-03-08|http://www.casadamoeda.gov.br/|nan|nan|-22.906489999999987,-43.190782000000006|Pedro II of Portugal|nan|Brazil|Rio de Janeiro|
+- Column name:
+company
+- Entity mention:
+Carvel
+- Candidate entities:
+<id: Q2910702; name: carvel; description: method of building a boat; types: technique>,<id: Q5132028; name: Carvel; description: unincorporated community in Kingman County, Kansas; types: unincorporated community in the United States>,<id: Q5047520; name: Carvel; description: American ice cream franchise; types: business,ice cream parlor chain>,<id: Q5047516; name: Carvel; description: hamlet in Alberta, Canada; types: hamlet in Alberta>,<id: Q122231972; name: Carvel; description: N.A.; types: given name>,<id: Q26234778; name: Carvel; description: family name; types: family name>,<id: Q435004; name: Carvel; description: Delaware politician (1910-2005); types: human,politician,human rights activist>,<id: Q5047517; name: Carvel; description: Wikimedia disambiguation page; types: Wikimedia disambiguation page>,<id: Q16727861; name: Greg Carvel; description: American ice hockey defenceman; types: human,ice hockey player>
+Answer:
+ANSWER:Q5047520
+
+---
+
+### Example 3: the correct entity is not among the candidates
+- Table data around the mention:
+|Title|Release_Date|Duration|Genre|Country|Language|Director|
+|Rude Boy|1980-01-01|133.0|documentary film|United Kingdom|English|Jack Hazan|
+|Class|1983-07-06|94.0|comedy drama|United States of America|English|Lewis John Carlino|
+|Armiño Negro|1953-01-01|104.0|drama film|Argentina|Spanish|Carlos Hugo Christensen|
+- Column name:
+Title
+- Entity mention:
+Class
+- Candidate entities:
+<id: Q11194635; name: Class; description: Japanese band; types: musical group>,<id: Q16889133; name: class; description: collection of items defined by common characteristics; types: metaclass,variable-order class>,<id: Q600134; name: class; description: program of study, or unit of teaching that typically lasts one academic term; types: >,<id: Q4479242; name: class; description: in object-oriented programming, a definition that specifies how an object works; types: metaclass>,<id: Q6617695; name: class; description: group of people studying together at the same age, often at a similar age; types: >,<id: Q5127846; name: Class; description: British comedy TV series; types: television series>,<id: Q5127848; name: class; description: group of things derived from extensional or intensional definition (philosophy); types: philosophical concept,metaclass>,<id: P7174; name: class; description: (qualifier) class of a given year/time period to which the person belonged in an educational institution; types: Wikidata qualifier,Wikidata property related to education>,<id: Q217594; name: class; description: mathematical collection of sets that can be defined based on a property of its members (set theory); types: >,<id: Q15978777; name: CLASS; description: array of microwave telescopes; types: radio telescope,cosmic microwave background experiment>
+Answer:
+ANSWER:NIL

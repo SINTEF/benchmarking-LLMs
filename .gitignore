@@ -210,3 +210,6 @@ data/lamapi_cache/
 tests/fixtures/lamapi_cache/
 .DS_Store
 tests/fixtures/lamapi_cache/
+
+# Shared datasets mount point (see DATASETS_ROOT)
+data/external/

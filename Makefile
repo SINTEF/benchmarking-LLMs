@@ -6,16 +6,19 @@ ifneq ($(strip $(MAXROWS)),)
 MAX_ROWS := $(MAXROWS)
 endif
 OUTPUT_DIR ?= outputs
-MODEL ?= gpt-oss-120b
+MODEL ?= openai/gpt-oss-120b
 PROVIDER ?= openrouter
 PROMPT_SCHEMA ?= base
+CONCURRENCY ?= 16
+MAX_RPM ?= 0
+LAMAPI_CONCURRENCY ?= 8
 NIL_THRESHOLD ?= 0.0
 FORCE_GT ?= 0
 FORCE_ID ?=
 PRED ?=
 GT ?=
 
-.PHONY: build-datasets run-llm run-crocodile run-alligator run-editsim eval
+.PHONY: build-datasets run-llm run-crocodile run-alligator run-editsim eval ui worker runs estimate test up down logs
 
 build-datasets:
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) datasets/builders/build_mv.py
@@ -29,16 +32,21 @@ run-llm:
 		--output-dir $(OUTPUT_DIR) \
 		--model $(MODEL) \
 		--provider $(PROVIDER) \
-		--prompt-schema $(PROMPT_SCHEMA)
+		--prompt-schema $(PROMPT_SCHEMA) \
+		--max-concurrency $(CONCURRENCY) \
+		--max-rpm $(MAX_RPM) \
+		--lamapi-concurrency $(LAMAPI_CONCURRENCY)
 
+# Needs the linkers image (tensorflow 2.18, Python <= 3.12) and MongoDB: runs in docker compose.
 run-crocodile:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.runners.run_crocodile \
+	docker compose run --rm linkers python -m experiments.runners.run_crocodile \
 		--dataset $(DATASET) \
 		--max-rows $(MAX_ROWS) \
 		--output-dir $(OUTPUT_DIR)
 
+# Needs the linkers image (tensorflow 2.18, Python <= 3.12) and MongoDB: runs in docker compose.
 run-alligator:
-	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.runners.run_alligator \
+	docker compose run --rm linkers python -m experiments.runners.run_alligator \
 		--dataset $(DATASET) \
 		--max-rows $(MAX_ROWS) \
 		--output-dir $(OUTPUT_DIR)
@@ -58,3 +66,34 @@ eval:
 		exit 1; \
 	fi
 	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.evaluation.evaluate --pred $(PRED) --gt $(GT)
+
+ui:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m streamlit run ui/app.py
+
+# Executes runs queued from the console; keep it running next to `make ui`.
+worker:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.runs worker
+
+runs:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.runs list
+
+estimate:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m experiments.cost.estimate \
+		--dataset $(DATASET) \
+		--model $(MODEL) \
+		--schema $(PROMPT_SCHEMA) \
+		--limit $(MAX_ROWS)
+
+test:
+	PYTHONPATH=$(PYTHONPATH) $(PYTHON) -m unittest discover -s tests -v
+
+# Docker: console on http://localhost:8501, run worker, MongoDB
+up:
+	docker compose up -d --build
+	@echo "Console: http://localhost:8501"
+
+down:
+	docker compose down
+
+logs:
+	docker compose logs -f ui worker

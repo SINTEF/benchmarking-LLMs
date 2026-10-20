@@ -84,7 +84,7 @@ def main() -> None:
         store.mark_stale()
         for run in store.list(50):
             p = run.progress
-            eta = live_eta(p, store.ticks(run.id, since=time.time() - 120)) if run.status == "running" else {}
+            eta = live_eta(p, store.ticks(run.id, since=time.time() - 360)) if run.status == "running" else {}
             print(
                 f"{run.id}  {run.status:<11} {p.get('n_done', 0):>7}/{p.get('n_tasks', '?'):<7} "
                 f"${p.get('cost_usd', 0):>8.4f}  eta {fmt_duration(eta.get('eta_s')):>8}  {run.label}"

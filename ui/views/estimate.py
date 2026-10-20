@@ -327,7 +327,7 @@ for (dk, schema), prof in zip(done, profiles):
             row["providers_min_usd"] = row["providers_max_usd"] = row["cost_usd"]
         spc, spc_src = seconds_per_call_for(
             get_store(), m.id, m.provider, m.reasoning, calibrated=cal.seconds_per_call if cal and cal.ok else None,
-            output_tokens=per_call,
+            output_tokens=per_call, dataset=dk, schema=schema,
         )
         # Lookups not cached yet: sampled ones were just fetched; extrapolate the miss rate to the rest.
         looked_up = prof.cache_hits + prof.fetched + prof.cache_misses

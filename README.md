@@ -140,9 +140,13 @@ with no known BYOK provider refuses to start. Discarded answers are still billed
 429 instead.
 
 Duration estimate: throughput = min(parallel requests ÷ seconds per call, requests/min cap ÷ 60);
-uncached LamAPI lookups run alongside. Seconds per call come from calibration, else the median of
-earlier runs of the same model, else an assumption. During a run the ETA uses the throughput
-measured over the last 90 s.
+uncached LamAPI lookups run alongside. "Seconds per call" is the *effective* time measured in
+earlier runs (parallel requests × wall-clock time ÷ cells), not a median latency: reasoning models
+answer most calls in ~1 s but think for minutes on a few, each holding a request slot, and how much
+they think depends on the data (minimax: 18 reasoning tokens/call on mv, 377 on 2t-red). Sources, best
+first: earlier runs of the model on the same dataset, calibration on the dataset, earlier runs on
+other datasets (flagged), then an assumption. During a run the ETA uses the pace of the last
+5 minutes, with a range up to the average pace since the start.
 
 ## Cost estimation (before running LLMs)
 

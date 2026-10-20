@@ -508,3 +508,46 @@ class TestDeleteRuns(unittest.TestCase):
         from experiments.cost.tasks import REPO_ROOT
 
         self.assertEqual(local_run_dir(run), REPO_ROOT / "outputs" / "mv" / "llm" / "abc")
+
+
+class TestDurationFromHistory(unittest.TestCase):
+    def _run(self, store, dataset, model, cells, seconds, conc=16, schema="base"):
+        rid = store.submit({"dataset": dataset, "model": model, "schema": schema, "max_concurrency": conc}, "r")
+        now = time.time()
+        store.update_progress(rid, {"n_done": cells, "n_tasks": cells, "session_started_at": now - seconds,
+                                    "session_done_at_start": 0, "latency_p50_s": 0.5})
+        store.finish(rid, DONE)
+        with store._conn() as conn:  # finished exactly ``seconds`` after the start
+            conn.execute("UPDATE runs SET started_at = ?, finished_at = ? WHERE id = ?", (now - seconds, now, rid))
+        return rid
+
+    def test_same_dataset_wins_and_uses_wall_clock(self) -> None:
+        from experiments.runs.eta import seconds_per_call_for
+
+        with tempfile.TemporaryDirectory() as tmp:
+            store = RunStore(Path(tmp) / "runs.db")
+            self._run(store, "spec:mv", "m", cells=1000, seconds=180)  # 16*180/1000 = 2.88 s/call
+            self._run(store, "semtab:2t-red", "m", cells=2400, seconds=900)  # 16*900/2400 = 6.0 s/call
+            spc, src = seconds_per_call_for(store, "m", None, True, dataset="2t-red", schema="base")
+            self.assertAlmostEqual(spc, 6.0, places=1)  # not the 0.5 s median latency
+            self.assertIn("this dataset", src)
+            spc, src = seconds_per_call_for(store, "m", None, True, dataset="mv")  # "mv" == "spec:mv"
+            self.assertAlmostEqual(spc, 2.88, places=1)
+            # calibration beats other datasets, but not this dataset's own runs
+            spc, src = seconds_per_call_for(store, "m", None, True, calibrated=1.0, dataset="semtab:Round4_2020")
+            self.assertEqual((spc, "calibration" in src), (1.0, True))
+            spc, src = seconds_per_call_for(store, "m", None, True, dataset="semtab:Round4_2020")
+            self.assertIn("other data", src)
+            self.assertAlmostEqual(spc, (2.88 * 1000 + 6.0 * 2400) / 3400, places=1)
+
+    def test_live_eta_range(self) -> None:
+        now = time.time()
+        # fast at first, slow in the last 5 minutes
+        ticks = [{"t": now - 300, "done": 2000}, {"t": now, "done": 2500}]  # 100/min recently
+        p = {"n_tasks": 4500, "n_done": 2500, "session_started_at": now - 1000, "session_done_at_start": 0}  # 150/min avg
+        eta = live_eta(p, ticks)
+        self.assertAlmostEqual(eta["eta_s"], 2000 / (500 / 300), delta=1)
+        self.assertLess(eta["eta_low_s"], eta["eta_high_s"])
+        self.assertAlmostEqual(eta["eta_low_s"], 2000 / (2500 / 1000), delta=5)
+        short = live_eta(p, [{"t": now - 20, "done": 2490}, {"t": now, "done": 2500}])  # <1 min of ticks
+        self.assertAlmostEqual(short["rate_per_s"], 2.5, places=2)  # falls back to the session average

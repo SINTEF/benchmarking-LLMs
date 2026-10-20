@@ -257,7 +257,7 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             _, route = provider_preferences(policy, pinned, eps, byok)
             spc, spc_src = seconds_per_call_for(
                 store, m, pinned, bool(price and price.reasoning), latency_s=latency, throughput_tps=throughput,
-                output_tokens=400 if price and price.reasoning else 10,
+                output_tokens=400 if price and price.reasoning else 10, dataset=d, schema=s,
             )
             calls = plan["cells"] + plan["tables"]
             est = estimate_duration(
@@ -333,7 +333,7 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
 
 def active_card(run) -> None:
     p = run.progress
-    eta = live_eta(p, store.ticks(run.id, since=time.time() - 180)) if run.status == RUNNING else {}
+    eta = live_eta(p, store.ticks(run.id, since=time.time() - 360)) if run.status == RUNNING else {}
     n, done = p.get("n_tasks") or 0, p.get("n_done") or 0
     with st.container(border=True):
         top = st.columns([6, 1])
@@ -348,8 +348,17 @@ def active_card(run) -> None:
         st.progress(done / n if n else 0.0, text=f"{done:,} / {n:,} cells · {p.get('phase', '')}")
         m = st.columns(6)
         rate = eta.get("rate_per_s")
-        m[0].metric("Throughput", f"{rate * 60:,.0f}/min" if rate else "—")
-        m[1].metric("ETA", fmt_duration(eta.get("eta_s")), help=f"Elapsed {fmt_duration(run.elapsed_s)}")
+        avg = eta.get("session_rate_per_s")
+        m[0].metric("Throughput", f"{rate * 60:,.0f}/min" if rate else "—",
+                    help="Cells per minute over the last 5 minutes"
+                    + (f" · {avg * 60:,.0f}/min on average since the start" if avg else ""))
+        low, high = eta.get("eta_low_s"), eta.get("eta_high_s")
+        spread = f" · between {fmt_duration(low)} and {fmt_duration(high)}" if low and high and high > low * 1.1 else ""
+        m[1].metric(
+            "ETA", fmt_duration(eta.get("eta_s")),
+            help=f"At the pace of the last 5 minutes{spread} (that pace vs the average since the start; "
+            f"reasoning models have a few very slow calls). Elapsed {fmt_duration(run.elapsed_s)}.",
+        )
         is_llm = run.config.get("method", "llm") == "llm"
         if is_llm:
             m[2].metric("Cost so far", usd(p.get("cost_usd")), help=f"Projected total: {usd(eta.get('projected_cost_usd'))}")

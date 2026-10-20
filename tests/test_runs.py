@@ -402,3 +402,44 @@ class TestCrocodileBow(unittest.TestCase):
             self.assertIsNone(LinkerExecutor(legacy, source=_source())._bow_endpoint("x"))
         with mock.patch.dict("os.environ", {"ENTITY_BOW_ENDPOINT": ""}):
             self.assertEqual(ex._bow_endpoint("https://h/lookup/entity-retrieval"), "https://h/entity/bow")
+
+
+class TestPromptsContent(unittest.TestCase):
+    def test_fewshot_has_real_examples(self) -> None:
+        from experiments.cost.prompts import FEWSHOT_EXAMPLES_PATH, build_prompt
+
+        df = pd.read_csv(FIXTURES / "mv_table.csv")
+        prompt = build_prompt("fewshot", df, 0, 0, [], "A table of films.")
+        examples = FEWSHOT_EXAMPLES_PATH.read_text()
+        self.assertIn(examples, prompt)
+        self.assertNotIn("Examples:\nN.A.", prompt)
+        self.assertEqual(examples.count("ANSWER:"), 3)
+        self.assertNotIn(examples, build_prompt("base", df, 0, 0, [], None))
+        # few-shot runs (and only they) depend on the examples file
+        a = RunConfig(dataset="mv", model="m", schema="fewshot").run_dir(_source())
+        with mock.patch("experiments.cost.prompts.fewshot_examples_version", return_value="other"):
+            self.assertNotEqual(a, RunConfig(dataset="mv", model="m", schema="fewshot").run_dir(_source()))
+            base = RunConfig(dataset="mv", model="m").run_dir(_source())
+        self.assertEqual(base, RunConfig(dataset="mv", model="m").run_dir(_source()))
+
+    def test_empty_summary_is_retried_and_prompts_saved(self) -> None:
+        class EmptyFirstSummary(FakeOpenRouter):
+            summaries = 0
+
+            async def handler(self, request):
+                body = json.loads(request.content)
+                if "summary" in body["messages"][0]["content"].lower() and "ANSWER" not in body["messages"][0]["content"]:
+                    self.summaries += 1
+                    if self.summaries == 1:  # a reasoning model that answered nothing
+                        return httpx.Response(200, json={"choices": [{"message": {"content": ""}}],
+                                                         "usage": {"prompt_tokens": 1, "completion_tokens": 1}})
+                return await super().handler(request)
+
+        with tempfile.TemporaryDirectory() as tmp:
+            fake = EmptyFirstSummary()
+            ex, manifest, _ = TestExecutor()._run(tmp, fake)
+            self.assertEqual(fake.summaries, 2)
+            self.assertEqual(manifest["progress"]["summary_errors"], 0)
+            samples = [json.loads(l) for l in (ex.run_dir / "sample_prompts.jsonl").read_text().splitlines()]
+            self.assertEqual(len(samples), 5)
+            self.assertIn("A table about movies.", samples[0]["prompt"])  # the real summary, not N.A.

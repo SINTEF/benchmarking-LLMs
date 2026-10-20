@@ -49,6 +49,8 @@ logging.getLogger("httpx").setLevel(logging.WARNING)  # one INFO line per reques
 
 ANSWER_RE = re.compile(r"ANSWER:\s*([^\s]+)", re.IGNORECASE)  # LionLinker's default pattern
 TICK_S = 2.0
+SUMMARY_ATTEMPTS = 3  # an empty table summary is asked again before giving up
+SAMPLE_PROMPTS = 20  # linking prompts saved per run attempt (sample_prompts.jsonl)
 SENTINEL = object()
 
 
@@ -139,6 +141,7 @@ class RunExecutor:
         self.run_dir = config.run_dir(self.source)
         self.results_path = self.run_dir / "results.jsonl"
         self.summaries_path = self.run_dir / "summaries.json"
+        self.samples_path = self.run_dir / "sample_prompts.jsonl"
         self.p = Progress(max_concurrency=config.max_concurrency, max_rpm=config.max_rpm)
         self.stats = CallStats()
         self._latencies: deque[float] = deque(maxlen=500)
@@ -149,6 +152,8 @@ class RunExecutor:
         self._summary_tasks: dict[str, asyncio.Task] = {}
         self._lookups: dict[tuple, asyncio.Future] = {}
         self._fatal: Exception | None = None
+        # resumed runs keep the samples of earlier attempts and only top them up to SAMPLE_PROMPTS
+        self._samples_written = sum(1 for _ in self.samples_path.open()) if self.samples_path.exists() else 0
 
     # ------------------------------------------------------------------ public
 
@@ -339,20 +344,26 @@ class RunExecutor:
 
     async def _make_summary(self, taskset: TaskSet, table_id: str, llm: OpenRouterClient) -> str | None:
         prompt = summary_prompt(taskset.load_table(table_id), self.cfg.seed)
-        try:
-            res = await llm.chat(prompt)
-        except CallError as exc:
-            # The linking prompts then show "N.A." as summary, like a missing summary in LionLinker.
-            self.p.summary_errors += 1
-            self._errors.append(f"summary {table_id}: {exc}")
-            self._summaries[table_id] = None
-            return None
-        self._account_call(res)
-        text = res.text.strip() or None
-        self._summaries[table_id] = text
-        self.p.summaries_done += 1
-        self._save_summaries()
-        return text
+        problem = "empty answer"
+        for _ in range(SUMMARY_ATTEMPTS):
+            try:
+                res = await llm.chat(prompt)
+            except CallError as exc:
+                problem = str(exc)
+                break
+            self._account_call(res)
+            text = res.text.strip()
+            if text:  # reasoning models sometimes spend the whole answer thinking: ask again
+                self._summaries[table_id] = text
+                self.p.summaries_done += 1
+                self._save_summaries()
+                return text
+        # The linking prompts then show "N.A." as summary, like a missing summary in LionLinker; counted
+        # and reported so it never goes unnoticed, and not saved, so a resumed run asks again.
+        self.p.summary_errors += 1
+        self._errors.append(f"summary {table_id}: {problem} - its prompts use 'N.A.' as summary")
+        self._summaries[table_id] = None
+        return None
 
     async def _link(self, taskset: TaskSet, cell: dict, llm: OpenRouterClient) -> None:
         df = cell.pop("df")
@@ -360,6 +371,7 @@ class RunExecutor:
         summary = await self._summary(taskset, cell["table_id"], llm)
         prompt = build_prompt(self.cfg.schema, df, cell["row"], cell["col"], candidates, summary)
         cell["n_candidates"] = len(candidates)
+        cell["summary"] = summary is not None
         try:
             res = await llm.chat(prompt)
         except CallError as exc:
@@ -384,6 +396,11 @@ class RunExecutor:
             },
             counted=True,
         )
+        if self._samples_written < SAMPLE_PROMPTS:  # a few real prompts, to see exactly what was sent
+            self._samples_written += 1
+            with self.samples_path.open("a", encoding="utf-8") as fh:
+                fh.write(json.dumps({"key": cell["key"], "mention": cell.get("mention"), "prompt": prompt,
+                                     "answer": res.text, "gt_ids": cell.get("gt_ids")}, ensure_ascii=False) + "\n")
 
     # ------------------------------------------------------------------ bookkeeping
 

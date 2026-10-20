@@ -87,6 +87,11 @@ class RunConfig:
             settings = {k: v for k, v in settings.items() if k not in LLM_FIELDS}
         if settings.get("method") != "crocodile" or not settings["bow"]:
             del settings["bow"]  # only Crocodile uses it; BoW-off keeps the folder of earlier runs
+        if self.method == "llm" and self.schema == "fewshot":
+            from experiments.cost.prompts import fewshot_examples_version
+
+            # few-shot prompts embed the examples file: other examples -> other results -> other folder
+            settings["fewshot_examples"] = fewshot_examples_version()
         settings["dataset"] = source.key
         base = Path(self.output_dir)
         if not base.is_absolute():

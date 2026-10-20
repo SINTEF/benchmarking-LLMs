@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+import hashlib
 from functools import lru_cache
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -43,12 +45,22 @@ SUMMARY_INSTRUCTION = (
 CHUNK_SIZE = 64
 TABLE_CTX_SIZE = 1
 
+# Real worked examples for the few-shot template's [EXAMPLES] slot (train-split cells, Wikidata GT,
+# LamAPI candidates); built by scripts/build_fewshot_examples.py. Without a file LionLinker writes "N.A.".
+FEWSHOT_EXAMPLES_PATH = Path(__file__).resolve().parents[1] / "prompts" / "fewshot_examples.txt"
+
+
+def fewshot_examples_version() -> str:
+    """Short hash of the examples file: few-shot runs with other examples get another folder."""
+    return hashlib.sha256(FEWSHOT_EXAMPLES_PATH.read_bytes()).hexdigest()[:12]
+
 
 @lru_cache(maxsize=8)
 def get_generator(schema: str):
     from lion_linker.prompt.generator import PromptGenerator
 
-    return PromptGenerator(PROMPT_SCHEMA_MAP[schema], None, tablellama_format=False)
+    examples = str(FEWSHOT_EXAMPLES_PATH) if schema == "fewshot" else None
+    return PromptGenerator(PROMPT_SCHEMA_MAP[schema], examples, tablellama_format=False)
 
 
 def table_context(df: pd.DataFrame, row: int) -> list[list[Any]]:

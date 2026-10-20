@@ -28,6 +28,7 @@ from experiments.cost.tasks import REPO_ROOT, datasets_root_problem, discover_so
 from experiments.cost.tokens import get_counter
 from experiments.runs.byok import byok_tags, known_byok_providers, slug
 from experiments.runs.eta import estimate_duration, fmt_duration, seconds_per_call_for, seconds_per_lookup_for
+from experiments.runs.metrics import earlier_summary
 from experiments.runs.store import RunStore
 
 SCHEMAS = {
@@ -562,10 +563,21 @@ with st.expander("How was this estimated?", icon=":material/info:"):
                 shown.add((p.dataset_name, w))
                 st.warning(f"**{p.dataset_name}**: {w}")
     pick = st.selectbox(
-        "Example prompt (offline; the summary shows as N.A. until calibrated)", options=range(len(profiles)),
+        "Example prompt", options=range(len(profiles)),
         format_func=lambda i: f"{profiles[i].dataset_name} · {SCHEMAS[profiles[i].schema]}",
     )
-    st.code(profiles[pick].example_prompt, language=None, wrap_lines=True)
+    example = profiles[pick].example_prompt
+    known = earlier_summary(source_by_key[profiles[pick].dataset_key]) if profiles[pick].dataset_key in source_by_key else None
+    if known:
+        # The estimate is offline (no LLM): show the summary a real run of this dataset wrote instead of N.A.
+        example = example.replace("- Table summary:\nN.A.", "- Table summary:\n" + " ".join(known.split()), 1)
+        st.caption("Table summary taken from an earlier run of this dataset (runs ask the model for it once per table).")
+    else:
+        st.caption(
+            "The table summary shows as N.A. here because the estimate calls no LLM; runs ask the model for it "
+            "once per table (see a run's *Table summaries*), and calibration measures its real length."
+        )
+    st.code(example, language=None, wrap_lines=True)
 
 stamp = datetime.now().strftime("%Y%m%d-%H%M")
 d1, d2, _ = st.columns([1, 1, 3])

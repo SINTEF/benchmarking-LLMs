@@ -116,6 +116,16 @@ backoff; failed cells are recorded as errors instead of silently becoming NIL. E
 appended to `results.jsonl` in the run folder, so runs resume. Cost comes from OpenRouter's usage
 report, including the upstream provider cost for BYOK keys.
 
+Prompts: `base`, `structured` (LionLinker's detailed template) and `fewshot`. The few-shot
+template's examples come from `experiments/prompts/fewshot_examples.txt`: three real cases from the
+train splits (never evaluated), with their Wikidata GT as answer and LamAPI's candidates in the
+exact prompt format: an ambiguous film, an ambiguous company, and a NIL case whose correct entity
+LamAPI does not return. `scripts/build_fewshot_examples.py` rebuilds it (provenance in the `.json`
+next to it); few-shot runs with other examples get their own output folder. Each table's summary
+is written once by the model (`summaries.json`; an empty answer is asked again, a failure is
+reported as a summary error) and the first 20 prompts of a run are saved in `sample_prompts.jsonl`;
+both are shown in the run's details on the Runs page.
+
 Provider routing (`--provider-policy`, Runs page "Provider"): by default runs go only to the
 providers you have a BYOK key for in OpenRouter (`provider.order` = those providers, no fallbacks),
 so a run stays on one provider/quantization and a 429 makes it back off instead of moving to

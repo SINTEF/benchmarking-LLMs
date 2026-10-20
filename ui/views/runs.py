@@ -587,6 +587,46 @@ def run_detail(run) -> None:
     if p.get("recent_errors"):
         st.caption("Recent errors")
         st.code("\n".join(p["recent_errors"]), language=None, wrap_lines=True)
+    if run.config.get("method", "llm") == "llm" and run.run_dir:
+        prompts_sent(run)
+
+
+def prompts_sent(run) -> None:
+    """The table summaries the model wrote and a sample of the exact prompts it received."""
+    run_dir = Path(run.run_dir)
+    summaries, samples = {}, []
+    try:
+        if (run_dir / "summaries.json").exists():
+            summaries = json.loads((run_dir / "summaries.json").read_text())
+        if (run_dir / "sample_prompts.jsonl").exists():
+            samples = [json.loads(line) for line in (run_dir / "sample_prompts.jsonl").read_text().splitlines() if line]
+    except (OSError, json.JSONDecodeError):
+        pass
+    p = run.progress
+    with st.expander(
+        f"Table summaries ({len(summaries):,} written"
+        + (f", {p['summary_errors']:,} failed - their prompts say N.A." if p.get("summary_errors") else "") + ")",
+        icon=":material/summarize:",
+    ):
+        if not summaries:
+            st.caption("No table summary yet.")
+        for table_id, text in list(summaries.items())[:20]:
+            st.markdown(f"**{'table' if table_id == '__spec__' else table_id}**")
+            st.write(text)
+        if len(summaries) > 20:
+            st.caption(f"... and {len(summaries) - 20:,} more in `summaries.json`.")
+    with st.expander(f"Prompts sent ({len(samples)} saved)", icon=":material/chat:"):
+        if not samples:
+            st.caption("Runs save their first 20 linking prompts (`sample_prompts.jsonl`); none yet.")
+            return
+        k = st.selectbox(
+            "Prompt", range(len(samples)), key=f"sample_{run.id}",
+            format_func=lambda i: f"{samples[i]['key']} · {samples[i].get('mention')}",
+        )
+        sample = samples[k]
+        st.code(sample["prompt"], language=None, wrap_lines=True)
+        st.caption(f"Answer (GT: {' '.join(sample.get('gt_ids') or []) or 'NIL'})")
+        st.code(sample["answer"] or "(empty)", language=None, wrap_lines=True)
 
 
 monitor()

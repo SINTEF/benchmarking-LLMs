@@ -63,3 +63,20 @@ def run_metrics(run_dir: str | Path, source: DatasetSource) -> dict[str, Any] | 
     if results.empty:
         return None
     return score(results, gt_frame(source))
+
+
+def earlier_summary(source: DatasetSource, output_dir: str | Path = "outputs") -> str | None:
+    """A table summary an earlier LLM run of this dataset wrote (the most recent), if any."""
+    from experiments.cost.tasks import REPO_ROOT
+
+    base = Path(output_dir)
+    base = base if base.is_absolute() else REPO_ROOT / base
+    files = sorted((base / source.name / "llm").glob("*/summaries.json"), key=lambda f: f.stat().st_mtime, reverse=True)
+    for f in files:
+        try:
+            values = [v for v in json.loads(f.read_text()).values() if v]
+        except (OSError, json.JSONDecodeError):
+            continue
+        if values:
+            return values[0]
+    return None

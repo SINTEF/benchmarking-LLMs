@@ -11,7 +11,7 @@ import pandas as pd
 
 from experiments.cost.estimate import ProfileConfig, price_profile, profile_prompts
 from experiments.cost.pricing import ProviderList, manual_price, parse_endpoints, parse_models, with_provider
-from experiments.cost.prompts import ANSWER_FORMAT, build_prompt
+from experiments.cost.prompts import ANSWER_FORMAT, FEWSHOT_EXAMPLES_PATH, build_prompt
 from experiments.cost.tasks import DatasetSource, load_taskset
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -122,6 +122,7 @@ class TestPromptParity(unittest.TestCase):
                     model_api_provider="openrouter",
                     model_api_key="x",
                     prompt_template=template,
+                    few_shot_examples_file_path=str(FEWSHOT_EXAMPLES_PATH) if schema == "fewshot" else None,
                 )
                 linker.llm_interaction.chat = fake_chat
                 asyncio.run(linker.run())

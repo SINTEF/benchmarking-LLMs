@@ -211,5 +211,8 @@ tests/fixtures/lamapi_cache/
 .DS_Store
 tests/fixtures/lamapi_cache/
 
+# Saved LLM endpoints and their API keys (console Endpoints page)
+secrets/
+
 # Shared datasets mount point (see DATASETS_ROOT)
 data/external/

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import time
@@ -16,6 +17,8 @@ from experiments.cost.pricing import load_endpoints, load_prices
 from experiments.cost.tasks import datasets_root_problem, discover_sources, load_taskset
 from experiments.runs.config import LINKER_METHODS, METHODS, RunConfig
 from experiments.runs.byok import known_byok_providers, provider_preferences
+from experiments.runs.endpoints import EndpointsFileError, api_key_for, key_source, list_endpoints
+from experiments.runs.llm import endpoint_host, list_endpoint_models
 from experiments.runs.metrics import run_metrics
 from experiments.runs.eta import (
     estimate_duration, fmt_duration, live_eta, lookup_plan, seconds_per_call_for, seconds_per_cell_for_method,
@@ -53,6 +56,21 @@ def get_prices():
 @st.cache_data(ttl=3600, show_spinner=False)
 def get_endpoints(model_id: str):
     return load_endpoints(model_id)
+
+
+@st.cache_data(ttl=60, show_spinner="Asking the endpoint which models it serves...")
+def _endpoint_models(endpoint: str, key_fingerprint: str) -> list[str]:
+    # Raises on failure, and st.cache_data does not cache exceptions: a server that comes up, or a key
+    # saved on the Endpoints page (new fingerprint), is picked up on the next rerun.
+    return list_endpoint_models(endpoint, api_key_for(endpoint))
+
+
+def get_endpoint_models(endpoint: str) -> tuple[list[str], str | None]:
+    key = api_key_for(endpoint) or ""
+    try:
+        return _endpoint_models(endpoint, hashlib.sha256(key.encode()).hexdigest()), None
+    except Exception as exc:  # noqa: BLE001 - unreachable, no /models route, bad key...
+        return [], f"{type(exc).__name__}: {exc}"
 
 
 @st.cache_data(ttl=60, show_spinner="Checking which LamAPI lookups are cached...")
@@ -138,22 +156,50 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
     )
     methods = c2.multiselect(
         "Methods", list(METHODS), default=["llm"], format_func=METHODS.get,
-        help="LLM: LionLinker prompts sent to OpenRouter models. Crocodile and Alligator: the classic ML table "
+        help="LLM: LionLinker prompts sent to OpenRouter models or to your own OpenAI-compatible endpoint. Crocodile and Alligator: the classic ML table "
         "linkers, run by the `linkers` worker (MongoDB + TensorFlow image). All use the same LamAPI candidates "
         "and GT forcing, and are scored with the same P/R/F1.",
     )
     use_llm = "llm" in methods
     linkers = [m for m in methods if m in LINKER_METHODS]
-    schemas, models, provider_mode, byok = [], [], BYOK_ONLY, set()
+    schemas, models, provider_mode, byok, endpoint = [], [], BYOK_ONLY, set(), None
     if use_llm:
         st.markdown("**LLM**")
-        c1, c2 = st.columns([2, 3])
-        schemas = c1.multiselect("Prompt schemas", list(SCHEMAS), default=["base"], format_func=SCHEMAS.get)
-        models = c2.multiselect(
-            "Models (OpenRouter)", sorted(prices.models) or [DEFAULT_MODEL],
-            default=[DEFAULT_MODEL] if DEFAULT_MODEL in prices.models or not prices.models else [],
-            placeholder="Type to search, e.g. gpt-oss, llama, qwen...",
-        )
+        try:
+            saved = {e.name: e for e in list_endpoints()}
+        except EndpointsFileError as exc:
+            st.error(f"{exc}. LLM runs are disabled until the file is fixed or removed.", icon=":material/error:")
+            use_llm = False
+    if use_llm:
+        c1, c2, c3 = st.columns([2, 2, 3])
+        # Options are names, not Endpoint objects: a changed key must not move the selection elsewhere.
+        chosen = saved[c1.selectbox(
+            "Endpoint", list(saved),
+            help="OpenRouter, or one of your OpenAI-compatible servers (on-premise vLLM, Ollama, TGI...). "
+            "Add endpoints and their keys on the **Endpoints** page.",
+        )]
+        endpoint = chosen.base_url
+        schemas = c2.multiselect("Prompt schemas", list(SCHEMAS), default=["base"], format_func=SCHEMAS.get)
+        if endpoint:
+            served, error = get_endpoint_models(endpoint)
+            if served:
+                models = c3.multiselect("Models (served by the endpoint)", served, default=served[:1])
+                st.caption(f":material/dns: `{endpoint}` serves {len(served)} model(s) · {key_source(chosen)}")
+            else:
+                typed = c3.text_input(
+                    "Models (comma-separated)", placeholder="meta-llama/Llama-3.3-70B-Instruct",
+                    help="The model name the server expects in the request's `model` field.",
+                )
+                models = [m.strip() for m in typed.split(",") if m.strip()]
+                st.caption(f":material/warning: Could not list the models of `{endpoint}` ({error}); type the "
+                           f"names instead · {key_source(chosen)}")
+        else:
+            models = c3.multiselect(
+                "Models (OpenRouter)", sorted(prices.models) or [DEFAULT_MODEL],
+                default=[DEFAULT_MODEL] if DEFAULT_MODEL in prices.models or not prices.models else [],
+                placeholder="Type to search, e.g. gpt-oss, llama, qwen...",
+            )
+    if use_llm and not endpoint:
         byok, byok_source = known_byok_providers(store)
         provider_mode = st.radio(
             "Provider", [BYOK_ONLY, BYOK_FIRST, ROUTING, CHEAPEST], horizontal=True,
@@ -181,15 +227,16 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
     if use_llm:
         concurrency = next(cols).number_input(
             "Parallel LLM requests", min_value=1, max_value=512, value=16,
-            help="OpenRouter requests in flight at once. OpenRouter has no fixed limit on paid models, but "
-            "providers answer 429 when pushed too hard; the run then pauses all LLM requests and retries.",
+            help="LLM requests in flight at once. OpenRouter has no fixed limit on paid models, but providers "
+            "answer 429 when pushed too hard; the run then pauses all LLM requests and retries. On-premise: "
+            "match what the server batches well (e.g. vLLM `--max-num-seqs`).",
         )
         max_rpm = next(cols).number_input(
             "Max LLM requests / min (0 = no cap)", min_value=0, value=0, step=60,
             help="Optional hard cap, e.g. your BYOK provider's documented requests-per-minute limit.",
         )
     lamapi_concurrency = next(cols).number_input(
-        "Parallel LamAPI requests", min_value=1, max_value=128, value=8,
+        "Parallel LamAPI requests", min_value=1, max_value=128, value=16,
         help="LLM runs: candidate lookups in flight at once (only uncached ones hit LamAPI), alongside the "
         "LLM requests; LamAPI 429/5xx responses are retried with back-off. Crocodile/Alligator fetch "
         "candidates themselves, with their worker processes.",
@@ -245,19 +292,22 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
             })
         for d, s, m in combos:
             plan = get_plan(d, datasets_root, int(limit), int(lamapi_limit), force_gt, force_ids)
-            price = prices.models.get(m)
+            price = None if endpoint else prices.models.get(m)
             pinned = None
             latency = throughput = None
-            eps = get_endpoints(m)
-            if provider_mode == CHEAPEST:
-                best = eps.cheapest(700, 400 if price and price.reasoning else 10)
-                if best:
-                    pinned, latency, throughput = best.tag, best.latency_s, best.throughput_tps
-            policy = "pin" if pinned else ("routing" if provider_mode == CHEAPEST else POLICY[provider_mode])
-            _, route = provider_preferences(policy, pinned, eps, byok)
+            if endpoint:
+                policy, route = "routing", f"custom: {endpoint_host(endpoint)}"
+            else:
+                eps = get_endpoints(m)
+                if provider_mode == CHEAPEST:
+                    best = eps.cheapest(700, 400 if price and price.reasoning else 10)
+                    if best:
+                        pinned, latency, throughput = best.tag, best.latency_s, best.throughput_tps
+                policy = "pin" if pinned else ("routing" if provider_mode == CHEAPEST else POLICY[provider_mode])
+                _, route = provider_preferences(policy, pinned, eps, byok)
             spc, spc_src = seconds_per_call_for(
                 store, m, pinned, bool(price and price.reasoning), latency_s=latency, throughput_tps=throughput,
-                output_tokens=400 if price and price.reasoning else 10, dataset=d, schema=s,
+                output_tokens=400 if price and price.reasoning else 10, dataset=d, schema=s, endpoint=endpoint,
             )
             calls = plan["cells"] + plan["tables"]
             est = estimate_duration(
@@ -271,7 +321,7 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
                 "counts": "exact" if plan.get("exact", True) else "sampled",
                 "latency source": spc_src, "bottleneck": est.bottleneck, "duration": fmt_duration(est.seconds),
                 "_seconds": est.seconds, "_cfg": RunConfig(
-                    dataset=d, model=m, schema=s, provider=pinned, provider_policy=policy,
+                    dataset=d, model=m, schema=s, provider=pinned, provider_policy=policy, endpoint=endpoint,
                     limit=int(limit), lamapi_limit=int(lamapi_limit),
                     force_gt=force_gt, force_ids=list(force_ids), max_concurrency=int(concurrency),
                     max_rpm=int(max_rpm), lamapi_concurrency=int(lamapi_concurrency),
@@ -316,8 +366,8 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
                 "No worker for Crocodile/Alligator is running - those runs will wait. Start it with "
                 "`docker compose up -d linkers` (first build ~1.8 GB).", icon=":material/warning:",
             )
-        if use_llm and not os.getenv("OPENROUTER_API_KEY"):
-            st.error("OPENROUTER_API_KEY is not set in .env - runs would fail at once.")
+        if use_llm and not endpoint and not api_key_for(None):
+            st.error("No OpenRouter API key - save one on the **Endpoints** page, or runs fail at once.")
         if st.button(f"Queue {len(rows)} run(s)", type="primary", icon=":material/play_arrow:"):
             for r in rows:
                 cfg = r["_cfg"]
@@ -381,6 +431,8 @@ def active_card(run) -> None:
         byok_calls, shared = p.get("byok_calls", 0), p.get("shared_calls", 0)
         if not is_llm and p.get("provider_route"):
             st.caption(f":material/account_tree: {p['provider_route']}")
+        elif run.config.get("endpoint"):
+            st.caption(f":material/dns: {p.get('provider_route') or 'custom endpoint ' + run.config['endpoint']}")
         elif p.get("provider_route") or byok_calls or shared:
             share = f" · {byok_calls / (byok_calls + shared):.0%} of calls on your keys" if byok_calls + shared else ""
             warn = (

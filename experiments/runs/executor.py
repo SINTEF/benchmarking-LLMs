@@ -40,6 +40,7 @@ from experiments.cost.tasks import SPEC_TABLE_ID, TaskSet, load_taskset
 from experiments.forcing import load_gt_ids
 from experiments.runs.config import RunConfig
 from experiments.runs.limiter import RateLimiter
+from experiments.runs.endpoints import api_key_for
 from experiments.runs.llm import CallError, CallStats, FatalAPIError, OpenRouterClient
 from experiments.runs.metrics import gt_frame, score
 from experiments.runs.store import CANCELLED, CANCELLING, DONE, FAILED, RunStore
@@ -211,9 +212,9 @@ class RunExecutor:
         limiter = RateLimiter(cfg.max_concurrency, cfg.max_rpm)
         self._limiter = limiter
         llm = OpenRouterClient(
-            cfg.model, limiter, cfg.provider, self.api_key, cfg.max_retries, stats=self.stats,
+            cfg.model, limiter, cfg.provider, self.api_key or api_key_for(cfg.endpoint), cfg.max_retries, stats=self.stats,
             transport=self._llm_transport, provider_prefs=prefs,
-            require_byok=cfg.provider_policy == "byok",
+            require_byok=cfg.provider_policy == "byok", endpoint=cfg.endpoint,
         )
         in_q: asyncio.Queue = asyncio.Queue(maxsize=cfg.lamapi_concurrency * 4)
         ready_q: asyncio.Queue = asyncio.Queue(maxsize=cfg.max_concurrency * 4)
@@ -408,6 +409,10 @@ class RunExecutor:
         from experiments.cost.pricing import load_endpoints
         from experiments.runs.byok import known_byok_providers, provider_preferences, slug
 
+        if self.cfg.endpoint:
+            self.p.provider_route = f"custom endpoint {self.cfg.endpoint}"
+            logger.info("provider routing: %s", self.p.provider_route)
+            return None
         endpoints = None
         if self.cfg.provider_policy in ("byok", "byok_first"):
             endpoints = load_endpoints(self.cfg.model)
@@ -434,7 +439,7 @@ class RunExecutor:
             s = getattr(self, "_slug_of", {}).get(name) or slug(name)
             if s not in self.p.byok_providers:
                 self.p.byok_providers.append(s)
-        else:
+        elif not self.cfg.endpoint:  # a custom endpoint has no OpenRouter shared capacity
             self.p.shared_calls += 1
         self.p.input_tokens += res.prompt_tokens
         self.p.output_tokens += res.completion_tokens

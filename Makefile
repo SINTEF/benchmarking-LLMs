@@ -8,10 +8,11 @@ endif
 OUTPUT_DIR ?= outputs
 MODEL ?= openai/gpt-oss-120b
 PROVIDER ?= openrouter
+ENDPOINT ?=
 PROMPT_SCHEMA ?= base
 CONCURRENCY ?= 16
 MAX_RPM ?= 0
-LAMAPI_CONCURRENCY ?= 8
+LAMAPI_CONCURRENCY ?= 16
 NIL_THRESHOLD ?= 0.0
 FORCE_GT ?= 0
 FORCE_ID ?=
@@ -35,7 +36,8 @@ run-llm:
 		--prompt-schema $(PROMPT_SCHEMA) \
 		--max-concurrency $(CONCURRENCY) \
 		--max-rpm $(MAX_RPM) \
-		--lamapi-concurrency $(LAMAPI_CONCURRENCY)
+		--lamapi-concurrency $(LAMAPI_CONCURRENCY) \
+		$(if $(ENDPOINT),--endpoint "$(ENDPOINT)")
 
 # Needs the linkers image (tensorflow 2.18, Python <= 3.12) and MongoDB: runs in docker compose.
 run-crocodile:

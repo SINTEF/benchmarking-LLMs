@@ -95,6 +95,39 @@ def _find_cea_file(folder: Path) -> Path | None:
     return fallback[0] if fallback else None
 
 
+# Folders that only group datasets (e.g. "entity linking/") are searched this many levels deep.
+MAX_DATASET_DEPTH = 4
+# Split names that say nothing on their own: "WikidataTables2023R1/DataSets/Valid" -> "WikidataTables2023R1-Valid".
+_GENERIC_NAMES = {"datasets", "dataset", "data", "valid", "validation", "test", "train", "dev"}
+
+
+def _find_semtab_folders(root: Path, depth: int = 0) -> list[tuple[Path, Path]]:
+    """(folder, CEA file) for every SemTab dataset under ``root``, recursing into grouping folders."""
+    found: list[tuple[Path, Path]] = []
+    try:
+        folders = sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith("."))
+    except OSError:  # unreadable folder (permissions, macOS privacy protection): nothing to find there
+        return found
+    for folder in folders:
+        try:
+            cea = _find_cea_file(folder)
+        except OSError:
+            continue
+        if (folder / "tables").is_dir() and cea is not None:
+            found.append((folder, cea))
+        elif depth + 1 < MAX_DATASET_DEPTH and not (folder / "tables").is_dir():
+            found.extend(_find_semtab_folders(folder, depth + 1))
+    return found
+
+
+def _semtab_name(folder: Path, root: Path) -> str:
+    """The folder name, prefixed with the closest meaningful ancestor when it is generic ("Valid")."""
+    if folder.name.lower() not in _GENERIC_NAMES:
+        return folder.name
+    ancestors = [p for p in reversed(folder.relative_to(root).parts[:-1]) if p.lower() not in _GENERIC_NAMES]
+    return f"{ancestors[0]}-{folder.name}" if ancestors else folder.name
+
+
 def discover_sources(datasets_root: Path | None = None) -> list[DatasetSource]:
     sources: list[DatasetSource] = []
     for spec in list_specs().values():
@@ -112,20 +145,23 @@ def discover_sources(datasets_root: Path | None = None) -> list[DatasetSource]:
         )
     root = datasets_root if datasets_root is not None else default_datasets_root()
     if root and root.is_dir():
-        for folder in sorted(p for p in root.iterdir() if p.is_dir()):
-            cea = _find_cea_file(folder)
-            if (folder / "tables").is_dir() and cea is not None:
-                sources.append(
-                    DatasetSource(
-                        key=f"semtab:{folder.name}",
-                        name=folder.name,
-                        kind="semtab",
-                        description=f"SemTab CEA ({cea.relative_to(folder)})",
-                        target_kg="wikidata",
-                        tables_dir=folder / "tables",
-                        cea_path=cea,
-                    )
+        found = _find_semtab_folders(root)
+        names = [_semtab_name(folder, root) for folder, _ in found]
+        for (folder, cea), name in zip(found, names):
+            if names.count(name) > 1:
+                # Same name in two grouping folders: keep them apart instead of one hiding the other.
+                name = "-".join(folder.relative_to(root).parts)
+            sources.append(
+                DatasetSource(
+                    key=f"semtab:{name}",
+                    name=name,
+                    kind="semtab",
+                    description=f"SemTab CEA ({cea.relative_to(folder)})",
+                    target_kg="wikidata",
+                    tables_dir=folder / "tables",
+                    cea_path=cea,
                 )
+            )
     return sources
 
 

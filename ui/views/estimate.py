@@ -25,6 +25,7 @@ from experiments.cost.estimate import (
 )
 from experiments.cost.pricing import PriceBook, ProviderList, load_endpoints, load_prices, with_provider
 from experiments.cost.tasks import REPO_ROOT, datasets_root_problem, discover_sources, load_taskset
+from experiments.runs.endpoints import api_key_for
 from experiments.cost.tokens import get_counter
 from experiments.runs.byok import byok_tags, known_byok_providers, slug
 from experiments.runs.eta import estimate_duration, fmt_duration, seconds_per_call_for, seconds_per_lookup_for
@@ -260,7 +261,7 @@ with st.expander("2. Assumptions (defaults match the Runs page and `make run-llm
     )
     max_rpm = t2.number_input("Max LLM requests / min (0 = no cap)", min_value=0, value=0, step=60)
     lamapi_concurrency = t3.number_input(
-        "Parallel LamAPI requests", min_value=1, max_value=128, value=8,
+        "Parallel LamAPI requests", min_value=1, max_value=128, value=16,
         help="Same as the Runs page / --lamapi-concurrency. Only uncached lookups hit LamAPI.",
     )
 
@@ -431,7 +432,7 @@ st.caption(
     "The provider's usage report then gives the real prompt tokens, output tokens (incl. reasoning) "
     "and summary length, which replace the assumptions above."
 )
-api_key_set = bool(os.getenv("OPENROUTER_API_KEY"))
+api_key_set = bool(api_key_for(None))
 k1, k2 = st.columns([1, 2])
 with k1:
     n_cal_prompts = st.number_input("Real prompts per run", min_value=5, max_value=200, value=20, step=5)
@@ -449,7 +450,7 @@ with k2:
         disabled=not todo or not api_key_set,
     )
 if not api_key_set:
-    st.caption("Set OPENROUTER_API_KEY in .env to enable calibration.")
+    st.caption("Save an OpenRouter API key on the **Endpoints** page to enable calibration.")
 
 if clicked:
     clients = get_lamapi(int(lamapi_limit))

@@ -19,6 +19,8 @@ services:
     env_file: .env
     environment:
       DATASETS_ROOT: /datasets # container path; overrides the host path from .env
+    extra_hosts:
+      - host.docker.internal:host-gateway # reach an LLM server on the Docker host (built in on Docker Desktop)
     volumes:
       - .:/app # code, outputs/, data/lamapi_cache/, .cache/ live on the host
       - ${DATASETS_ROOT:-./data/external}:/datasets:ro
@@ -34,6 +36,8 @@ services:
     env_file: .env
     environment:
       DATASETS_ROOT: /datasets
+    extra_hosts:
+      - host.docker.internal:host-gateway
     volumes:
       - .:/app
       - ${DATASETS_ROOT:-./data/external}:/datasets:ro

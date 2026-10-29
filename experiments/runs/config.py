@@ -8,12 +8,13 @@ from typing import Any
 
 from experiments.common.hashing import stable_hash
 from experiments.cost.tasks import REPO_ROOT, DatasetSource, discover_sources
+from experiments.runs.llm import endpoint_host, normalize_endpoint
 
 SCHEMAS = ("base", "structured", "fewshot")
-METHODS = {"llm": "LLM (OpenRouter)", "crocodile": "Crocodile", "alligator": "Alligator"}
+METHODS = {"llm": "LLM", "crocodile": "Crocodile", "alligator": "Alligator"}
 LINKER_METHODS = ("crocodile", "alligator")  # classic linkers: own worker image (Dockerfile.linkers)
 # Fields that only matter to LLM runs; left out of a classic linker run's folder hash and label.
-LLM_FIELDS = {"model", "schema", "provider", "provider_policy", "max_concurrency", "max_rpm", "max_retries"}
+LLM_FIELDS = {"model", "schema", "provider", "provider_policy", "endpoint", "max_concurrency", "max_rpm", "max_retries"}
 
 # Fields that do not change the results: excluded from the run-directory hash so a resumed or
 # re-tuned run (other concurrency) keeps writing to the same folder.
@@ -23,18 +24,19 @@ SPEED_FIELDS = {"max_concurrency", "max_rpm", "lamapi_concurrency", "max_retries
 @dataclass
 class RunConfig:
     dataset: str  # DatasetSource key ("spec:mv", "semtab:HardTablesR2") or a spec name ("mv")
-    model: str = ""  # OpenRouter model id (LLM runs)
+    model: str = ""  # OpenRouter model id, or the model name the custom endpoint serves (LLM runs)
     method: str = "llm"  # llm | crocodile | alligator
     schema: str = "base"
     provider: str | None = None  # OpenRouter endpoint tag, used when provider_policy == "pin"
     provider_policy: str = "byok"  # byok | byok_first | routing | pin (see experiments/runs/byok.py)
+    endpoint: str | None = None  # OpenAI-compatible base URL (on-premise vLLM, Ollama...); None = OpenRouter
     limit: int = 0  # first N rows (spec) / cells (SemTab); 0 = all
     lamapi_limit: int = 10
     force_gt: bool = True  # put every GT id of the cell into its candidate list
     force_ids: list[str] = field(default_factory=list)  # extra ids forced into every candidate list
     max_concurrency: int = 16  # parallel LLM requests
     max_rpm: int = 0  # requests per minute cap; 0 = none
-    lamapi_concurrency: int = 8
+    lamapi_concurrency: int = 16
     linker_workers: int = 4  # Crocodile/Alligator worker processes per table
     bow: bool = True  # Crocodile: bag-of-words row/description similarity (ENTITY_BOW_ENDPOINT)
     max_retries: int = 6
@@ -51,6 +53,10 @@ class RunConfig:
             raise ValueError(f"Unknown prompt schema '{self.schema}'. Use one of {SCHEMAS}.")
         if self.max_concurrency < 1:
             raise ValueError("max_concurrency must be >= 1")
+        self.endpoint = normalize_endpoint(self.endpoint)
+        if self.endpoint:
+            # OpenRouter provider routing does not apply to a custom endpoint.
+            self.provider, self.provider_policy = None, "routing"
         if self.provider and self.provider_policy != "pin":
             self.provider_policy = "pin"
         if self.provider_policy not in ("byok", "byok_first", "routing", "pin"):
@@ -83,6 +89,8 @@ class RunConfig:
             del settings["method"]  # same folder as runs made before other methods existed
             if settings["provider_policy"] in ("routing", "pin"):
                 del settings["provider_policy"]  # same folder as runs made before policies existed
+            if not settings["endpoint"]:
+                del settings["endpoint"]  # OpenRouter: same folder as runs made before custom endpoints
         else:
             settings = {k: v for k, v in settings.items() if k not in LLM_FIELDS}
         if settings.get("method") != "crocodile" or not settings["bow"]:
@@ -103,5 +111,7 @@ class RunConfig:
         if self.method != "llm":
             bow = " + BoW" if self.method == "crocodile" and self.bow else ""
             return f"{name} · {METHODS[self.method]}{bow}"
+        if self.endpoint:
+            return f"{name} · {self.schema} · {self.model} @ {endpoint_host(self.endpoint)}"
         where = {"pin": f" @ {self.provider}", "byok": " @ BYOK", "byok_first": " @ BYOK first"}.get(self.provider_policy, "")
         return f"{name} · {self.schema} · {self.model}{where}"

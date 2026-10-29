@@ -1,9 +1,13 @@
-"""Async OpenRouter chat client with retries, 429 handling and usage/cost accounting."""
+"""Async chat client with retries, 429 handling and usage/cost accounting.
+
+Talks to OpenRouter by default, or to any OpenAI-compatible server (vLLM, Ollama, TGI, LM Studio...)
+given its base URL: ``<base>/chat/completions``, plain OpenAI request body, optional bearer key.
+Keys are passed in by the caller (see ``experiments.runs.endpoints``).
+"""
 
 from __future__ import annotations
 
 import asyncio
-import os
 import random
 import time
 from dataclasses import dataclass
@@ -74,6 +78,32 @@ def usage_cost(usage: dict[str, Any]) -> float | None:
     return cost
 
 
+def normalize_endpoint(endpoint: str | None) -> str | None:
+    """Base URL of an OpenAI-compatible API ("http://gpu01:8000/v1"), or None for OpenRouter."""
+    value = (endpoint or "").strip().rstrip("/")
+    if not value:
+        return None
+    if not value.startswith(("http://", "https://")):
+        value = f"http://{value}"
+    return value.removesuffix("/chat/completions")
+
+
+def chat_url(endpoint: str) -> str:
+    return f"{normalize_endpoint(endpoint)}/chat/completions"
+
+
+def endpoint_host(endpoint: str) -> str:
+    return httpx.URL(endpoint).netloc.decode()
+
+
+def list_endpoint_models(endpoint: str, api_key: str | None = None, timeout: float = 10.0) -> list[str]:
+    """Model ids an OpenAI-compatible server serves (``GET <base>/models``)."""
+    resp = httpx.get(f"{normalize_endpoint(endpoint)}/models", timeout=timeout,
+                     headers={"Authorization": f"Bearer {api_key}"} if api_key else {})
+    resp.raise_for_status()
+    return sorted(m["id"] for m in resp.json().get("data", []) if m.get("id"))
+
+
 def _backoff(attempt: int) -> float:
     return min(60.0, 2.0 ** attempt) * (0.5 + random.random() / 2)
 
@@ -92,6 +122,7 @@ class OpenRouterClient:
         transport: httpx.AsyncBaseTransport | None = None,
         provider_prefs: dict[str, Any] | None = None,
         require_byok: bool = False,
+        endpoint: str | None = None,
     ) -> None:
         self.model = model
         self.provider = provider
@@ -105,12 +136,16 @@ class OpenRouterClient:
         self.limiter = limiter
         self.max_retries = max_retries
         self.stats = stats or CallStats()
-        self.url = url
-        key = api_key or os.getenv("OPENROUTER_API_KEY")
-        if not key:
-            raise FatalAPIError("OPENROUTER_API_KEY is not set.")
+        # A custom OpenAI-compatible endpoint gets a plain OpenAI body: no OpenRouter routing or usage options.
+        self.openrouter = not endpoint
+        self.url = chat_url(endpoint) if endpoint else url
+        if self.openrouter and not api_key:
+            raise FatalAPIError("No OpenRouter API key: save one on the Endpoints page (or set OPENROUTER_API_KEY).")
+        headers = {"Authorization": f"Bearer {api_key}"} if api_key else {}
+        if self.openrouter:
+            headers["X-Title"] = "benchmarking-LLMs"
         self._client = httpx.AsyncClient(
-            headers={"Authorization": f"Bearer {key}", "X-Title": "benchmarking-LLMs"},
+            headers=headers,
             timeout=httpx.Timeout(timeout_s, connect=20.0),
             limits=httpx.Limits(max_connections=limiter.max_concurrency + 4),
             transport=transport,
@@ -121,11 +156,10 @@ class OpenRouterClient:
 
     def _body(self, prompt: str) -> dict[str, Any]:
         # One user message and no sampling parameters: the same request LionLinker makes.
-        body: dict[str, Any] = {
-            "model": self.model,
-            "messages": [{"role": "user", "content": prompt}],
-            "usage": {"include": True},
-        }
+        body: dict[str, Any] = {"model": self.model, "messages": [{"role": "user", "content": prompt}]}
+        if not self.openrouter:
+            return body
+        body["usage"] = {"include": True}
         if self.provider_prefs:
             body["provider"] = self.provider_prefs
         return body
@@ -202,15 +236,16 @@ class OpenRouterClient:
                 self.limiter.cooldown(_backoff(attempt))
                 continue
             details = usage.get("completion_tokens_details") or {}
+            message = choices[0].get("message") or {}
             return ChatResult(
-                text=(choices[0].get("message") or {}).get("content") or "",
+                text=message.get("content") or "",
                 prompt_tokens=int(usage.get("prompt_tokens") or 0),
                 completion_tokens=int(usage.get("completion_tokens") or 0),
                 reasoning_tokens=int(details.get("reasoning_tokens") or 0),
                 cost_usd=usage_cost(usage),
                 seconds=seconds,
                 attempts=attempt + 1,
-                provider=data.get("provider"),
+                provider=data.get("provider") if self.openrouter else endpoint_host(self.url),
                 is_byok=bool(usage.get("is_byok")),
             )
         raise CallError(f"gave up after {self.max_retries + 1} attempts: {last_error}")

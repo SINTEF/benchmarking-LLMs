@@ -56,7 +56,7 @@ def estimate_duration(
     tokens_per_call: float = 0.0,
     lookups_to_fetch: int = 0,
     seconds_per_lookup: float = DEFAULT_SECONDS_PER_LOOKUP,
-    lamapi_concurrency: int = 8,
+    lamapi_concurrency: int = 16,
     seconds_per_call_source: str = "assumed",
 ) -> DurationEstimate:
     limits = {"parallelism": max_concurrency / max(seconds_per_call, 1e-3)}
@@ -239,17 +239,18 @@ def effective_seconds_per_call(run) -> float | None:
 
 
 def measured_seconds_per_call(
-    store, model: str, dataset: str | None = None, schema: str | None = None
+    store, model: str, dataset: str | None = None, schema: str | None = None, endpoint: str | None = None
 ) -> tuple[float, list[str]] | None:
     """Cells-weighted effective seconds per call of earlier runs of this model that match.
 
-    ``dataset``/``schema`` = None means any. Returns (seconds, labels of the runs used).
+    ``dataset``/``schema`` = None means any. ``endpoint`` must match (None = OpenRouter): the same model
+    name on an on-premise server runs at another speed. Returns (seconds, labels of the runs used).
     """
     total = weight = 0.0
     used: list[str] = []
     for run in store.list(500):
         cfg = run.config
-        if cfg.get("method", "llm") != "llm" or cfg.get("model") != model:
+        if cfg.get("method", "llm") != "llm" or cfg.get("model") != model or cfg.get("endpoint") != endpoint:
             continue
         # "spec:mv" (queued from the console) and "mv" (command line) are the same dataset
         if dataset is not None and str(cfg.get("dataset", "")).split(":", 1)[-1] != dataset.split(":", 1)[-1]:
@@ -285,7 +286,7 @@ def seconds_per_lookup_for(store) -> tuple[float, str]:
 def seconds_per_call_for(
     store, model: str, provider: str | None, reasoning: bool, calibrated: float | None = None,
     latency_s: float | None = None, throughput_tps: float | None = None, output_tokens: float | None = None,
-    dataset: str | None = None, schema: str | None = None,
+    dataset: str | None = None, schema: str | None = None, endpoint: str | None = None,
 ) -> tuple[float, str]:
     """Effective seconds per call, best source first.
 
@@ -296,12 +297,13 @@ def seconds_per_call_for(
     4. OpenRouter provider stats or an assumption.
     """
     if store is not None and dataset:
-        same = measured_seconds_per_call(store, model, dataset, schema) or measured_seconds_per_call(store, model, dataset)
+        same = (measured_seconds_per_call(store, model, dataset, schema, endpoint)
+                or measured_seconds_per_call(store, model, dataset, endpoint=endpoint))
         if same:
             return same[0], f"measured: {len(same[1])} earlier run(s) of this model on this dataset"
     if calibrated:
         return calibrated, "calibration on this dataset (mean of a few calls; rare slow calls not covered)"
-    other = measured_seconds_per_call(store, model) if store is not None else None
+    other = measured_seconds_per_call(store, model, endpoint=endpoint) if store is not None else None
     if other:
         names = ", ".join(sorted(set(other[1])))
         return other[0], f"measured on other data ({names}) - may differ a lot here; calibrate for this dataset"

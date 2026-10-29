@@ -21,6 +21,7 @@ from experiments.common.logging import get_logger
 from experiments.cost.tasks import REPO_ROOT
 from experiments.runners.common import add_common_args
 from experiments.runs.config import SCHEMAS, RunConfig
+from experiments.runs.endpoints import resolve_endpoint_url
 from experiments.runs.executor import RunExecutor
 from experiments.runs.store import RunStore
 
@@ -38,6 +39,11 @@ def parse_args() -> argparse.Namespace:
     add_common_args(parser)
     parser.add_argument("--model", required=True, type=str)
     parser.add_argument("--provider", default="openrouter", choices=["openrouter"], help="LLM API (OpenRouter only)")
+    parser.add_argument(
+        "--endpoint", default=None,
+        help="saved endpoint name (Endpoints page) or OpenAI-compatible base URL, e.g. http://gpu01:8000/v1 "
+        "(default: OpenRouter); the key comes from --model-api-key or the saved endpoint",
+    )
     parser.add_argument("--pin-provider", default=None, help="OpenRouter endpoint tag to pin, e.g. groq")
     parser.add_argument(
         "--provider-policy", choices=["byok", "byok_first", "routing"], default="byok",
@@ -46,9 +52,9 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--prompt-schema", choices=SCHEMAS, default="base")
     parser.add_argument("--model-api-key", default=None, type=str)
-    parser.add_argument("--max-concurrency", type=int, default=16, help="parallel LLM (OpenRouter) requests")
+    parser.add_argument("--max-concurrency", type=int, default=16, help="parallel LLM requests")
     parser.add_argument("--max-rpm", type=int, default=0, help="LLM requests per minute cap (0 = none)")
-    parser.add_argument("--lamapi-concurrency", type=int, default=8, help="parallel LamAPI lookups")
+    parser.add_argument("--lamapi-concurrency", type=int, default=16, help="parallel LamAPI lookups")
     parser.add_argument(
         "--no-force-gt", action="store_true",
         help="do not force GT ids into the candidates (forced by default; --force-gt-candidate is implied)",
@@ -75,6 +81,7 @@ def main() -> None:
         schema=args.prompt_schema,
         provider=args.pin_provider,
         provider_policy="pin" if args.pin_provider else args.provider_policy,
+        endpoint=resolve_endpoint_url(args.endpoint),
         limit=args.max_rows,
         lamapi_limit=args.lamapi_limit,
         force_gt=not args.no_force_gt,

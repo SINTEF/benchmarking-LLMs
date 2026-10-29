@@ -15,6 +15,7 @@ import time
 from experiments.common.env import load_dotenv
 from experiments.cost.tasks import REPO_ROOT
 from experiments.runs.config import SCHEMAS, RunConfig
+from experiments.runs.endpoints import resolve_endpoint_url
 from experiments.runs.eta import fmt_duration, live_eta
 from experiments.runs.store import RunStore
 from experiments.runs.worker import run_worker
@@ -23,7 +24,10 @@ from experiments.runs.worker import run_worker
 def add_run_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--dataset", required=True, help="spec name (mv) or source key (semtab:HardTablesR2)")
     p.add_argument("--method", choices=["llm", "crocodile", "alligator"], default="llm")
-    p.add_argument("--model", default="", help="OpenRouter model id (LLM runs)")
+    p.add_argument("--model", default="", help="OpenRouter model id, or the custom endpoint's model name (LLM runs)")
+    p.add_argument("--endpoint", default=None,
+                   help="saved endpoint name (Endpoints page) or OpenAI-compatible base URL, e.g. "
+                   "http://gpu01:8000/v1 (default: OpenRouter); the key comes from the saved endpoint")
     p.add_argument("--linker-workers", type=int, default=4, help="Crocodile/Alligator worker processes")
     p.add_argument("--no-bow", action="store_true", help="Crocodile: no bag-of-words similarity feature")
     p.add_argument("--schema", choices=SCHEMAS, default="base")
@@ -34,9 +38,9 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
     p.add_argument("--lamapi-limit", type=int, default=10)
     p.add_argument("--no-force-gt", action="store_true", help="do NOT force the GT ids into the candidates")
     p.add_argument("--force-id", action="append", default=[], help="extra id forced into every candidate list")
-    p.add_argument("--concurrency", type=int, default=16, help="parallel LLM (OpenRouter) requests")
+    p.add_argument("--concurrency", type=int, default=16, help="parallel LLM requests")
     p.add_argument("--max-rpm", type=int, default=0, help="LLM requests/minute cap (0 = none)")
-    p.add_argument("--lamapi-concurrency", type=int, default=8, help="parallel LamAPI lookups")
+    p.add_argument("--lamapi-concurrency", type=int, default=16, help="parallel LamAPI lookups")
     p.add_argument("--output-dir", default="outputs")
     p.add_argument("--datasets-root", default=None)
 
@@ -44,7 +48,7 @@ def add_run_args(p: argparse.ArgumentParser) -> None:
 def config_from_args(a: argparse.Namespace) -> RunConfig:
     return RunConfig(
         dataset=a.dataset, model=a.model, method=a.method, linker_workers=a.linker_workers, bow=not a.no_bow,
-        schema=a.schema, provider=a.provider,
+        schema=a.schema, provider=a.provider, endpoint=resolve_endpoint_url(a.endpoint),
         provider_policy="pin" if a.provider else a.provider_policy, limit=a.limit,
         lamapi_limit=a.lamapi_limit, force_gt=not a.no_force_gt, force_ids=a.force_id,
         max_concurrency=a.concurrency, max_rpm=a.max_rpm, lamapi_concurrency=a.lamapi_concurrency,

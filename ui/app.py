@@ -19,5 +19,6 @@ pages = [
     st.Page("views/runs.py", title="Runs", icon=":material/monitoring:", default=True),
     st.Page("views/estimate.py", title="Estimate cost", icon=":material/calculate:"),
     st.Page("views/cache.py", title="Cache", icon=":material/database:"),
+    st.Page("views/endpoints.py", title="Endpoints", icon=":material/dns:"),
 ]
 st.navigation(pages).run()

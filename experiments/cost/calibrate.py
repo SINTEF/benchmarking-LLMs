@@ -11,7 +11,6 @@ and the summary length. Typical cost: a fraction of a cent.
 
 from __future__ import annotations
 
-import os
 import random
 import time
 from concurrent.futures import ThreadPoolExecutor
@@ -129,9 +128,11 @@ def calibrate(
     progress: Callable[[float, str], None] | None = None,
     force_gt: bool = True,
 ) -> Calibration:
-    key = api_key or os.getenv("OPENROUTER_API_KEY")
+    from experiments.runs.endpoints import api_key_for
+
+    key = api_key or api_key_for(None)
     if not key:
-        raise RuntimeError("OPENROUTER_API_KEY is not set.")
+        raise RuntimeError("No OpenRouter API key: save one on the Endpoints page (or set OPENROUTER_API_KEY).")
     src = taskset.source
     rng = random.Random(seed)
 

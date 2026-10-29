@@ -53,6 +53,8 @@ class FakeOpenRouter:
                  shared_first: int = 0):
         self.in_flight = self.peak = self.requests = 0
         self.bodies: list[dict] = []
+        self.urls: set[str] = set()
+        self.auth: set[str | None] = set()
         self.shared_first = shared_first  # first N answers come from shared capacity (is_byok false)
         self.fail_first_with = fail_first_with
         self.always = always
@@ -70,6 +72,8 @@ class FakeOpenRouter:
         self.in_flight -= 1
         body = json.loads(request.content)
         self.bodies.append(body)
+        self.urls.add(str(request.url))
+        self.auth.add(request.headers.get("authorization"))
         prompt = body["messages"][0]["content"]
         answer = "A table about movies." if "summary" in prompt.lower() and "ANSWER" not in prompt else "ANSWER:Q2"
         return httpx.Response(200, json={
@@ -130,11 +134,11 @@ class TestGtIds(unittest.TestCase):
 
 
 class TestExecutor(unittest.TestCase):
-    def _run(self, tmp, fake: FakeOpenRouter, store=None, run_id=None, **cfg):
+    def _run(self, tmp, fake: FakeOpenRouter, store=None, run_id=None, api_key="k", **cfg):
         cfg.setdefault("provider_policy", "routing")
         config = RunConfig(dataset="spec:test", model="m/x", limit=6, output_dir=tmp, max_concurrency=4, **cfg)
         lamapi = FakeLamapi()
-        ex = RunExecutor(config, store, run_id, api_key="k", lamapi_client=lamapi,
+        ex = RunExecutor(config, store, run_id, api_key=api_key, lamapi_client=lamapi,
                          llm_transport=fake.transport(), source=_source())
         return ex, ex.run(), lamapi
 
@@ -197,6 +201,45 @@ class TestExecutor(unittest.TestCase):
             self.assertEqual(manifest["status"], FAILED)
             self.assertIn("BYOK only", manifest["error"])
             self.assertEqual(fake.requests, 0)
+
+    def test_custom_endpoint(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict("os.environ", {"OPENROUTER_BYOK_PROVIDERS": ""}):
+            fake = FakeOpenRouter()
+            # "BYOK only" is ignored: OpenRouter routing does not apply to an on-premise server.
+            ex, manifest, _ = self._run(tmp, fake, provider_policy="byok", endpoint="gpu01:8000/v1/")
+            self.assertEqual(manifest["status"], DONE)
+            self.assertEqual(fake.urls, {"http://gpu01:8000/v1/chat/completions"})
+            # Plain OpenAI body: no OpenRouter "usage"/"provider" options.
+            self.assertTrue(all(set(b) == {"model", "messages"} for b in fake.bodies))
+            self.assertEqual(manifest["progress"]["providers"], {"gpu01:8000": fake.requests})
+            self.assertIn("custom endpoint", manifest["progress"]["provider_route"])
+            openrouter = RunConfig(dataset="spec:test", model="m/x", limit=6, output_dir=tmp, provider_policy="routing")
+            self.assertNotEqual(ex.run_dir, openrouter.run_dir(_source()))
+
+    def test_custom_endpoint_key_comes_from_saved_endpoints(self) -> None:
+        from experiments.runs.endpoints import save_endpoint
+
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.dict("os.environ", {"ENDPOINTS_FILE": f"{tmp}/secrets/endpoints.json"}):
+            save_endpoint("gpu", "http://gpu01:8000/v1", "secret-key")
+            fake = FakeOpenRouter()
+            ex, manifest, _ = self._run(tmp, fake, api_key=None, endpoint="http://gpu01:8000/v1")
+            self.assertEqual(manifest["status"], DONE)
+            self.assertEqual(fake.auth, {"Bearer secret-key"})
+            # The key is in no file of the run.
+            for f in ex.run_dir.rglob("*"):
+                if f.is_file():
+                    self.assertNotIn("secret-key", f.read_text(errors="ignore"), f.name)
+            # A server without a saved key gets no Authorization header.
+            fake2 = FakeOpenRouter()
+            self._run(tmp, fake2, api_key=None, endpoint="http://other:8000/v1")
+            self.assertEqual(fake2.auth, {None})
+
+    def test_custom_endpoint_config(self) -> None:
+        cfg = RunConfig(dataset="spec:mv", model="llama", endpoint="https://llm.example.org/v1/chat/completions")
+        self.assertEqual(cfg.endpoint, "https://llm.example.org/v1")
+        self.assertEqual(cfg.label(), "mv · base · llama @ llm.example.org")
+        self.assertIsNone(RunConfig(dataset="spec:mv", model="llama", endpoint="  ").endpoint)
 
     def test_bad_key_fails_fast(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -333,6 +376,18 @@ class TestDatasetsRoot(unittest.TestCase):
             self.assertIn("parent folder", datasets_root_problem(empty))
             with mock.patch.dict("os.environ", {"HOME": tmp}):
                 self.assertIsNone(datasets_root_problem("~"))  # "~" is expanded
+
+    def test_datasets_in_grouping_folders_are_found(self) -> None:
+        from experiments.cost.tasks import discover_sources
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for rel in ("entity linking/Round9", "entity linking/WD2023/DataSets/Valid"):
+                ds = Path(tmp, rel)
+                (ds / "tables").mkdir(parents=True)
+                (ds / "gt").mkdir()
+                (ds / "gt" / "cea.csv").write_text("T1,1,0,http://www.wikidata.org/entity/Q1\n")
+            names = sorted(s.name for s in discover_sources(Path(tmp)) if s.kind == "semtab")
+            self.assertEqual(names, ["Round9", "WD2023-Valid"])
 
 
 class TestLinkers(unittest.TestCase):
@@ -551,3 +606,44 @@ class TestDurationFromHistory(unittest.TestCase):
         self.assertAlmostEqual(eta["eta_low_s"], 2000 / (2500 / 1000), delta=5)
         short = live_eta(p, [{"t": now - 20, "done": 2490}, {"t": now, "done": 2500}])  # <1 min of ticks
         self.assertAlmostEqual(short["rate_per_s"], 2.5, places=2)  # falls back to the session average
+
+
+class TestEndpoints(unittest.TestCase):
+    def setUp(self) -> None:
+        self.tmp = tempfile.TemporaryDirectory()
+        self.path = Path(self.tmp.name, "secrets", "endpoints.json")
+        patcher = mock.patch.dict("os.environ", {"ENDPOINTS_FILE": str(self.path), "OPENROUTER_API_KEY": "env-key"})
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(self.tmp.cleanup)
+
+    def test_save_edit_delete(self) -> None:
+        from experiments.runs import endpoints as ep
+
+        self.assertEqual([e.name for e in ep.list_endpoints()], [ep.OPENROUTER])
+        ep.save_endpoint("gpu", "gpu01:8000/v1/", "k1")
+        self.assertEqual(self.path.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(ep.api_key_for("http://gpu01:8000/v1"), "k1")
+        self.assertEqual(ep.resolve_endpoint_url("gpu"), "http://gpu01:8000/v1")
+        # Empty key on edit keeps the saved one; renaming keeps it too.
+        ep.save_endpoint("gpu-2", "http://gpu01:8000/v1", "", old_name="gpu")
+        self.assertEqual([e.name for e in ep.list_endpoints()], [ep.OPENROUTER, "gpu-2"])
+        self.assertEqual(ep.api_key_for("http://gpu01:8000/v1"), "k1")
+        ep.save_endpoint("gpu-2", "http://gpu01:8000/v1", None, keep_key=False)
+        self.assertIsNone(ep.api_key_for("http://gpu01:8000/v1"))
+        with self.assertRaises(ValueError):
+            ep.save_endpoint("other", "http://gpu01:8000/v1")  # same URL twice
+        with self.assertRaises(ValueError):
+            ep.resolve_endpoint_url("unknown-name")
+        ep.delete_endpoint("gpu-2")
+        self.assertEqual(len(ep.list_endpoints()), 1)
+
+    def test_openrouter_key(self) -> None:
+        from experiments.runs import endpoints as ep
+
+        self.assertEqual(ep.api_key_for(None), "env-key")  # environment fallback
+        ep.set_openrouter_key("saved-key")
+        self.assertEqual(ep.api_key_for(None), "saved-key")
+        self.assertNotIn("saved-key", ep.key_source(ep.list_endpoints()[0]))
+        ep.set_openrouter_key(None)
+        self.assertEqual(ep.api_key_for(None), "env-key")

@@ -86,7 +86,7 @@ change are that fallback, not the linkers.
 
 ## Running and monitoring LLM runs
 
-The console (`make up` or `make ui`) has three pages:
+The console (`make up` or `make ui`) has four pages:
 
 - **Runs** - queue dataset × prompt × model runs with a duration estimate, then watch them live:
   progress, throughput, ETA, cost so far / projected, requests in flight, errors and 429s, and the
@@ -94,6 +94,7 @@ The console (`make up` or `make ui`) has three pages:
 - **Estimate cost** - tokens, USD and duration before running (see below).
 - **Cache** - size of the LamAPI / OpenRouter caches and run outputs, and how many of a dataset's
   LamAPI lookups are already cached.
+- **Endpoints** - OpenRouter and your own OpenAI-compatible servers, with their API keys (see below).
 
 Runs are executed by a **worker**, not by the console, so they survive browser refreshes and
 console restarts. `docker compose up -d` starts one; without Docker run `make worker` next to
@@ -110,7 +111,7 @@ python -m experiments.runs delete <id> ... [--outputs]   # remove from history (
 How a run works (`experiments/runs/executor.py`): prompts are built with LionLinker's own prompt
 generator (byte-identical, see `tests/test_cost_estimator.py`), but requests are sent in parallel
 (`--concurrency` LLM requests, optional `--max-rpm`; LamAPI lookups separately with
-`--lamapi-concurrency`, default 8, on their own thread and connection pool) instead of
+`--lamapi-concurrency`, default 16, on their own thread and connection pool) instead of
 LionLinker's one-at-a-time loop. A 429 pauses
 all requests (honouring `Retry-After`) before retrying; other transient errors are retried with
 backoff; failed cells are recorded as errors instead of silently becoming NIL. Every cell is
@@ -138,6 +139,26 @@ provider's shared capacity when your key is throttled, and no request option for
 with no known BYOK provider refuses to start. Discarded answers are still billed (shown as
 `shared_rejected_usd`); set the key to "Never use shared capacity" in OpenRouter so it answers
 429 instead.
+
+Endpoints and API keys (console **Endpoints** page): runs call OpenRouter or any OpenAI-compatible
+server you add there, e.g. an on-premise vLLM, Ollama, TGI or LM Studio: a name, a base URL up to
+`/v1` and an optional key, with a *Test* button. Keys are saved in `secrets/endpoints.json`
+(gitignored, owner-only; `ENDPOINTS_FILE` to move it), never in a run's settings, the run store or
+its output folder: a run records only the endpoint URL and the worker looks the key up when it
+starts. The OpenRouter key can be saved there too; `OPENROUTER_API_KEY` in the environment is only a
+fallback. On the Runs page pick the endpoint; a custom one lists its models from `<base>/models`
+(or you type them). Requests go to `<base>/chat/completions` with the same single-message body and
+none of the OpenRouter options (provider routing, usage accounting). Runs execute in the worker
+container, so a server on the Docker host is `http://host.docker.internal:<port>/v1`. Cost is
+reported as $0, and these runs get their own output folder and their own speed measurements,
+separate from the same model name on OpenRouter. On the command line `--endpoint` takes a saved
+endpoint's name or a URL.
+
+```bash
+python -m experiments.runs submit --dataset mv --model meta-llama/Llama-3.3-70B-Instruct \
+  --endpoint "SINTEF vLLM" --concurrency 64
+make run-llm MODEL=llama3.1:8b ENDPOINT=http://localhost:11434/v1   # Ollama, outside Docker
+```
 
 Duration estimate: throughput = min(parallel requests ÷ seconds per call, requests/min cap ÷ 60);
 uncached LamAPI lookups run alongside. "Seconds per call" is the *effective* time measured in

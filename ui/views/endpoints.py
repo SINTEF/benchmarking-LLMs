@@ -6,10 +6,10 @@ import httpx
 import streamlit as st
 
 from experiments.runs.endpoints import (
-    OPENROUTER_KEY_ENV, delete_endpoint, endpoints_path, key_source, list_endpoints, save_endpoint,
-    set_openrouter_key,
+    OPENROUTER_KEY_ENV, EndpointsFileError, api_key_for, delete_endpoint, endpoints_path, key_source,
+    list_endpoints, same_host, save_endpoint, set_openrouter_key,
 )
-from experiments.runs.llm import list_endpoint_models
+from experiments.runs.llm import list_endpoint_models, normalize_endpoint
 
 OPENROUTER_KEY_URL = "https://openrouter.ai/api/v1/key"
 
@@ -37,7 +37,12 @@ st.caption(
     "endpoint's URL and the worker looks the key up when the run starts. Keys are never shown again once saved."
 )
 
-endpoints = list_endpoints()
+try:
+    endpoints = list_endpoints()
+except EndpointsFileError as exc:
+    # Saving now would replace the file and lose every endpoint in it: fix or remove the file first.
+    st.error(f"{exc}. Fix or remove the file; nothing can be saved until then.", icon=":material/error:")
+    st.stop()
 openrouter, custom = endpoints[0], endpoints[1:]
 
 with st.container(border=True):
@@ -57,7 +62,7 @@ with st.container(border=True):
             st.rerun()
         st.warning("Paste a key first.")
     if tested:
-        test_connection(None, key.strip() or openrouter.api_key or None)
+        test_connection(None, key.strip() or api_key_for(None))
     if forget:
         set_openrouter_key(None)
         st.rerun()
@@ -77,10 +82,14 @@ for e in custom:
             key = st.text_input("API key", type="password", placeholder="leave empty to keep the saved key"
                                 if e.api_key else "none - leave empty if the server needs no key")
             drop_key = st.checkbox("Remove the saved key", disabled=not e.api_key)
+            if e.api_key:
+                st.caption("The saved key is dropped if the URL moves to another host; enter it again there.")
             c = st.container(horizontal=True)
             save = c.form_submit_button("Save", type="primary")
             tested = c.form_submit_button("Test")
             delete = c.form_submit_button("Delete")
+        # The saved key only ever goes to the host it was saved for.
+        saved_key = e.api_key if not drop_key and same_host(e.base_url, normalize_endpoint(url)) else None
         if save:
             try:
                 save_endpoint(name, url, None if drop_key else key, keep_key=not drop_key, old_name=e.name)
@@ -89,7 +98,7 @@ for e in custom:
             except ValueError as exc:
                 st.error(str(exc))
         if tested:
-            test_connection(url, key.strip() or (None if drop_key else e.api_key))
+            test_connection(url, key.strip() or saved_key)
         if delete:
             delete_endpoint(e.name)
             st.rerun()

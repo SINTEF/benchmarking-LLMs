@@ -104,8 +104,15 @@ _GENERIC_NAMES = {"datasets", "dataset", "data", "valid", "validation", "test", 
 def _find_semtab_folders(root: Path, depth: int = 0) -> list[tuple[Path, Path]]:
     """(folder, CEA file) for every SemTab dataset under ``root``, recursing into grouping folders."""
     found: list[tuple[Path, Path]] = []
-    for folder in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith(".")):
-        cea = _find_cea_file(folder)
+    try:
+        folders = sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswith("."))
+    except OSError:  # unreadable folder (permissions, macOS privacy protection): nothing to find there
+        return found
+    for folder in folders:
+        try:
+            cea = _find_cea_file(folder)
+        except OSError:
+            continue
         if (folder / "tables").is_dir() and cea is not None:
             found.append((folder, cea))
         elif depth + 1 < MAX_DATASET_DEPTH and not (folder / "tables").is_dir():
@@ -138,8 +145,12 @@ def discover_sources(datasets_root: Path | None = None) -> list[DatasetSource]:
         )
     root = datasets_root if datasets_root is not None else default_datasets_root()
     if root and root.is_dir():
-        for folder, cea in _find_semtab_folders(root):
-            name = _semtab_name(folder, root)
+        found = _find_semtab_folders(root)
+        names = [_semtab_name(folder, root) for folder, _ in found]
+        for (folder, cea), name in zip(found, names):
+            if names.count(name) > 1:
+                # Same name in two grouping folders: keep them apart instead of one hiding the other.
+                name = "-".join(folder.relative_to(root).parts)
             sources.append(
                 DatasetSource(
                     key=f"semtab:{name}",

@@ -212,6 +212,7 @@ class TestExecutor(unittest.TestCase):
             # Plain OpenAI body: no OpenRouter "usage"/"provider" options.
             self.assertTrue(all(set(b) == {"model", "messages"} for b in fake.bodies))
             self.assertEqual(manifest["progress"]["providers"], {"gpu01:8000": fake.requests})
+            self.assertEqual(manifest["progress"]["shared_calls"], 0)
             self.assertIn("custom endpoint", manifest["progress"]["provider_route"])
             openrouter = RunConfig(dataset="spec:test", model="m/x", limit=6, output_dir=tmp, provider_policy="routing")
             self.assertNotEqual(ex.run_dir, openrouter.run_dir(_source()))
@@ -376,6 +377,24 @@ class TestDatasetsRoot(unittest.TestCase):
             self.assertIn("parent folder", datasets_root_problem(empty))
             with mock.patch.dict("os.environ", {"HOME": tmp}):
                 self.assertIsNone(datasets_root_problem("~"))  # "~" is expanded
+
+    def test_same_name_in_two_groups_and_unreadable_folders(self) -> None:
+        from experiments.cost.tasks import discover_sources
+
+        with tempfile.TemporaryDirectory() as tmp:
+            for rel in ("entity linking/R9", "archive/R9"):
+                ds = Path(tmp, rel)
+                (ds / "tables").mkdir(parents=True)
+                (ds / "gt").mkdir()
+                (ds / "gt" / "cea.csv").write_text("T1,1,0,http://www.wikidata.org/entity/Q1\n")
+            locked = Path(tmp, "locked")
+            locked.mkdir()
+            locked.chmod(0)
+            try:
+                names = sorted(s.name for s in discover_sources(Path(tmp)) if s.kind == "semtab")
+            finally:
+                locked.chmod(0o700)
+            self.assertEqual(names, ["archive-R9", "entity linking-R9"])
 
     def test_datasets_in_grouping_folders_are_found(self) -> None:
         from experiments.cost.tasks import discover_sources
@@ -637,6 +656,26 @@ class TestEndpoints(unittest.TestCase):
             ep.resolve_endpoint_url("unknown-name")
         ep.delete_endpoint("gpu-2")
         self.assertEqual(len(ep.list_endpoints()), 1)
+
+    def test_key_never_follows_a_new_host(self) -> None:
+        from experiments.runs import endpoints as ep
+
+        ep.save_endpoint("gpu", "http://gpu01:8000/v1", "k1")
+        ep.save_endpoint("gpu", "http://gpu01:8000/v2", "")  # same host: key kept
+        self.assertEqual(ep.api_key_for("http://gpu01:8000/v2"), "k1")
+        ep.save_endpoint("gpu", "http://elsewhere:8000/v1", "")  # other host: key dropped
+        self.assertIsNone(ep.api_key_for("http://elsewhere:8000/v1"))
+
+    def test_unreadable_file_is_never_overwritten(self) -> None:
+        from experiments.runs import endpoints as ep
+
+        ep.save_endpoint("gpu", "http://gpu01:8000/v1", "k1")
+        self.path.write_text(self.path.read_text() + ",")  # broken by a hand edit
+        with self.assertRaises(ep.EndpointsFileError):
+            ep.save_endpoint("other", "http://other:8000/v1")
+        with self.assertRaises(ep.EndpointsFileError):
+            ep.api_key_for("http://gpu01:8000/v1")
+        self.assertIn('"k1"', self.path.read_text())
 
     def test_openrouter_key(self) -> None:
         from experiments.runs import endpoints as ep

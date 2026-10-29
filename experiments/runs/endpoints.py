@@ -14,7 +14,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from experiments.cost.tasks import REPO_ROOT
-from experiments.runs.llm import normalize_endpoint
+from experiments.runs.llm import endpoint_host, normalize_endpoint
 
 OPENROUTER = "OpenRouter"
 OPENROUTER_KEY_ENV = "OPENROUTER_API_KEY"
@@ -31,6 +31,10 @@ class Endpoint:
         return self.base_url is None
 
 
+class EndpointsFileError(RuntimeError):
+    """The endpoints file exists but cannot be read: never treated as empty, or a save would wipe it."""
+
+
 def endpoints_path() -> Path:
     value = os.getenv("ENDPOINTS_FILE")
     return Path(value).expanduser() if value else REPO_ROOT / "secrets" / "endpoints.json"
@@ -40,9 +44,11 @@ def _read() -> list[Endpoint]:
     path = endpoints_path()
     try:
         raw = json.loads(path.read_text())
-    except (OSError, json.JSONDecodeError):
+        return [Endpoint(e["name"], normalize_endpoint(e.get("base_url")), e.get("api_key") or None) for e in raw]
+    except FileNotFoundError:
         return []
-    return [Endpoint(e["name"], normalize_endpoint(e.get("base_url")), e.get("api_key") or None) for e in raw]
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise EndpointsFileError(f"Cannot read {path}: {type(exc).__name__}: {exc}") from exc
 
 
 def _write(endpoints: list[Endpoint]) -> None:
@@ -74,7 +80,11 @@ def get_endpoint(name_or_url: str | None) -> Endpoint | None:
 
 def save_endpoint(name: str, base_url: str | None, api_key: str | None = None, keep_key: bool = True,
                   old_name: str | None = None) -> Endpoint:
-    """Add or update a custom endpoint. With ``keep_key`` an empty ``api_key`` keeps the saved one."""
+    """Add or update a custom endpoint.
+
+    With ``keep_key`` an empty ``api_key`` keeps the saved one, but only while the host stays the same:
+    pointing an endpoint at another server must not send that server the old key.
+    """
     name = name.strip()
     base_url = normalize_endpoint(base_url)
     if not name:
@@ -87,10 +97,16 @@ def save_endpoint(name: str, base_url: str | None, api_key: str | None = None, k
         raise ValueError(f"An endpoint named '{name}' already exists.")
     if any(e.base_url == base_url and e is not previous for e in saved):
         raise ValueError(f"{base_url} is already saved under another name.")
-    key = (api_key or "").strip() or (previous.api_key if previous and keep_key else None)
+    key = (api_key or "").strip() or (
+        previous.api_key if previous and keep_key and same_host(previous.base_url, base_url) else None
+    )
     endpoint = Endpoint(name, base_url, key)
     _write([e for e in saved if e is not previous] + [endpoint])
     return endpoint
+
+
+def same_host(a: str | None, b: str | None) -> bool:
+    return bool(a and b) and endpoint_host(a) == endpoint_host(b)
 
 
 def set_openrouter_key(api_key: str | None) -> None:

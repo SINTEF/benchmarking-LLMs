@@ -439,7 +439,7 @@ class RunExecutor:
             s = getattr(self, "_slug_of", {}).get(name) or slug(name)
             if s not in self.p.byok_providers:
                 self.p.byok_providers.append(s)
-        else:
+        elif not self.cfg.endpoint:  # a custom endpoint has no OpenRouter shared capacity
             self.p.shared_calls += 1
         self.p.input_tokens += res.prompt_tokens
         self.p.output_tokens += res.completion_tokens

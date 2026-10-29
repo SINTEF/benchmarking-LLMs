@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import time
@@ -16,7 +17,7 @@ from experiments.cost.pricing import load_endpoints, load_prices
 from experiments.cost.tasks import datasets_root_problem, discover_sources, load_taskset
 from experiments.runs.config import LINKER_METHODS, METHODS, RunConfig
 from experiments.runs.byok import known_byok_providers, provider_preferences
-from experiments.runs.endpoints import api_key_for, key_source, list_endpoints
+from experiments.runs.endpoints import EndpointsFileError, api_key_for, key_source, list_endpoints
 from experiments.runs.llm import endpoint_host, list_endpoint_models
 from experiments.runs.metrics import run_metrics
 from experiments.runs.eta import (
@@ -58,9 +59,16 @@ def get_endpoints(model_id: str):
 
 
 @st.cache_data(ttl=60, show_spinner="Asking the endpoint which models it serves...")
+def _endpoint_models(endpoint: str, key_fingerprint: str) -> list[str]:
+    # Raises on failure, and st.cache_data does not cache exceptions: a server that comes up, or a key
+    # saved on the Endpoints page (new fingerprint), is picked up on the next rerun.
+    return list_endpoint_models(endpoint, api_key_for(endpoint))
+
+
 def get_endpoint_models(endpoint: str) -> tuple[list[str], str | None]:
+    key = api_key_for(endpoint) or ""
     try:
-        return list_endpoint_models(endpoint, api_key_for(endpoint)), None
+        return _endpoint_models(endpoint, hashlib.sha256(key.encode()).hexdigest()), None
     except Exception as exc:  # noqa: BLE001 - unreachable, no /models route, bad key...
         return [], f"{type(exc).__name__}: {exc}"
 
@@ -157,13 +165,19 @@ with st.expander("Queue new runs", icon=":material/add_circle:", expanded=not al
     schemas, models, provider_mode, byok, endpoint = [], [], BYOK_ONLY, set(), None
     if use_llm:
         st.markdown("**LLM**")
-        saved = list_endpoints()
+        try:
+            saved = {e.name: e for e in list_endpoints()}
+        except EndpointsFileError as exc:
+            st.error(f"{exc}. LLM runs are disabled until the file is fixed or removed.", icon=":material/error:")
+            use_llm = False
+    if use_llm:
         c1, c2, c3 = st.columns([2, 2, 3])
-        chosen = c1.selectbox(
-            "Endpoint", saved, format_func=lambda e: e.name,
+        # Options are names, not Endpoint objects: a changed key must not move the selection elsewhere.
+        chosen = saved[c1.selectbox(
+            "Endpoint", list(saved),
             help="OpenRouter, or one of your OpenAI-compatible servers (on-premise vLLM, Ollama, TGI...). "
             "Add endpoints and their keys on the **Endpoints** page.",
-        )
+        )]
         endpoint = chosen.base_url
         schemas = c2.multiselect("Prompt schemas", list(SCHEMAS), default=["base"], format_func=SCHEMAS.get)
         if endpoint:
